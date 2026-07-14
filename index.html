@@ -161,9 +161,9 @@ function normalizeConfig(raw){
       exists.employeeId=exists.employeeId||master.employeeId;
       exists.username=cleanLoginId(exists.username||master.username)||master.username;
       exists.password=exists.password||master.password;
-      exists.name=exists.name||master.name;
-      exists.email=exists.email||master.email;
-      exists.mobile=exists.mobile||master.mobile;
+      if(master.name)exists.name=master.name;
+      if(master.email)exists.email=master.email;
+      if(master.mobile)exists.mobile=master.mobile;
     }else normalizedEmployees.push(master);
   });
   return {
@@ -252,12 +252,10 @@ async function loginUser(e){
   if(!localMatch){showMsg('error','Invalid credential or password. Please check Portal Settings.');return shakeLogin()}
   const meta=roleMeta(loginMode);
   let firebaseResult=null;
-  if(loginMode==='admin'){
-    try{
-      if(!window.NexCRMFirebase||!window.NexCRMFirebase.activateConfiguredCredential)throw new Error('Firebase Authentication is not ready.');
-      firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,'admin',remember);
-    }catch(err){showMsg('error',(err&&err.message)||'Firebase admin login failed.');return shakeLogin()}
-  }
+  try{
+    if(!window.NexCRMFirebase||!window.NexCRMFirebase.activateConfiguredCredential)throw new Error('Firebase Authentication is not ready.');
+    firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,loginMode,remember);
+  }catch(err){showMsg('error',(err&&err.message)||'Firebase login failed.');return shakeLogin()}
   const session={user:(firebaseResult&&firebaseResult.email)||localMatch.email||localMatch.username,uid:(firebaseResult&&firebaseResult.user&&firebaseResult.user.uid)||'',email:(firebaseResult&&firebaseResult.email)||localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:!!firebaseResult};
   clearSession();
   (remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));

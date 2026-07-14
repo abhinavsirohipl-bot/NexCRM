@@ -5,7 +5,7 @@
     "roles": {
       "$uid": {
         ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'abhinav.sirohi@nexfund.in')",
-        ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+        ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || (auth.uid === $uid && newData.child('role').val() === 'employee' && newData.child('admin').val() === false))"
       }
     },
     "portal": {

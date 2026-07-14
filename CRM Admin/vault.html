@@ -557,6 +557,7 @@ body.vault-admin-shell .vault-fixed-header .manage-dropdown{
   body.vault-admin-shell .vault-fixed-header .theme-toggle{width:100%!important;max-width:none!important;flex:1 1 auto!important;}
 }
 </style>
+<link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
 </head><body class="sidebar-collapsed leads-admin-shell vault-admin-shell">
 <div class="app-layout" id="dashboardTop">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -809,7 +810,8 @@ function setupDrop(zoneId,inputId,cb){const z=document.getElementById(zoneId),in
 setupDrop('manualDrop','manualFiles',manualUpload);setupDrop('empDrop','empFiles',async(files)=>{const inp=document.getElementById('empFiles');const dt=new DataTransfer();[...files].forEach(f=>dt.items.add(f));inp.files=dt.files;await uploadEmployeeFiles(true)});
 function exportVaultBackup(){const data={exportedAt:new Date().toISOString(),employees};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='NexCRM-Employee-Vault-Backup.json';a.click()}
 refreshVault();
-</script><script src="../nexcrm-form-autosave.js"></script></body></html>
+</script><script src="../nexcrm-form-autosave.js"></script><script type="module" src="../assets/js/nexcrm-shell.js"></script>
+</body></html>
 
 
 

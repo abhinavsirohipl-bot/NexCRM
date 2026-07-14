@@ -1322,6 +1322,7 @@ body.ddr-admin-shell .ddr-hero{padding-bottom:26px!important;}
 @media(max-width:760px){.ddr-hero-summary,.ddr-kpi-grid,.ddr-form-grid,.ddr-summary-list{grid-template-columns:1fr}.ddr-field.wide{grid-column:auto}.ddr-panel-head{align-items:flex-start}.ddr-progress-row{grid-template-columns:1fr}.ddr-primary-btn,.ddr-soft-btn{width:100%}.ddr-actions{width:100%}body.ddr-admin-shell .ddr-admin-main{padding:12px 12px 34px!important}}
 @media print{.rail,.sidebar,.sidebar-backdrop,.topbar,.hero-actions,.ddr-actions,.ddr-primary-btn,.ddr-soft-btn,.remove{display:none!important}body.ddr-admin-shell .ddr-admin-main{margin-left:0!important;padding:0!important}.ddr-panel,.ddr-kpi-card,.live-admin-hero{box-shadow:none!important;break-inside:avoid}.ddr-table-wrap{max-height:none!important;overflow:visible!important}.ddr-table th,.ddr-table td{border:1px solid #777!important}}
 </style>
+<link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
 </head>
 <body class="sidebar-collapsed leads-admin-shell ddr-admin-shell">
 <div class="app-layout" id="dashboardTop">
@@ -1687,5 +1688,6 @@ function logoutUser(message){try{localStorage.removeItem('nexcrm_session');local
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncFromCostingAndMIS()});
 })();
 </script>
+<script type="module" src="../assets/js/nexcrm-shell.js"></script>
 </body>
 </html>

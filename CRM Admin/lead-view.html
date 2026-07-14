@@ -899,7 +899,8 @@ body.leadview-admin-shell .action-btn,body.leadview-admin-shell .mini-btn.gold{b
 @media(max-width:1320px){body.leadview-admin-shell .lead-view-hero-panel{grid-template-columns:1fr!important;}body.leadview-admin-shell .lead-view-hero-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
 @media(max-width:760px){body.leadview-admin-shell .lead-view-hero-summary{grid-template-columns:1fr!important;}}
 
-</style></head>
+</style><link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
+</head>
 <body class="sidebar-collapsed leads-admin-shell leadview-admin-shell">
 <div class="app-layout" id="dashboardTop"><div class="sidebar-backdrop" id="sidebarBackdrop"></div><nav aria-label="NexCRM quick rail" class="rail">
 <button class="dp-mini profile-open-trigger" id="sidebarProfileDp" title="Open Profile" type="button"><img alt="Profile DP" id="sidebarDpImg"/><span id="sidebarDpInitials">AD</span></button>
@@ -1238,7 +1239,7 @@ function softDeletedSet(){return readKeySet(SOFT_DELETE_KEY)}
 function permanentDeletedSet(){return readKeySet(PERMANENT_DELETE_KEY)}
 function isSoftDeleted(lead){return softDeletedSet().has(leadKey(lead))}
 function isPermanentDeleted(lead){return permanentDeletedSet().has(leadKey(lead))}
-function activeLeads(){return allLeads.filter(l=>!isSoftDeleted(l)&&!isPermanentDeleted(l))}
+function activeLeads(){const rows=allLeads.filter(l=>!isSoftDeleted(l)&&!isPermanentDeleted(l));return window.NexCRMAccess?window.NexCRMAccess.filterRows(rows):rows}
 function deletedLeads(){const hard=permanentDeletedSet();const soft=softDeletedSet();return allLeads.filter(l=>soft.has(leadKey(l))&&!hard.has(leadKey(l)))}
 function getColumnValue(lead,key){
   if(!lead)return '';
@@ -1453,7 +1454,7 @@ function renderLeads(){
   renderLeadRows(rows);
 }
 async function loadAllLeads(manual=false){
-  if(!isAdminSession()){location.replace('../index.html');return}
+  if(!readSession()){location.replace('../index.html');return}
   $('loadStatus').textContent='Loading Firebase and Sheet leads...';
   const [local,firestore,sheet]=await Promise.all([Promise.resolve(readLocalLeads()),readFirestoreLeads(),readSheetLeads()]);
   allLeads=mergeLeads([local,firestore,sheet]).sort((a,b)=>Date.parse(b.updatedAt||0)-Date.parse(a.updatedAt||0));
@@ -1595,5 +1596,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.addEventListener('load',syncHeroStats);
   setTimeout(syncHeroStats,400);
 })();
-</script></body>
+</script><script type="module" src="../assets/js/nexcrm-shell.js"></script>
+</body>
 </html>

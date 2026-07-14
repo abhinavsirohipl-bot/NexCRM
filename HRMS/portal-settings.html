@@ -282,7 +282,8 @@ body.eligibility-admin-shell .panel,body.eligibility-admin-shell .stat{border-co
 body.eligibility-admin-shell .title-icon,body.eligibility-admin-shell .stat i{background:linear-gradient(145deg,#0a0d14,#d7a839)!important}
 body.eligibility-admin-shell .floating-top{display:none!important}
 @media(max-width:1380px){body.eligibility-admin-shell .grid-shell{grid-template-columns:1fr!important}}
-</style></head><body class="sidebar-collapsed leads-admin-shell od-admin-shell portal-settings-admin-shell"><div class="app-layout" id="dashboardTop"><div class="sidebar-backdrop" id="sidebarBackdrop"></div><nav aria-label="NexCRM quick rail" class="rail">
+</style><link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
+</head><body class="sidebar-collapsed leads-admin-shell od-admin-shell portal-settings-admin-shell"><div class="app-layout" id="dashboardTop"><div class="sidebar-backdrop" id="sidebarBackdrop"></div><nav aria-label="NexCRM quick rail" class="rail">
 <button class="dp-mini profile-open-trigger" id="sidebarProfileDp" title="Open Profile" type="button"><img alt="Profile DP" id="sidebarDpImg"/><span id="sidebarDpInitials">AD</span></button>
 <button class="rail-btn" id="sidebarRailToggle" title="Open / Close Sidebar" type="button"><i class="fa-solid fa-bars-staggered"></i></button>
 <button class="rail-btn" data-dashboard-back="" title="Back to Dashboard" type="button"><i class="fa-solid fa-house"></i></button>
@@ -911,4 +912,5 @@ renderStatusProductBank();
   Storage.prototype.setItem=function(k,v){nativeSet.call(this,k,v); if(this===localStorage&&ready&&!remoteApplying&&SYNC_KEYS.includes(k)&&db){clearTimeout(timer); timer=setTimeout(()=>db.ref(ROOT+'/'+safeKey(k)).set(v).catch(e=>console.warn('RTDB sync failed',e)),180);}};
   window.addEventListener('load',init,{once:true});
 })();
-</script></body></html>
+</script><script type="module" src="../assets/js/nexcrm-shell.js"></script>
+</body></html>

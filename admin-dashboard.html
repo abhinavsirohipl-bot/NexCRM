@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html data-nexcrm-native-shell="true" lang="en">
 <head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="Others Files/nexcrm-realtime-database.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -588,6 +588,7 @@ body.dark .logout{
 }
 </style>
 
+<link rel="stylesheet" href="assets/css/nexcrm-shell.css">
 </head>
 <body class="sidebar-collapsed">
 <div class="app-layout" id="dashboardTop">
@@ -1146,6 +1147,7 @@ function renderDashboard(){
 <!-- NexCRM Employee Portal Hard Open Fix: forced click navigation with CRM Agent/root path fallback. -->
 
 <!-- NexCRM Policy Logo Path Fix: exact bank images loaded from CRM Agent/Policy/Bank Images with multi-level fallbacks. -->
+<script type="module" src="assets/js/nexcrm-shell.js"></script>
 </body>
 </html>
 

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NexCRM Local Data Backup</title>
+  <style>
+    :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#eef3f9}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:28px;background:radial-gradient(circle at top right,#fff5cf,transparent 34%),#eef3f9}
+    main{max-width:920px;margin:auto;background:#fff;border:1px solid #dce5f0;border-radius:28px;box-shadow:0 24px 70px rgba(15,23,42,.12);overflow:hidden}
+    header{padding:28px 32px;background:linear-gradient(135deg,#111827,#253655 62%,#a77a1c);color:#fff}
+    h1{margin:0 0 8px;font-size:28px}header p{margin:0;color:#d8e1ef;line-height:1.55}
+    section{padding:26px 32px}.notice{padding:14px 16px;border:1px solid #f1d591;background:#fff9e8;border-radius:15px;color:#694b0e;font-weight:700;line-height:1.55}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.card{padding:16px;border:1px solid #dce5f0;border-radius:16px;background:#f8fafc}.card b{display:block;font-size:22px}.card span{font-size:12px;color:#64748b;font-weight:700}
+    button{width:100%;border:0;border-radius:16px;padding:16px 20px;background:linear-gradient(135deg,#2563eb,#6d28d9);color:#fff;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 14px 28px rgba(37,99,235,.22)}button:disabled{opacity:.55;cursor:wait}
+    pre{min-height:160px;max-height:340px;overflow:auto;white-space:pre-wrap;padding:16px;border-radius:16px;background:#0f172a;color:#dbeafe;font:12px/1.55 Consolas,monospace}
+    .ok{color:#047857}.bad{color:#b91c1c}.small{color:#64748b;font-size:12px;line-height:1.55}
+    @media(max-width:650px){body{padding:10px}.grid{grid-template-columns:1fr}header,section{padding:22px}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>NexCRM Complete Local Backup</h1>
+    <p>This page only reads browser data and creates a JSON backup. It never clears, resets, imports, or overwrites NexCRM records.</p>
+  </header>
+  <section>
+    <div class="notice">Keep Wi-Fi OFF while creating this backup. Open this page from the same address where your data was used: <b>http://127.0.0.1:5500/nexcrm-local-backup.html</b></div>
+    <div class="grid">
+      <div class="card"><b id="localCount">—</b><span>Local Storage Keys</span></div>
+      <div class="card"><b id="dbCount">—</b><span>IndexedDB Databases</span></div>
+      <div class="card"><b id="datasetCount">—</b><span>Recognized NexCRM Datasets</span></div>
+    </div>
+    <button id="backupButton" type="button">Create &amp; Download Complete Backup</button>
+    <p class="small">The generated file includes HRMS, leads, MIS, detailsheets, obligations, portal configuration, profiles, dashboard stats, activity logs, shared keys, and every other storage item currently recoverable from this localhost origin.</p>
+    <pre id="log">Ready. No browser data has been changed.</pre>
+  </section>
+</main>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const logLines=[];
+  const write=message=>{logLines.push(message);$('log').textContent=logLines.join('\n');};
+  const safeParse=value=>{try{return JSON.parse(value)}catch(e){return value}};
+  const allStorage=storage=>{const out={};for(let i=0;i<storage.length;i++){const key=storage.key(i);out[key]=storage.getItem(key)}return out};
+  const DATASET_KEYS={
+    hrms:['nexcrm_admin_employees_v1','nexcrm_employee_master_final_custom','nexcrm_employee_master_v1','nexcrm_attendance_records_v1','nexcrm_attendance_premium_previous_theme_v2','nexcrm_joining_forms_v1','nexcrm_offer_letters_v1','nexcrm_payslips_v1','nexcrm_employee_costing_entries_v4','nexcrm_ddr_mdr_v1','nexcrm_vault_v1','nexcrm_pending_leaves','nexcrm_deleted_employee_details'],
+    leads:['nexcrmLeads','nexcrm_sheet_leads','nexcrm_leads','crm_leads'],
+    mis:['nexcrm_mis_cases'],
+    detailsheets:['nexcrmDetailsheets','nexcrm_detailsheets'],
+    obligations:['nexcrmObligations','nexcrm_obligations'],
+    portal:['nexcrm_login_config_v1','nexcrm_dropdown_manager_v1','nexcrm_status_values','nexcrm_product_names','nexcrm_bank_names'],
+    profiles:['nexcrm_profile_details','nexcrm_profile_dp','nexcrm_admin_profile_v1','nexcrm_admin_dp','nexcrm_admin_name','nexcrm_employee_master_profile_cache','nexcrm_employee_profiles_v1'],
+    dashboardStats:['nexcrm_dashboard_stats'],
+    activityLogs:['nexcrm_activity_logs'],
+    shared:[]
+  };
+  function recognizedDatasets(raw){
+    const result={};let found=0;
+    Object.entries(DATASET_KEYS).forEach(([group,keys])=>{
+      result[group]={};
+      keys.forEach(key=>{if(Object.prototype.hasOwnProperty.call(raw,key)){result[group][key]=safeParse(raw[key]);found++}});
+    });
+    result.shared={};
+    Object.keys(raw).filter(key=>/^nexcrm[_-]|^nexfund_|^nexhrms_|^hrms_/i.test(key)).forEach(key=>{
+      if(!Object.values(DATASET_KEYS).flat().includes(key))result.shared[key]=safeParse(raw[key]);
+    });
+    return {result,found};
+  }
+  const requestResult=request=>new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('IndexedDB request failed'))});
+  async function dumpStore(db,name){
+    return new Promise((resolve,reject)=>{
+      const rows=[];let transaction;
+      try{transaction=db.transaction(name,'readonly')}catch(e){reject(e);return}
+      const store=transaction.objectStore(name);const request=store.openCursor();
+      request.onsuccess=event=>{const cursor=event.target.result;if(!cursor)return;rows.push({key:cursor.key,value:cursor.value});cursor.continue()};
+      request.onerror=()=>reject(request.error||new Error('Cannot read '+name));
+      transaction.oncomplete=()=>resolve(rows);transaction.onerror=()=>reject(transaction.error||new Error('Transaction failed: '+name));
+    });
+  }
+  async function dumpIndexedDB(){
+    if(!indexedDB.databases){write('IndexedDB database listing is not supported by this Chrome version.');return {}}
+    const infos=await indexedDB.databases();const output={};
+    for(const info of infos){
+      if(!info.name)continue;
+      write('Reading IndexedDB: '+info.name);
+      try{
+        const db=await requestResult(indexedDB.open(info.name));const stores={};
+        for(const name of Array.from(db.objectStoreNames)){
+          try{stores[name]=await dumpStore(db,name)}catch(e){stores[name]={error:String(e&&e.message||e)}}
+        }
+        output[info.name]={version:db.version,stores};db.close();
+      }catch(e){output[info.name]={error:String(e&&e.message||e)}}
+    }
+    return output;
+  }
+  async function dumpCaches(){
+    if(!window.caches)return {};
+    const output={};
+    for(const name of await caches.keys()){
+      const cache=await caches.open(name);const requests=await cache.keys();output[name]=requests.map(r=>({url:r.url,method:r.method,mode:r.mode,credentials:r.credentials}));
+    }
+    return output;
+  }
+  function jsonReplacer(key,value){
+    if(typeof value==='bigint')return {type:'BigInt',value:String(value)};
+    if(value instanceof Date)return {type:'Date',value:value.toISOString()};
+    if(value instanceof ArrayBuffer)return {type:'ArrayBuffer',bytes:Array.from(new Uint8Array(value))};
+    if(ArrayBuffer.isView(value))return {type:value.constructor.name,bytes:Array.from(new Uint8Array(value.buffer,value.byteOffset,value.byteLength))};
+    if(value instanceof Blob)return {type:'Blob',size:value.size,mime:value.type};
+    return value;
+  }
+  function download(payload){
+    const json=JSON.stringify(payload,jsonReplacer,2);const blob=new Blob([json],{type:'application/json'});const link=document.createElement('a');
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-');link.href=URL.createObjectURL(blob);link.download='nexcrm-complete-local-backup-'+stamp+'.json';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(link.href),30000);return blob.size;
+  }
+  async function refreshCounts(){
+    const local=allStorage(localStorage);$('localCount').textContent=Object.keys(local).length;
+    try{$('dbCount').textContent=indexedDB.databases?(await indexedDB.databases()).length:'N/A'}catch(e){$('dbCount').textContent='N/A'}
+    $('datasetCount').textContent=recognizedDatasets(local).found;
+  }
+  $('backupButton').addEventListener('click',async()=>{
+    const button=$('backupButton');button.disabled=true;logLines.length=0;
+    try{
+      write('Starting read-only NexCRM backup...');
+      const localRaw=allStorage(localStorage);const sessionRaw=allStorage(sessionStorage);const datasets=recognizedDatasets(localRaw);
+      write('Local Storage keys found: '+Object.keys(localRaw).length);write('Recognized dataset keys found: '+datasets.found);
+      const indexedDBData=await dumpIndexedDB();const cacheData=await dumpCaches();
+      const payload={format:'NexCRM Complete Local Backup',version:1,createdAt:new Date().toISOString(),origin:location.origin,page:location.href,userAgent:navigator.userAgent,datasets:datasets.result,localStorageRaw:localRaw,localStorageParsed:Object.fromEntries(Object.entries(localRaw).map(([k,v])=>[k,safeParse(v)])),sessionStorageRaw:sessionRaw,indexedDB:indexedDBData,cacheStorageIndex:cacheData};
+      const bytes=download(payload);write('BACKUP COMPLETE');write('Downloaded size: '+(bytes/1024).toFixed(1)+' KB');write('Keep this JSON file in two safe locations.');
+    }catch(e){write('BACKUP ERROR: '+String(e&&e.message||e));write('Do not clear browser storage. Take a screenshot of this error.');}
+    finally{button.disabled=false;refreshCounts()}
+  });
+  refreshCounts();
+})();
+</script>
+</body>
+</html>

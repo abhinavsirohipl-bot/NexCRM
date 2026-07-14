@@ -1369,6 +1369,7 @@ body.detailsheet-shell .toast.show{display:block;animation:pop .25s ease;}
 
 <script src="../nexcrm-apps-script-bridge.js"></script>
 <link rel="stylesheet" href="../nexcrm-mobile-compact.css" />
+<link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
 </head>
 <body class="sidebar-collapsed leads-admin-shell detailsheet-shell">
 
@@ -1584,8 +1585,8 @@ function setVisible(id,show){const el=document.getElementById(id);if(el)el.class
 function cleanMobile(id){const el=document.getElementById(id);if(!el)return;el.value=el.value.replace(/\D/g,'').slice(0,10)}
 function cleanAccount(){const el=document.getElementById('accountNumber');if(el)el.value=el.value.replace(/\D/g,'')}
 function makeReference(){const now=new Date();return 'DS-'+String(now.getFullYear()).slice(2)+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
-function collectDetailSheet(){return {
-  referenceNo:formValue('referenceNo')||makeReference(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+function collectDetailSheet(){const nx=window.NexCRMAccess?window.NexCRMAccess.getProfile():{};return {
+  referenceNo:formValue('referenceNo')||makeReference(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),employeeId:nx.employeeId||'',employeeName:nx.name||'',employeeEmail:nx.email||'',
   customerName:formValue('customerName'),contactNumber:formValue('contactNumber'),gender:checkedValue('gender'),panNumber:formValue('panNumber'),dob:formValue('dob'),aadhaarNumber:formValue('aadhaarNumber'),personalEmail:formValue('personalEmail'),education:formValue('education'),educationSpecify:formValue('educationSpecify'),
   residenceType:formValue('residenceType'),residenceOther:formValue('residenceOther'),currentAddress:formValue('currentAddress'),residenceDuration:formValue('residenceDuration'),permanentAddressType:checkedValue('permanentAddress'),permanentAddress:formValue('permanentAddressText'),
   fatherName:formValue('fatherName'),motherName:formValue('motherName'),maritalStatus:formValue('maritalStatus'),maritalOther:formValue('maritalOther'),spouseName:formValue('spouseName'),spouseDob:formValue('spouseDob'),
@@ -1600,7 +1601,7 @@ function saveArray(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
 function activity(message,type){const rows=readArray('nexcrm_activity_logs');rows.push({module:'Detailsheet',type:type||'create',message,createdAt:new Date().toISOString()});saveArray('nexcrm_activity_logs',rows.slice(-300))}
 async function submitDetailSheet(){const data=collectDetailSheet();if(!validateDetailSheet(data))return;document.getElementById('referenceNo').value=data.referenceNo;const rows=readArray('nexcrmDetailsheets');const idx=rows.findIndex(r=>r.referenceNo===data.referenceNo);if(idx>=0){rows[idx]={...rows[idx],...data,updatedAt:new Date().toISOString()}}else{rows.push(data)}saveArray('nexcrmDetailsheets',rows);saveArray('nexcrm_detailsheets',rows);activity('Customer detail sheet submitted: '+data.referenceNo,'submit');if(window.NexCRMFirebase&&NexCRMFirebase.migrateLocalStorageToRealtime){try{await NexCRMFirebase.migrateLocalStorageToRealtime()}catch(e){console.warn(e)}}toast('Detail Sheet saved successfully: '+data.referenceNo);renderMiniStats();}
 function clearForm(){document.getElementById('detailSheetForm').reset();document.getElementById('referenceNo').value=makeReference();renderMiniStats();toast('Form reset completed.');}
-function renderMiniStats(){const rows=readArray('nexcrmDetailsheets');document.getElementById('detailCount').textContent=rows.length;document.getElementById('latestRef').textContent=rows.length?(rows[rows.length-1].referenceNo||'-'):'-'}
+function renderMiniStats(){let rows=readArray('nexcrmDetailsheets');if(window.NexCRMAccess)rows=window.NexCRMAccess.filterRows(rows);document.getElementById('detailCount').textContent=rows.length;document.getElementById('latestRef').textContent=rows.length?(rows[rows.length-1].referenceNo||'-'):'-'}
 function fillSessionUser(){try{const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'{}');document.getElementById('loggedUser').textContent=s.displayName||s.name||s.employeeName||'Abhinav Sirohi'}catch(e){}}
 function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('nexcrmTheme',document.body.classList.contains('dark')?'dark':'light')}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.classList.remove('show'),3200)}
@@ -1683,5 +1684,6 @@ window.addEventListener('nexcrm:data-updated',renderMiniStats);
 </script>
 
 <script src="../nexcrm-form-autosave.js"></script>
+<script type="module" src="../assets/js/nexcrm-shell.js"></script>
 </body>
 </html>

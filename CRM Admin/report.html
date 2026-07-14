@@ -187,6 +187,7 @@ tr:hover td{background:rgba(215,168,57,.06)}.empty{text-align:center;color:var(-
 @media(max-width:620px){.top-actions{flex-direction:column}.top-actions>*{width:100%}.logout-header,.icon-btn.back-dashboard{width:100%;max-width:none}.rail{width:64px}.main,.sidebar-open .main{margin-left:64px}.sidebar{left:64px}.dp-mini{width:48px;height:48px;min-width:48px}.rail-btn{width:44px;height:44px;min-width:44px}.brand-logo{width:48px;height:48px;min-width:48px}.live-admin-hero h2{font-size:31px}.hero-actions{display:none}.report-stats-grid{grid-template-columns:1fr}}
 @media print{.rail,.sidebar,.sidebar-backdrop,.topbar,.live-admin-hero,.report-stats-grid,.panel-head .report-toolbar,.toast{display:none!important}.main,body:not(.sidebar-collapsed) .main{margin:0!important;padding:0!important}body{background:#fff!important}.panel{box-shadow:none;border:1px solid #ddd}}
 </style>
+<link rel="stylesheet" href="../assets/css/nexcrm-shell.css">
 </head>
 <body class="sidebar-collapsed leads-admin-shell">
 <div class="app-layout" id="dashboardTop">
@@ -541,5 +542,6 @@ hydrate();window.addEventListener('nexcrm:data-updated',render);
   applyProfile();
 })();
 </script>
+<script type="module" src="../assets/js/nexcrm-shell.js"></script>
 </body>
 </html>

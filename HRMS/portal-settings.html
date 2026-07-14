@@ -560,12 +560,11 @@ function syncEmployeeCredentialsFromMaster(){
   toast(added?`${added} employee ID credentials added`:'All Employee ID credentials already exist');
 }
 function collectNexcrmLocalStorage(){
-  const prefixes=['nexcrm_','nexfund_','hrms_'];
   const result={};
   for(let i=0;i<localStorage.length;i++){
     const key=localStorage.key(i);
     if(!key)continue;
-    if(prefixes.some(prefix=>key.startsWith(prefix))){
+    if(window.NexCRMFirebase&&window.NexCRMFirebase.isSyncKey&&window.NexCRMFirebase.isSyncKey(key)){
       result[key]=localStorage.getItem(key);
     }
   }
@@ -620,8 +619,22 @@ function importNexcrmData(){
 }
 async function uploadLocalDataToFirestore(){
   if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}
-  if(!confirm('Upload this browser local NexCRM data to Firestore as source data?'))return;
-  try{const count=await window.NexCRMFirebase.migrateLocalStorageToFirestore();toast(`${count} keys uploaded to Firestore`)}catch(e){alert(e.message||'Firestore migration failed')}
+  const snapshot=collectNexcrmLocalStorage();
+  const count=Object.keys(snapshot).length;
+  if(!count){toast('No recognized NexCRM business data found');return}
+  if(!confirm(`Back up and upload ${count} local NexCRM data groups to Firebase Realtime Database?`))return;
+  const blob=new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const link=document.createElement('a');
+  link.href=url;link.download=`nexcrm-pre-firebase-migration-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
+  const email=prompt('Firebase admin email','abhinav.sirohi@nexfund.in');
+  if(!email)return;
+  const password=prompt('Firebase admin password');
+  if(!password)return;
+  try{
+    const uploaded=await window.NexCRMFirebase.migrateSnapshotToRealtime(snapshot,email,password);
+    toast(`${uploaded} NexCRM data groups uploaded to Realtime Database`);
+    render();
+  }catch(e){alert(e.message||'Realtime Database migration failed')}
 }
 async function pullFirestoreDataToLocal(){
   if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}

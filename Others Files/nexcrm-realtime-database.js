@@ -98,6 +98,22 @@
   async function pullRealtimeToLocal(){await init();if(!state.db)return 0;let count=0;const keys=Object.keys(KEY_PATHS);for(const key of keys){if(await loadKey(key))count++;}return count;}
   async function migrateLocalStorageToFirestore(){return migrateLocalStorageToRealtime();}
   async function migrateLocalStorageToRealtime(){await init();if(!state.db)throw new Error('Firebase Realtime Database is not available.');let count=0;for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!isSyncKey(key))continue;queueWrite(key,localStorage.getItem(key),false);count++;}await flushWrites();return count;}
+  async function migrateSnapshotToRealtime(snapshot,email,password){
+    await init();
+    if(!state.auth||!state.db)throw new Error('Firebase Authentication or Realtime Database is not available.');
+    const captured=snapshot&&typeof snapshot==='object'?snapshot:{};
+    await state.auth.signInWithEmailAndPassword(safe(email).toLowerCase(),String(password||''));
+    const updates={};let count=0;
+    Object.entries(captured).forEach(([key,value])=>{
+      if(!isSyncKey(key))return;
+      updates[pathForKey(key)]={key,value:normalizeValue(key,String(value??'')),updatedAt:new Date().toISOString(),updatedBy:state.auth.currentUser&&state.auth.currentUser.uid||'',updatedByEmail:state.auth.currentUser&&state.auth.currentUser.email||''};
+      count++;
+    });
+    if(!count)throw new Error('No recognized NexCRM business data was found in this browser.');
+    await state.db.ref().update(updates);
+    await pullRealtimeToLocal();
+    return count;
+  }
   async function readArray(key){await loadKey(key);try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
   async function getRole(user,credential){if(!user&&!credential)return '';if(isAdminCredential(credential)||isAdminCredential(user&&user.email))return 'admin';if(isEmployeeCredential(credential)||isEmployeeCredential(user&&user.email))return 'employee';return (user&&lower(user.email)===lower(ADMIN_EMAIL))?'admin':'employee';}
   async function signInWithRole(credential,password,mode,remember){await init();if(!state.auth)throw new Error('Firebase Auth is not available.');const requested=mode==='admin'?'admin':'employee';const email=credentialToEmail(credential,requested);await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);const result=await state.auth.signInWithEmailAndPassword(email,password);const actual=await getRole(result.user,credential);if(requested==='admin'&&actual!=='admin'){await state.auth.signOut();clearLocalSession();throw new Error('Access denied: this credential is not allowed for Admin Portal.');}if(requested==='employee'&&actual==='admin'){await state.auth.signOut();clearLocalSession();throw new Error('Access denied: admin credential cannot open Employee Portal.');}state.user=result.user;state.role=actual;setLocalSession(actual,result.user,remember);await pullRealtimeToLocal();return {user:result.user,role:actual,email:result.user.email||email};}
@@ -111,6 +127,6 @@
   async function init(){if(state.ready)return state;state.ready=true;if(!window.firebase||!firebase.initializeApp){state.ready=false;throw new Error('Firebase SDK must load before NexCRM data adapter.');}try{if(!firebase.apps.length)firebase.initializeApp(cfg());state.auth=firebase.auth?firebase.auth():null;state.db=firebase.database?firebase.database():null;if(!state.db)throw new Error('Firebase Realtime Database SDK is not available.');if(state.auth){state.auth.onAuthStateChanged(async user=>{state.user=user||null;state.role=user?await getRole(user):'';state.listeners.forEach(fn=>{try{fn()}catch(e){}});state.listeners=[];if(user&&state.db){state.queue.clear();await pullRealtimeToLocal();startListeners();}window.dispatchEvent(new CustomEvent('nexcrm:auth-ready',{detail:{user:state.user,role:state.role,database:'realtime'}}));});}}catch(e){state.ready=false;console.error('NexCRM Firebase RTDB init failed',e);throw e;}return state;}
   localStorage.setItem=function(key,value){native.setItem(key,value);queueWrite(String(key),value,false);};
   localStorage.removeItem=function(key){native.removeItem(key);queueWrite(String(key),'',true);};
-  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
+  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,migrateSnapshotToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
   init();
 })();

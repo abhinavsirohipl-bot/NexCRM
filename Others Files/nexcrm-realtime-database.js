@@ -12,21 +12,51 @@
   const KEY_PATHS={
     nexcrmLeads:'leads',
     nexcrm_sheet_leads:'leads',
+    nexcrm_leads:'leads',
+    crm_leads:'leads',
+    nexcrm_lead_master:'leads',
+    nexcrmLeadMaster:'leads',
     nexcrm_mis_cases:'mis',
+    nexcrm_mis_cases_v1:'mis',
+    nexcrm_mis_leads:'mis',
+    nexcrm_mis_data:'mis',
+    nexcrmMIS:'mis',
+    nexcrm_mis:'mis',
+    nexcrm_sheet_mis:'mis',
     nexcrmDetailsheets:'detailsheets',
     nexcrm_detailsheets:'detailsheets',
+    nexcrm_customer_detailsheets:'detailsheets',
     nexcrmObligations:'obligations',
     nexcrm_obligations:'obligations',
+    nexcrm_obligation_sheet:'obligations',
     nexcrm_dashboard_stats:'dashboardStats',
     nexcrm_activity_logs:'activityLogs',
+    nexcrm_recent_activities:'activityLogs',
     nexcrm_admin_employees_v1:'hrms/employees',
     nexcrm_employee_master_final_custom:'hrms/employees',
     nexcrm_employee_master_v1:'hrms/employees',
+    nexcrm_employee_add:'hrms/employees',
+    nexcrm_employee_add_records:'hrms/employees',
+    nexcrm_employees:'hrms/employees',
+    nexcrm_employee_records:'hrms/employees',
+    nexcrm_employee_master:'hrms/employees',
+    nexcrm_hr_employees:'hrms/employees',
+    nexcrmEmployees:'hrms/employees',
+    nexcrmEmployeesMaster:'hrms/employees',
+    employeeMaster:'hrms/employees',
+    employeeList:'hrms/employees',
+    employees:'hrms/employees',
+    Employees:'hrms/employees',
+    staffList:'hrms/employees',
+    staff_records:'hrms/employees',
     nexcrm_deleted_employee_details:'hrms/deletedEmployees',
     nexcrm_joining_forms_v1:'hrms/joiningForms',
     nexcrm_offer_letters_v1:'hrms/offerLetters',
     nexcrm_payslips_v1:'hrms/payslips',
     nexcrm_attendance_premium_previous_theme_v2:'hrms/attendance',
+    nexcrm_attendance_rows:'hrms/attendance',
+    nexcrm_attendance_data:'hrms/attendance',
+    nexcrm_attendance:'hrms/attendance',
     nexcrm_employee_costing_entries_v4:'hrms/employeeCosting',
     nexcrm_ddr_mdr_v1:'hrms/ddrMdr',
     nexcrm_vault_v1:'hrms/vault',
@@ -56,6 +86,15 @@
     ['nexcrm_recent_','personal/recent']
   ];
   const SYNC_PREFIXES=['nexcrm_','nexcrm-','nexfund_','nexhrms_','hrms_'];
+  const CANONICAL_KEYS={
+    'leads/localStorage':'nexcrmLeads',
+    'mis/localStorage':'nexcrm_mis_cases',
+    'detailsheets/localStorage':'nexcrmDetailsheets',
+    'obligations/localStorage':'nexcrmObligations',
+    'activityLogs/localStorage':'nexcrm_activity_logs',
+    'hrms/employees/localStorage':'nexcrm_employee_master_final_custom',
+    'hrms/attendance/localStorage':'nexcrm_attendance_premium_previous_theme_v2'
+  };
   const state={ready:false,hydrating:false,db:null,auth:null,user:null,role:'',listeners:[],writeTimer:null,queue:new Map()};
   const native={setItem:localStorage.setItem.bind(localStorage),removeItem:localStorage.removeItem.bind(localStorage),clear:localStorage.clear.bind(localStorage)};
   const safe=s=>String(s||'').trim();
@@ -80,6 +119,68 @@
     }catch(e){}
     return value;
   }
+  function storageString(value){
+    if(typeof value==='string')return value;
+    try{return JSON.stringify(value)}catch(e){return String(value??'')}
+  }
+  function parseStored(value){
+    if(typeof value!=='string')return value;
+    try{return JSON.parse(value)}catch(e){return value}
+  }
+  function plainObject(value){return !!value&&typeof value==='object'&&!Array.isArray(value);}
+  function stableString(value){
+    if(!plainObject(value))return JSON.stringify(value);
+    const out={};Object.keys(value).sort().forEach(key=>{out[key]=value[key]});
+    try{return JSON.stringify(out)}catch(e){return String(value)}
+  }
+  function rowIdentity(row){
+    if(!plainObject(row))return typeof row+':'+String(row);
+    const fields=['id','leadId','nexId','NexID','referenceNo','caseId','customerId','employeeId','employee_id','empId','empCode','employeeCode','code','uid','email','officialEmail','mobile','phone'];
+    for(const field of fields){const value=safe(row[field]);if(value)return field+':'+lower(value);}
+    const name=safe(row.customerName||row.employeeName||row.name);const date=safe(row.createdAt||row.date||row.loginDate||row.disbursementDate);
+    if(name)return 'name:'+lower(name)+'|date:'+lower(date);
+    return 'json:'+stableString(row);
+  }
+  function rowTime(row){
+    if(!plainObject(row))return 0;
+    const raw=row.updatedAt||row.modifiedAt||row.lastUpdated||row.createdAt||row.date||'';
+    const time=Date.parse(raw);return Number.isFinite(time)?time:0;
+  }
+  function mergeRows(remoteRows,localRows){
+    const map=new Map();
+    [...remoteRows,...localRows].forEach(row=>{
+      const token=rowIdentity(row);const current=map.get(token);
+      if(!current||rowTime(row)>=rowTime(current))map.set(token,row);
+    });
+    return [...map.values()];
+  }
+  function mergeStorageValues(key,localValue,remoteValue){
+    if(localValue==null||localValue==='')return storageString(remoteValue);
+    if(remoteValue==null||remoteValue==='')return storageString(localValue);
+    const localParsed=parseStored(localValue);const remoteParsed=parseStored(remoteValue);
+    if(Array.isArray(localParsed)&&Array.isArray(remoteParsed))return JSON.stringify(mergeRows(remoteParsed,localParsed));
+    if(plainObject(localParsed)&&plainObject(remoteParsed))return JSON.stringify(Object.assign({},localParsed,remoteParsed));
+    return storageString(remoteValue);
+  }
+  function snapshotStorage(snapshot){
+    if(!snapshot||typeof snapshot!=='object')return {};
+    if(snapshot.localStorageRaw&&plainObject(snapshot.localStorageRaw))return snapshot.localStorageRaw;
+    if(snapshot.localStorage&&plainObject(snapshot.localStorage))return snapshot.localStorage;
+    if(snapshot.localStorageParsed&&plainObject(snapshot.localStorageParsed))return snapshot.localStorageParsed;
+    return snapshot;
+  }
+  function snapshotUpdates(snapshot,user){
+    const grouped=new Map();
+    Object.entries(snapshotStorage(snapshot)).forEach(([key,value])=>{
+      if(!isSyncKey(key))return;
+      const path=pathForKey(key);const raw=normalizeValue(key,storageString(value));const existing=grouped.get(path);
+      if(existing){existing.value=mergeStorageValues(existing.key,raw,existing.value);return;}
+      grouped.set(path,{key:CANONICAL_KEYS[path]||key,value:raw});
+    });
+    const updates={};const now=new Date().toISOString();
+    grouped.forEach((item,path)=>{updates[path]={key:item.key,value:normalizeValue(item.key,item.value),deleted:false,updatedAt:now,updatedBy:user&&user.uid||'',updatedByEmail:user&&user.email||''};});
+    return updates;
+  }
   function getLoginConfig(){try{return JSON.parse(localStorage.getItem('nexcrm_login_config_v1')||'{}')}catch(e){return {}}}
   function configuredAdmins(){const c=getLoginConfig();const admins=Array.isArray(c.admins)?c.admins:[];const legacy=c.admin||{};return [...admins,{username:legacy.credential||legacy.username||'Admin',email:ADMIN_EMAIL}];}
   function configuredEmployees(){const c=getLoginConfig();return Array.isArray(c.employees)?c.employees:[];}
@@ -92,24 +193,44 @@
   function refForKey(key){const p=pathForKey(key);return p&&state.db?state.db.ref(p):null;}
   function dispatch(key,oldValue,newValue,source){try{window.dispatchEvent(new StorageEvent('storage',{key,oldValue,newValue,storageArea:localStorage,url:location.href}))}catch(e){}window.dispatchEvent(new CustomEvent('nexcrm:data-updated',{detail:{key,oldValue,newValue,source}}));}
   function applyLocal(key,value,source){const old=localStorage.getItem(key);state.hydrating=true;try{value==null?native.removeItem(key):native.setItem(key,String(normalizeValue(key,value)));}finally{state.hydrating=false;}const now=localStorage.getItem(key);if(old!==now)dispatch(key,old,now,source||'rtdb');}
-  function queueWrite(key,value,removed){if(state.hydrating||!isSyncKey(key))return;const p=pathForKey(key);state.queue.set(key,{path:p,key,value:normalizeValue(key,String(value??'')),removed});if(state.db){clearTimeout(state.writeTimer);state.writeTimer=setTimeout(flushWrites,250);}}
-  async function flushWrites(){if(!state.db||!state.queue.size)return;const updates={};[...state.queue.values()].forEach(item=>{updates[item.path]=item.removed?null:{key:item.key,value:item.value,updatedAt:new Date().toISOString(),updatedBy:state.user&&state.user.uid||'',updatedByEmail:state.user&&state.user.email||''};});state.queue.clear();try{await state.db.ref().update(updates);}catch(e){console.warn('NexCRM Realtime DB write failed',e);}}
-  async function loadKey(key){await init();const ref=refForKey(key);if(!ref)return false;try{const snap=await ref.once('value');const val=snap.val();if(val&&Object.prototype.hasOwnProperty.call(val,'value')){applyLocal(key,val.value,'rtdb-load');return true;}applyLocal(key,null,'rtdb-empty');}catch(e){console.warn('NexCRM Realtime DB load failed',key,e);}return false;}
+  function queueWrite(key,value,removed){
+    if(state.hydrating||!isSyncKey(key))return;
+    const path=pathForKey(key);const existing=state.queue.get(path);let nextValue=normalizeValue(key,String(value??''));
+    if(existing&&!existing.removed&&!removed&&existing.sourceKey!==key)nextValue=mergeStorageValues(key,nextValue,existing.value);
+    state.queue.set(path,{path,key:CANONICAL_KEYS[path]||key,sourceKey:key,value:nextValue,removed:!!removed});
+    if(state.db){clearTimeout(state.writeTimer);state.writeTimer=setTimeout(()=>flushWrites().catch(e=>console.warn('NexCRM Realtime DB write failed',e)),250);}
+  }
+  async function flushWrites(){
+    if(!state.db||!state.queue.size)return 0;
+    const batch=[...state.queue.entries()];const updates={};const now=new Date().toISOString();state.queue.clear();
+    batch.forEach(([path,item])=>{updates[path]=item.removed?{key:item.key,deleted:true,updatedAt:now,updatedBy:state.user&&state.user.uid||'',updatedByEmail:state.user&&state.user.email||''}:{key:item.key,value:item.value,deleted:false,updatedAt:now,updatedBy:state.user&&state.user.uid||'',updatedByEmail:state.user&&state.user.email||''};});
+    try{await state.db.ref().update(updates);return batch.length;}catch(e){batch.forEach(([path,item])=>{if(!state.queue.has(path))state.queue.set(path,item)});throw e;}
+  }
+  async function loadKey(key){
+    await init();const ref=refForKey(key);if(!ref)return false;
+    try{
+      const snap=await ref.once('value');const val=snap.val();
+      if(val&&val.deleted===true){applyLocal(key,null,'rtdb-delete');return true;}
+      if(val&&Object.prototype.hasOwnProperty.call(val,'value')){const merged=mergeStorageValues(key,localStorage.getItem(key),val.value);applyLocal(key,merged,'rtdb-load');return true;}
+    }catch(e){console.warn('NexCRM Realtime DB load failed',key,e);}
+    return false;
+  }
   async function pullFirestoreToLocal(){return pullRealtimeToLocal();}
   async function pullRealtimeToLocal(){await init();if(!state.db)return 0;let count=0;const keys=Object.keys(KEY_PATHS);for(const key of keys){if(await loadKey(key))count++;}return count;}
   async function migrateLocalStorageToFirestore(){return migrateLocalStorageToRealtime();}
-  async function migrateLocalStorageToRealtime(){await init();if(!state.db)throw new Error('Firebase Realtime Database is not available.');let count=0;for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!isSyncKey(key))continue;queueWrite(key,localStorage.getItem(key),false);count++;}await flushWrites();return count;}
+  async function migrateLocalStorageToRealtime(){
+    await init();if(!state.db)throw new Error('Firebase Realtime Database is not available.');
+    if(!state.auth||!state.auth.currentUser)throw new Error('Admin Firebase login required before upload.');
+    const captured={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&isSyncKey(key))captured[key]=localStorage.getItem(key);}
+    const updates=snapshotUpdates(captured,state.auth.currentUser);const count=Object.keys(updates).length;
+    if(!count)throw new Error('No recognized NexCRM business data was found in this browser.');
+    await state.db.ref().update(updates);return count;
+  }
   async function migrateSnapshotToRealtime(snapshot,email,password){
     await init();
     if(!state.auth||!state.db)throw new Error('Firebase Authentication or Realtime Database is not available.');
-    const captured=snapshot&&typeof snapshot==='object'?snapshot:{};
     await state.auth.signInWithEmailAndPassword(safe(email).toLowerCase(),String(password||''));
-    const updates={};let count=0;
-    Object.entries(captured).forEach(([key,value])=>{
-      if(!isSyncKey(key))return;
-      updates[pathForKey(key)]={key,value:normalizeValue(key,String(value??'')),updatedAt:new Date().toISOString(),updatedBy:state.auth.currentUser&&state.auth.currentUser.uid||'',updatedByEmail:state.auth.currentUser&&state.auth.currentUser.email||''};
-      count++;
-    });
+    const updates=snapshotUpdates(snapshot,state.auth.currentUser);const count=Object.keys(updates).length;
     if(!count)throw new Error('No recognized NexCRM business data was found in this browser.');
     await state.db.ref().update(updates);
     await pullRealtimeToLocal();
@@ -124,7 +245,7 @@
   function rootIndexPath(){return location.pathname.includes('/Admin%20Portal%20CRM%20NexFund/')||location.pathname.includes('/Admin Portal CRM NexFund/')||location.pathname.includes('/Bank%20Company%20Check%20Tool')||location.pathname.includes('/Pincode%20Tool')||location.pathname.includes('/FRP%20List')||location.pathname.includes('/Policy/')?'../index.html':'index.html';}
   function protect(role){const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null');if(!s||lower(s.role)!==lower(role)){clearLocalSession();location.href=rootIndexPath();return false;}return true;}
   function protectAny(){const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null');if(!s){location.href=rootIndexPath();return false;}return true;}
-  function startListeners(){Object.keys(KEY_PATHS).forEach(key=>{const ref=refForKey(key);if(!ref)return;const cb=snap=>{const val=snap.val();if(val&&Object.prototype.hasOwnProperty.call(val,'value'))applyLocal(key,val.value,'rtdb-snapshot');else applyLocal(key,null,'rtdb-delete');};ref.on('value',cb);state.listeners.push(()=>ref.off('value',cb));});}
+  function startListeners(){Object.keys(KEY_PATHS).forEach(key=>{const ref=refForKey(key);if(!ref)return;const cb=snap=>{const val=snap.val();if(val&&val.deleted===true)applyLocal(key,null,'rtdb-delete');else if(val&&Object.prototype.hasOwnProperty.call(val,'value'))applyLocal(key,mergeStorageValues(key,localStorage.getItem(key),val.value),'rtdb-snapshot');};ref.on('value',cb);state.listeners.push(()=>ref.off('value',cb));});}
   async function init(){if(state.ready)return state;state.ready=true;if(!window.firebase||!firebase.initializeApp){state.ready=false;throw new Error('Firebase SDK must load before NexCRM data adapter.');}try{if(!firebase.apps.length)firebase.initializeApp(cfg());state.auth=firebase.auth?firebase.auth():null;state.db=firebase.database?firebase.database():null;if(!state.db)throw new Error('Firebase Realtime Database SDK is not available.');if(state.auth){state.auth.onAuthStateChanged(async user=>{state.user=user||null;state.role=user?await getRole(user):'';state.listeners.forEach(fn=>{try{fn()}catch(e){}});state.listeners=[];if(user&&state.db){state.queue.clear();await pullRealtimeToLocal();startListeners();}window.dispatchEvent(new CustomEvent('nexcrm:auth-ready',{detail:{user:state.user,role:state.role,database:'realtime'}}));});}}catch(e){state.ready=false;console.error('NexCRM Firebase RTDB init failed',e);throw e;}return state;}
   localStorage.setItem=function(key,value){native.setItem(key,value);queueWrite(String(key),value,false);};
   localStorage.removeItem=function(key){native.removeItem(key);queueWrite(String(key),'',true);};

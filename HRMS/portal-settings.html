@@ -602,21 +602,59 @@ function loadExportDataToTextarea(){
   $('exportDataTextarea').value=Object.keys(payload).length?JSON.stringify(payload,null,2):'';
   toast('Current NexCRM export data loaded');
 }
+function extractNexcrmImportPayload(payload){
+  if(!payload||typeof payload!=='object'||Array.isArray(payload))return null;
+  if(payload.localStorageRaw&&typeof payload.localStorageRaw==='object')return payload.localStorageRaw;
+  if(payload.localStorage&&typeof payload.localStorage==='object')return payload.localStorage;
+  if(payload.localStorageParsed&&typeof payload.localStorageParsed==='object')return payload.localStorageParsed;
+  return payload;
+}
+function importStorageString(value){
+  if(typeof value==='string')return value;
+  try{return JSON.stringify(value)}catch(e){return String(value??'')}
+}
+function mergeImportedValue(current,incoming){
+  if(!current)return incoming;
+  try{
+    const a=JSON.parse(current),b=JSON.parse(incoming);
+    if(Array.isArray(a)&&Array.isArray(b)){
+      const seen=new Set(),rows=[];
+      [...a,...b].forEach(row=>{const token=JSON.stringify(row);if(!seen.has(token)){seen.add(token);rows.push(row)}});
+      return JSON.stringify(rows);
+    }
+    if(a&&b&&typeof a==='object'&&typeof b==='object'&&!Array.isArray(a)&&!Array.isArray(b))return JSON.stringify(Object.assign({},a,b));
+  }catch(e){}
+  return incoming;
+}
 function importNexcrmData(){
   const raw=$('exportDataTextarea').value.trim();
   if(!raw){toast('Paste JSON to import');return}
   let payload;
   try{payload=JSON.parse(raw);}catch(e){alert('Invalid JSON format');return}
-  if(!payload||typeof payload!=='object' || Array.isArray(payload)){alert('Invalid NexCRM export object');return}
-  const prefixes=['nexcrm_','nexfund_','hrms_'];
+  payload=extractNexcrmImportPayload(payload);
+  if(!payload){alert('Invalid NexCRM export object');return}
+  const prefixes=['nexcrm_','nexcrm-','nexfund_','nexhrms_','hrms_'];
   let count=0;
   Object.entries(payload).forEach(([key,value])=>{
-    if(typeof key==='string' && prefixes.some(prefix=>key.startsWith(prefix))){
-      localStorage.setItem(key,String(value));
+    const allowed=typeof key==='string'&&((window.NexCRMFirebase&&window.NexCRMFirebase.isSyncKey&&window.NexCRMFirebase.isSyncKey(key))||prefixes.some(prefix=>key.startsWith(prefix)));
+    if(allowed&&!['nexcrm_session','nexcrm_logged_in'].includes(key)){
+      const incoming=importStorageString(value);localStorage.setItem(key,mergeImportedValue(localStorage.getItem(key),incoming));
       count++;
     }
   });
-  toast(`${count} NexCRM keys imported`);
+  if(!count){alert('Backup file me recognized NexCRM Leads / MIS / Employee data nahi mila. Complete localhost backup file select karein.');return}
+  toast(`${count} NexCRM data groups safely merged. Now upload to Realtime Database.`);
+  render();
+}
+function chooseNexcrmBackupFile(){
+  const input=document.createElement('input');input.type='file';input.accept='.json,application/json';
+  input.onchange=()=>{const file=input.files&&input.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{$('exportDataTextarea').value=String(reader.result||'');importNexcrmData()};reader.onerror=()=>alert('Backup file read nahi ho paayi.');reader.readAsText(file)};
+  input.click();
+}
+function installBackupFileButton(){
+  const area=$('exportDataTextarea');if(!area)return;const actions=area.parentElement&&area.parentElement.nextElementSibling;if(!actions||$('backupFileImportBtn'))return;
+  const button=document.createElement('button');button.id='backupFileImportBtn';button.type='button';button.className='btn green';button.innerHTML='<i class="fa-solid fa-folder-open"></i> Select Complete Backup File';button.onclick=chooseNexcrmBackupFile;actions.insertBefore(button,actions.firstChild);
+  actions.querySelectorAll('button').forEach(btn=>{if(/Firestore/i.test(btn.textContent))btn.innerHTML=btn.innerHTML.replace(/Firestore/g,'Realtime Database')});
 }
 async function uploadLocalDataToFirestore(){
   if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}
@@ -627,19 +665,21 @@ async function uploadLocalDataToFirestore(){
   const blob=new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);const link=document.createElement('a');
   link.href=url;link.download=`nexcrm-pre-firebase-migration-${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(link);link.click();link.remove();URL.revokeObjectURL(url);
-  const email=prompt('Firebase admin email','abhinav.sirohi@nexfund.in');
-  if(!email)return;
-  const password=prompt('Firebase admin password');
-  if(!password)return;
   try{
-    const uploaded=await window.NexCRMFirebase.migrateSnapshotToRealtime(snapshot,email,password);
+    let uploaded;
+    try{uploaded=await window.NexCRMFirebase.migrateLocalStorageToRealtime()}
+    catch(firstError){
+      const email=prompt('Firebase admin email','abhinav.sirohi@nexfund.in');if(!email)return;
+      const password=prompt('Firebase admin password');if(!password)return;
+      uploaded=await window.NexCRMFirebase.migrateSnapshotToRealtime(snapshot,email,password);
+    }
     toast(`${uploaded} NexCRM data groups uploaded to Realtime Database`);
     render();
   }catch(e){alert(e.message||'Realtime Database migration failed')}
 }
 async function pullFirestoreDataToLocal(){
   if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}
-  try{await window.NexCRMFirebase.pullFirestoreToLocal();toast('Firestore data pulled. Data updated without page refresh.');render()}catch(e){alert(e.message||'Firestore pull failed')}
+  try{await window.NexCRMFirebase.pullRealtimeToLocal();toast('Realtime Database data pulled and safely merged.');render()}catch(e){alert(e.message||'Realtime Database pull failed')}
 }
 function clearExportTextarea(){
   $('exportDataTextarea').value='';
@@ -778,6 +818,7 @@ enforcePortalSession('Admin',30*60*1000);
 render();
 loadMasterEmployeeIds();
 renderStatusProductBank();
+installBackupFileButton();
 </script><script src="../nexcrm-form-autosave.js"></script><script id="od-leads-shell-controls-v1">
 (function(){
   const body=document.body;

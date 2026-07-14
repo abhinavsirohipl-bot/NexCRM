@@ -331,6 +331,12 @@ function applyEmployeeFormScope(profile = getProfile()) {
 
 function mount() {
   if (document.getElementById("nexcrmShell")) return;
+  document.documentElement.dataset.nexcrmShellMode = "shared";
+  document.querySelectorAll("header.topbar").forEach(header => {
+    header.dataset.nxLegacyHeader = "true";
+    header.hidden = true;
+    header.setAttribute("aria-hidden", "true");
+  });
   document.body.classList.add("nexcrm-shell-page");
   let profile = getProfile();
   const shell = document.createElement("div");
@@ -471,12 +477,111 @@ function mountNativeBackup() {
   document.body.appendChild(button);
 }
 
-if (document.documentElement.dataset.nexcrmNativeShell !== "true") {
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount); else mount();
-} else if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", mountNativeBackup);
-} else {
+function hasNativeWorkspaceShell() {
+  return !!(
+    document.body?.querySelector("nav.rail") &&
+    document.body?.querySelector("aside.sidebar") &&
+    document.body?.querySelector("header.topbar")
+  );
+}
+
+function enhanceNativeWorkspaceShell() {
+  const body = document.body;
+  if (!body || body.dataset.nxNativeEnhanced === "true") return;
+  document.getElementById("nexcrmShell")?.remove();
+  body.classList.remove("nexcrm-shell-page");
+  body.querySelectorAll("[data-nx-legacy-header='true']").forEach(header => {
+    header.hidden = false;
+    header.removeAttribute("aria-hidden");
+    delete header.dataset.nxLegacyHeader;
+  });
+  body.dataset.nxNativeEnhanced = "true";
+  body.classList.add("nexcrm-native-workspace");
+  document.documentElement.dataset.nexcrmShellMode = "native";
+
+  const isMobile = () => !!window.matchMedia?.("(max-width:980px)").matches;
+  const syncSidebarControls = open => {
+    ["#sidebarRailToggle", "#sidebarToggleTop"].forEach(selector => {
+      const control = body.querySelector(selector);
+      if (control) control.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    body.querySelector("aside.sidebar")?.setAttribute("aria-hidden", open ? "false" : "true");
+  };
+  const setSidebar = open => {
+    if (isMobile()) {
+      body.classList.toggle("sidebar-open", !!open);
+    } else {
+      body.classList.remove("sidebar-open");
+      body.classList.toggle("sidebar-collapsed", !open);
+      try { localStorage.setItem("nexcrm_admin_sidebar_collapsed_v3", open ? "0" : "1"); } catch {}
+    }
+    syncSidebarControls(!!open);
+  };
+  const toggleSidebar = () => setSidebar(isMobile() ? !body.classList.contains("sidebar-open") : body.classList.contains("sidebar-collapsed"));
+  const captureToggle = event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    toggleSidebar();
+  };
+  ["#sidebarRailToggle", "#sidebarToggleTop"].forEach(selector => {
+    const control = body.querySelector(selector);
+    if (control) control.addEventListener("click", captureToggle, true);
+  });
+  const closeControl = body.querySelector("#sidebarCollapseBottom");
+  if (closeControl) closeControl.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    setSidebar(false);
+  }, true);
+  const backdrop = body.querySelector("#sidebarBackdrop,.sidebar-backdrop");
+  if (backdrop) backdrop.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    setSidebar(false);
+  }, true);
+
+  const applyNativeTheme = dark => {
+    body.classList.toggle("dark", !!dark);
+    document.documentElement.classList.toggle("nx-shell-dark", !!dark);
+    try { localStorage.setItem("nexcrm_theme", dark ? "dark" : "light"); } catch {}
+  };
+  const savedTheme = localStorage.getItem("nexcrm_theme") || localStorage.getItem("nexcrmTheme") || localStorage.getItem("nexcrm-mis-theme");
+  applyNativeTheme(body.classList.contains("dark") || ["dark", "1"].includes(savedTheme));
+  body.querySelectorAll("button[id*='theme' i],button[class*='theme-toggle' i]").forEach(control => {
+    control.addEventListener("click", () => setTimeout(() => {
+      const dark = body.classList.contains("dark");
+      document.documentElement.classList.toggle("nx-shell-dark", dark);
+      try { localStorage.setItem("nexcrm_theme", dark ? "dark" : "light"); } catch {}
+    }, 0), true);
+  });
+
+  const profile = getProfile();
+  const profileName = profile.name || (isAdminSession() ? "Administrator" : "Employee");
+  ["#loggedUserName", "#empNameTop", "#profilePreviewName"].forEach(selector => {
+    body.querySelectorAll(selector).forEach(node => { node.textContent = profileName; });
+  });
+  document.addEventListener("keydown", event => { if (event.key === "Escape") setSidebar(false); });
+  window.addEventListener("resize", () => {
+    if (!isMobile()) body.classList.remove("sidebar-open");
+    const open = isMobile() ? body.classList.contains("sidebar-open") : !body.classList.contains("sidebar-collapsed");
+    syncSidebarControls(open);
+  });
+  window.addEventListener("nexcrm:profile-updated", event => {
+    const next = event.detail || getProfile();
+    ["#loggedUserName", "#empNameTop", "#profilePreviewName"].forEach(selector => {
+      body.querySelectorAll(selector).forEach(node => { node.textContent = next.name || profileName; });
+    });
+  });
   mountNativeBackup();
+}
+
+const useNativeWorkspaceShell = document.documentElement.dataset.nexcrmNativeShell === "true" || hasNativeWorkspaceShell();
+if (useNativeWorkspaceShell) {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", enhanceNativeWorkspaceShell); else enhanceNativeWorkspaceShell();
+} else if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", mount);
+} else {
+  mount();
 }
 window.dispatchEvent(new CustomEvent("nexcrm:access-ready", { detail: { profile: getProfile(), admin: isAdminSession() } }));
 if (/\/mis\.html$/i.test(location.pathname) && typeof window.renderTable === "function") {

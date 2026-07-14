@@ -9,16 +9,22 @@
   --nx-shell-panel:rgba(255,255,255,.94);
 }
 html.nx-shell-dark{color-scheme:dark}
-body.nexcrm-shell-page{padding-left:var(--nx-shell-rail)!important;padding-top:var(--nx-shell-head)!important;min-height:100vh}
-body.nexcrm-shell-page nav.rail:not(.nx-rail),
-body.nexcrm-shell-page aside.sidebar:not(.nx-drawer),
-body.nexcrm-shell-page .sidebar-backdrop,
-body.nexcrm-shell-page header.topbar:not(.nx-topbar),
-body.nexcrm-shell-page header.dashboard-topbar,
-body.nexcrm-shell-page .app-layout>.sidebar,
-body.nexcrm-shell-page .app-layout>.rail{display:none!important}
-body.nexcrm-shell-page .app-layout{display:block!important;min-height:0!important}
-body.nexcrm-shell-page main.main{width:auto!important;max-width:none!important;margin-left:0!important;padding-left:clamp(12px,2vw,28px)!important;padding-right:clamp(12px,2vw,28px)!important}
+body.nexcrm-shell-page{
+  --bg:#f3f6fb;--background:#f3f6fb;--surface:#fff;--card:#fff;--panel:#fff;
+  --text:#111827;--ink:#111827;--muted:#667085;--line:#dfe5ef;--border:#dfe5ef;
+  --gold:#d7a839;--accent:#d7a839;--primary:#2f5cff;
+  padding-left:var(--nx-shell-rail)!important;padding-top:var(--nx-shell-head)!important;min-height:100vh;
+  background:radial-gradient(circle at 92% 3%,rgba(245,200,76,.16),transparent 30%),linear-gradient(180deg,#f8fafc,#eef3f8)!important;
+  color:var(--text)
+}
+body.nexcrm-shell-page>header.topbar,
+body.nexcrm-shell-page>.topbar,
+body.nexcrm-shell-page>.page>header.topbar:first-child,
+body.nexcrm-shell-page>.page>.topbar:first-child,
+body.nexcrm-shell-page>main>header.topbar:first-child,
+body.nexcrm-shell-page>.wrap>header.topbar:first-child{display:none!important}
+body.nexcrm-shell-page header.topbar[data-nx-legacy-header="true"]{display:none!important}
+body.nexcrm-shell-page main.main{width:auto!important;max-width:none!important;margin-left:0!important}
 #nexcrmShell{position:fixed;inset:0;z-index:2147482000;pointer-events:none;font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--nx-shell-ink)}
 #nexcrmShell *{box-sizing:border-box}
 #nexcrmShell button,#nexcrmShell input,#nexcrmShell textarea{font:inherit}
@@ -49,6 +55,57 @@ body.nexcrm-shell-page main.main{width:auto!important;max-width:none!important;m
 .nx-profile-head{display:flex;align-items:center;gap:16px;padding:2px 52px 20px 0;border-bottom:1px solid #e4e8ef}.nx-profile-head>div{min-width:0}.nx-profile-head small{color:#946d14;font-size:10px;font-weight:950;letter-spacing:.08em}.nx-profile-head h2{margin:5px 0 3px;font-size:23px}.nx-profile-head p{margin:0;color:#6d7889;font-size:11px;font-weight:700}.nx-photo-button{margin-left:auto;position:relative;height:42px;padding:0 14px;display:flex;align-items:center;gap:8px;border-radius:14px;background:#f5f7fa;border:1px solid #dbe3ed;color:#26354d;font-size:12px;font-weight:850;cursor:pointer}.nx-photo-button input{position:absolute;width:1px;height:1px;opacity:0}
 .nx-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-top:19px}.nx-profile-grid label{display:block}.nx-profile-grid label>span{display:block;margin:0 0 6px 3px;color:#56657a;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.nx-profile-grid input,.nx-profile-grid textarea{width:100%;border:1px solid #dbe3ed;border-radius:14px;background:#f9fbfd;color:#172033;outline:none;font-size:13px;font-weight:700}.nx-profile-grid input{height:45px;padding:0 13px}.nx-profile-grid textarea{padding:12px 13px;resize:vertical}.nx-profile-grid input:focus,.nx-profile-grid textarea:focus{border-color:#d2a936;box-shadow:0 0 0 4px rgba(210,169,54,.12)}.nx-profile-grid input[readonly]{background:#eef2f6;color:#667085;cursor:not-allowed}.nx-profile-wide{grid-column:1/-1}.nx-profile-note{margin-top:15px;padding:11px 13px;border-radius:13px;background:#fff8e8;border:1px solid #f0dfb3;color:#7b5a13;font-size:11px;font-weight:750}.nx-profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}.nx-profile-actions button{height:44px;padding:0 17px;border-radius:14px;font-size:12px;font-weight:900;cursor:pointer}.nx-profile-cancel{background:#fff;border:1px solid #dbe3ed;color:#304058}.nx-profile-save{border:0;color:#fff;background:linear-gradient(135deg,#405df4,#7b35ed);box-shadow:0 12px 24px rgba(91,65,225,.24)}
 .nx-backup-button{text-decoration:none}
+body.nexcrm-native-workspace{
+  --bg:#f3f6fb!important;--background:#f3f6fb!important;--surface:#fff!important;--card:#fff!important;--panel:#fff!important;
+  --text:#111827!important;--ink:#111827!important;--muted:#667085!important;--line:#dfe5ef!important;--border:#dfe5ef!important;
+  --gold:#d7a839!important;--accent:#d7a839!important;--primary:#2f5cff!important;
+  background:radial-gradient(circle at 92% 3%,rgba(245,200,76,.16),transparent 30%),linear-gradient(180deg,#f8fafc,#eef3f8)!important;
+  color:#111827
+}
+body.nexcrm-native-workspace nav.rail{
+  background:rgba(255,255,255,.97)!important;border-right:1px solid #dfe5ef!important;
+  box-shadow:8px 0 34px rgba(15,23,42,.07)!important;backdrop-filter:blur(22px)
+}
+body.nexcrm-native-workspace nav.rail .rail-btn{
+  border-radius:18px!important;color:#3c4a60!important;transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important
+}
+body.nexcrm-native-workspace nav.rail .rail-btn:hover,
+body.nexcrm-native-workspace nav.rail .rail-btn.active{
+  background:linear-gradient(145deg,#f3c64d,#f9e6a1)!important;color:#111827!important;
+  box-shadow:0 13px 28px rgba(215,168,57,.25)!important;transform:translateY(-1px)
+}
+body.nexcrm-native-workspace aside.sidebar{
+  background:rgba(255,255,255,.985)!important;border-right:1px solid #dfe5ef!important;
+  box-shadow:18px 0 55px rgba(2,6,23,.16)!important;backdrop-filter:blur(24px)
+}
+body.nexcrm-native-workspace aside.sidebar .side-item,
+body.nexcrm-native-workspace aside.sidebar a{border-radius:14px!important}
+body.nexcrm-native-workspace aside.sidebar .side-item:hover,
+body.nexcrm-native-workspace aside.sidebar a:hover,
+body.nexcrm-native-workspace aside.sidebar .active{
+  background:#faf1dd!important;color:#111827!important;border-color:#ead7ad!important
+}
+body.nexcrm-native-workspace header.topbar{
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(248,250,252,.9))!important;
+  border:1px solid #dfe5ee!important;border-radius:28px!important;
+  box-shadow:0 20px 50px rgba(15,23,42,.1),inset 0 1px 0 rgba(255,255,255,.9)!important;
+  backdrop-filter:blur(24px)
+}
+body.nexcrm-native-workspace header.topbar .system-status,
+body.nexcrm-native-workspace header.topbar .system-pill{color:#17663b!important;background:#eaf8f0!important;border-color:#b8e5ca!important}
+body.nexcrm-native-workspace header.topbar .logout{color:#fff!important;background:linear-gradient(135deg,#e63232,#c71922)!important;border-color:transparent!important}
+body.nexcrm-native-workspace .card,
+body.nexcrm-native-workspace .panel,
+body.nexcrm-native-workspace .form-card{border-color:#dfe5ef!important;box-shadow:0 16px 38px rgba(15,23,42,.07)}
+body.nexcrm-native-workspace.dark,
+html.nx-shell-dark body.nexcrm-native-workspace{
+  --bg:#08111f!important;--background:#08111f!important;--surface:#101b2d!important;--card:#101b2d!important;--panel:#101b2d!important;
+  --text:#f8fafc!important;--ink:#f8fafc!important;--muted:#a7b4c8!important;--line:rgba(255,255,255,.12)!important;--border:rgba(255,255,255,.12)!important;
+  background:radial-gradient(circle at 90% 0,rgba(215,168,57,.13),transparent 32%),#08111f!important;color:#f8fafc
+}
+html.nx-shell-dark body.nexcrm-native-workspace nav.rail,
+html.nx-shell-dark body.nexcrm-native-workspace aside.sidebar,
+html.nx-shell-dark body.nexcrm-native-workspace header.topbar{background:rgba(9,16,29,.97)!important;color:#f8fafc!important;border-color:rgba(255,255,255,.12)!important}
 html.nx-shell-dark .nx-rail,html.nx-shell-dark .nx-drawer,html.nx-shell-dark .nx-topbar,html.nx-shell-dark .nx-profile-card{background:rgba(9,16,29,.97);color:#f8fafc;border-color:rgba(255,255,255,.12)}
 html.nx-shell-dark .nx-page-brand{color:#f8fafc}html.nx-shell-dark .nx-page-brand small,html.nx-shell-dark .nx-user-copy small,html.nx-shell-dark .nx-profile-head p{color:#a7b4c8}
 html.nx-shell-dark .nx-rail>a,html.nx-shell-dark .nx-rail>button,html.nx-shell-dark .nx-close,html.nx-shell-dark .nx-profile-close,html.nx-shell-dark .nx-pill,html.nx-shell-dark .nx-search,html.nx-shell-dark .nx-profile-grid input,html.nx-shell-dark .nx-profile-grid textarea,html.nx-shell-dark .nx-photo-button{background:#151f30;color:#f8fafc;border-color:rgba(255,255,255,.12)}

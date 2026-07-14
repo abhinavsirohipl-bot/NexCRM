@@ -89,7 +89,7 @@ function render(){
 }
 function clearAdminForm(){editingAdminIndex=-1;$('adminUsername').value='';$('adminPassword').value='';if($('adminDisplayName'))$('adminDisplayName').value='';if($('adminEmployeePicker'))$('adminEmployeePicker').value=''}
 function clearEmployeeForm(){editingIndex=-1;const select=$('empSelect');if(select)select.value='';$('empDisplayName').value='';$('empUsername').value='';$('empPassword').value='';$('empStatus').value='Active'}
-function saveAdminCredentials(){
+async function saveAdminCredentials(){
   const cfg=getConfig();
   const username=$('adminUsername').value.trim();
   const password=$('adminPassword').value.trim();
@@ -102,6 +102,14 @@ function saveAdminCredentials(){
   if(editingAdminIndex>=0)cfg.admins[editingAdminIndex]=payload;else cfg.admins.unshift(payload);
   cfg.admin.credential=cfg.admins[0]?.username||DEFAULT_LOGIN_CONFIG.admin.credential;
   cfg.admin.password=cfg.admins[0]?.password||DEFAULT_LOGIN_CONFIG.admin.password;
+  const currentUser=window.firebase&&firebase.auth&&firebase.auth().currentUser;
+  if(currentUser){
+    try{
+      const nextEmail=username.includes('@')?username.toLowerCase():username.toLowerCase()+'@nexfund.in';
+      if(currentUser.email!==nextEmail)await currentUser.updateEmail(nextEmail);
+      await currentUser.updatePassword(password);
+    }catch(err){alert((err&&err.message)||'Firebase Authentication credential update failed. Please sign in again and retry.');return}
+  }
   saveConfig(cfg);
   clearAdminForm();
   render();

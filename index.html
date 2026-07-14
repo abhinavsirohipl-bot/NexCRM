@@ -251,7 +251,14 @@ async function loginUser(e){
   const localMatch=loginMode==='admin'?adminMatch:employeeMatch;
   if(!localMatch){showMsg('error','Invalid credential or password. Please check Portal Settings.');return shakeLogin()}
   const meta=roleMeta(loginMode);
-  const session={user:localMatch.email||localMatch.username,email:localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:false};
+  let firebaseResult=null;
+  if(loginMode==='admin'){
+    try{
+      if(!window.NexCRMFirebase||!window.NexCRMFirebase.activateConfiguredCredential)throw new Error('Firebase Authentication is not ready.');
+      firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,'admin',remember);
+    }catch(err){showMsg('error',(err&&err.message)||'Firebase admin login failed.');return shakeLogin()}
+  }
+  const session={user:(firebaseResult&&firebaseResult.email)||localMatch.email||localMatch.username,uid:(firebaseResult&&firebaseResult.user&&firebaseResult.user.uid)||'',email:(firebaseResult&&firebaseResult.email)||localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:!!firebaseResult};
   clearSession();
   (remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));
   localStorage.setItem('nexcrm_logged_in','true');

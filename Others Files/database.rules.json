@@ -1,14 +1,37 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null",
+    ".read": false,
+    ".write": false,
+    "roles": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'abhinav.sirohi@nexfund.in')",
+        ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+      }
+    },
     "portal": {
       "settings": {
         "loginConfig": {
           ".read": true,
-          ".write": "auth != null"
+          ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+        },
+        "$other": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
         }
       }
-    }
+    },
+    "leads": { ".read": "auth != null", ".write": "auth != null" },
+    "mis": { ".read": "auth != null", ".write": "auth != null" },
+    "detailsheets": { ".read": "auth != null", ".write": "auth != null" },
+    "obligations": { ".read": "auth != null", ".write": "auth != null" },
+    "dashboardStats": { ".read": "auth != null", ".write": "auth != null" },
+    "activityLogs": { ".read": "auth != null", ".write": "auth != null" },
+    "hrms": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+    },
+    "profiles": { ".read": "auth != null", ".write": "auth != null" },
+    "shared": { ".read": "auth != null", ".write": "auth != null" },
+    "personal": { ".read": "auth != null", ".write": "auth != null" }
   }
 }

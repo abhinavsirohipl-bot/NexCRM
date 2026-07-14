@@ -70,25 +70,8 @@
   }
   function isSyncKey(key){return !!key && !LOCAL_ONLY_KEYS.has(key) && !!pathForKey(key);}
   function cleanEmployeeId(id){return safe(id).replace(/[^a-z0-9._-]/gi,'').toUpperCase();}
-  function normalizeEmployees(rows){
-    if(!Array.isArray(rows))return rows;
-    return rows.filter(emp=>{
-      const id=cleanEmployeeId(emp.employeeId||emp.id||emp.employee_id||emp.code||emp.username||emp.extension||'');
-      const nm=safe(emp.name||emp.employee_name||emp.employeeName||emp.fullName||'');
-      return ALLOWED_EMPLOYEE_IDS.has(id)||ALLOWED_NAMES.has(nm);
-    });
-  }
-  function normalizeLoginConfig(cfg){
-    if(!cfg||typeof cfg!=='object')return cfg;
-    const clone=JSON.parse(JSON.stringify(cfg));
-    clone.admins=Array.isArray(clone.admins)&&clone.admins.length?clone.admins:[{username:'Admin',password:(clone.admin&&clone.admin.password)||'Abhi1997',displayName:'Abhinav Sirohi',employeeId:'E-TL001',email:ADMIN_EMAIL,active:true}];
-    clone.employees=[
-      {employeeId:'E-TL001',username:'ETL001',password:'E-TL001',name:'Abhinav Sirohi',email:'abhinav.sirohi@nexfund.in',active:true},
-      {employeeId:'E-SM001',username:'ESM001',password:'E-SM001',name:'Niraj Kumar Jha',email:'nirajnj1432@gmail.com',active:true},
-      {employeeId:'E-TC001',username:'ETC001',password:'E-TC001',name:'Naina',email:'',active:true}
-    ];
-    return clone;
-  }
+  function normalizeEmployees(rows){return Array.isArray(rows)?rows:rows;}
+  function normalizeLoginConfig(cfg){return cfg&&typeof cfg==='object'?JSON.parse(JSON.stringify(cfg)):cfg;}
   function normalizeValue(key,value){
     try{
       if(key==='nexcrm_login_config_v1')return JSON.stringify(normalizeLoginConfig(JSON.parse(value||'{}')));

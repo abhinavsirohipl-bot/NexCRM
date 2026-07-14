@@ -1,129 +1,646 @@
 <!DOCTYPE html>
-<html lang="en">
-<head><!-- NexCRM canonical Firebase Realtime Database stack -->
-<script src="Others Files/firebase-config.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
-<script src="Others Files/nexcrm-realtime-database.js"></script>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NexCRM | Login</title>
-<link href="Meterial/tab.png" rel="icon" type="image/png"/>
-<link href="Meterial/tab.png" rel="shortcut icon" type="image/png"/>
-<link href="Meterial/tab.png" rel="apple-touch-icon"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
-<link href="nexcrm-mobile-compact.css" rel="stylesheet"/>
-<style>
+<html lang="en"><head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="Others Files/nexcrm-realtime-database.js"></script><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>NexCRM</title><link href="Meterial/tab.png" rel="icon" type="image/png"/><link href="Meterial/tab.png" rel="shortcut icon" type="image/png"/><link href="Meterial/tab.png" rel="apple-touch-icon"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/><style>
+    :root{
+      --font:Calibri,Arial,sans-serif;
+      --blue:#245cff;--blue2:#0b37d9;--cyan:#30c8ff;--navy:#020a2b;--ink:#111827;--muted:#667085;
+      --card:#ffffff;--line:#dbe3f0;--shadow:0 34px 90px rgba(8,22,64,.24);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
+    body{min-height:100vh;overflow-x:hidden;color:var(--ink);background:#eff5ff}
+    button,input{font:inherit}button{border:0;cursor:pointer}a{text-decoration:none;color:inherit}
+    .page{min-height:100vh;display:grid;grid-template-columns:1.04fr .96fr;position:relative;isolation:isolate;background:
+      radial-gradient(circle at 84% 12%,rgba(255,255,255,.85),transparent 22%),
+      radial-gradient(circle at 72% 84%,rgba(36,92,255,.24),transparent 28%),
+      linear-gradient(112deg,#030919 0%,#071a63 35%,#1743e8 58%,#dfe8ff 58.2%,#f7faff 100%)}
+    .page:before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(36,92,255,.22) 1px, transparent 1px);background-size:18px 18px;mask:linear-gradient(90deg,transparent 0 58%,#000 72%,transparent 100%);z-index:-1}.page:after{content:"";position:absolute;width:680px;height:680px;left:30%;top:20%;border-radius:50%;background:repeating-radial-gradient(circle,rgba(255,255,255,.16) 0 1px, transparent 2px 14px);opacity:.35;filter:blur(.3px);z-index:-1}
+    .brand-panel{min-height:100vh;padding:58px 5vw 46px;display:flex;flex-direction:column;justify-content:center;color:#fff;position:relative;overflow:hidden}.brand-panel:before{content:"";position:absolute;width:520px;height:520px;right:-180px;bottom:-90px;border-radius:50%;border:1px solid rgba(255,255,255,.10);box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 44px rgba(255,255,255,.025)}.brand-panel:after{content:"";position:absolute;left:7%;right:8%;top:32%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);box-shadow:0 0 24px rgba(48,200,255,.85)}
+    .brand-lockup{position:relative;z-index:2;display:flex;align-items:center;gap:22px;margin-bottom:58px}.n-logo{width:108px;height:108px;border-radius:27px;border:2px solid rgba(83,133,255,.9);display:grid;place-items:center;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(36,92,255,.18));box-shadow:0 0 38px rgba(36,92,255,.42),inset 0 1px 0 rgba(255,255,255,.28)}.n-logo span{font-size:72px;font-weight:900;line-height:1;background:linear-gradient(135deg,#fff 0%,#b9ceff 38%,#38cfff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 10px 32px rgba(48,200,255,.22)}
+    .brand-name h1{font-size:58px;letter-spacing:-.06em;line-height:.9;font-weight:900}.brand-name h1 em{font-style:normal;background:linear-gradient(135deg,#fff,#2f74ff);-webkit-background-clip:text;background-clip:text;color:transparent}.brand-name p{font-size:18px;margin-top:12px;color:rgba(255,255,255,.82);font-weight:700}
+    .welcome{position:relative;z-index:2;max-width:560px}.welcome h2{font-size:36px;line-height:1.12;letter-spacing:-.03em;margin-bottom:15px}.welcome h2 span{color:#4d7bff}.welcome p{font-size:19px;line-height:1.55;color:rgba(255,255,255,.78);font-weight:600;margin-bottom:32px}.features{display:grid;gap:22px}.feature{display:flex;gap:18px;align-items:flex-start}.feature i{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(86,121,255,.40));box-shadow:inset 0 1px 0 rgba(255,255,255,.20);font-size:21px}.feature b{display:block;font-size:17px}.feature span{display:block;color:rgba(255,255,255,.72);font-size:14px;margin-top:6px;font-weight:600}.copyright{position:absolute;left:5vw;bottom:34px;color:rgba(255,255,255,.58);font-weight:700}
+    .login-area{min-height:100vh;display:grid;place-items:center;padding:44px 5vw}.login-card{width:min(520px,100%);border-radius:26px;background:rgba(255,255,255,.92);border:1px solid rgba(255,255,255,.86);box-shadow:var(--shadow);padding:40px 38px;backdrop-filter:blur(18px)}.small-logo{width:78px;height:78px;margin:0 auto 16px;display:grid;place-items:center}.login-card h3{text-align:center;font-size:34px;letter-spacing:-.04em}.login-card h3 span{color:var(--blue)}.login-subtitle{text-align:center;color:#4b5563;margin:12px 0 28px;font-size:16px;font-weight:700}.mode-tabs{height:64px;background:#fff;border:1px solid #d9e2f0;border-radius:16px;display:grid;grid-template-columns:1fr 1fr;padding:6px;gap:6px;margin-bottom:27px;box-shadow:0 12px 26px rgba(8,22,64,.06)}.tab{border-radius:12px;background:transparent;color:#111827;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s}.tab.active{background:linear-gradient(135deg,#456cff,#102fe0);color:#fff;box-shadow:0 12px 24px rgba(36,92,255,.28)}.tab.active.employee{background:linear-gradient(135deg,#111827,#4b5563)}
+    .login-form{display:grid;gap:18px}.field label{display:block;font-weight:900;margin-bottom:9px;font-size:15px}.input-box{height:58px;border:1px solid #dbe3f0;border-radius:13px;background:#fff;display:flex;align-items:center;overflow:hidden;transition:.18s}.input-box:focus-within{border-color:#245cff;box-shadow:0 0 0 4px rgba(36,92,255,.10)}.input-box i{width:54px;text-align:center;color:#667085}.input-box input{height:100%;width:100%;border:0;outline:0;background:transparent;font-weight:800;color:#111827}.password-toggle{height:100%;width:48px;background:transparent;color:#667085}.form-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.check-label,.role-hint{display:flex;align-items:center;gap:8px;font-size:14px;color:#4b5563;font-weight:800}.role-hint{color:#245cff}.login-btn{height:60px;border-radius:13px;background:linear-gradient(135deg,#456cff,#102fe0);box-shadow:0 16px 30px rgba(36,92,255,.26);color:#fff;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:11px;transition:.2s}.login-btn:hover{transform:translateY(-2px)}body.employee-mode .login-btn{background:linear-gradient(135deg,#111827,#4b5563)}.divider{display:flex;align-items:center;gap:18px;color:#667085;font-weight:800;font-size:14px;margin:2px 0}.divider:before,.divider:after{content:"";height:1px;background:#dbe3f0;flex:1}.google-btn{height:56px;border-radius:13px;background:#fff;border:1px solid #dbe3f0;color:#1f2937;font-weight:900;display:flex;align-items:center;justify-content:center;gap:12px}.google-g{font-weight:900;color:#ea4335}.message{display:none;min-height:42px;border-radius:12px;padding:0 13px;align-items:center;gap:9px;font-size:12px;font-weight:900}.message.show{display:flex}.message.error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c}.message.success{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}.footer-text{text-align:center;color:#667085;font-size:13px;font-weight:800;margin-top:18px}.theme-toggle{position:fixed;right:24px;top:22px;z-index:10;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.86);box-shadow:0 12px 30px rgba(8,22,64,.18);color:#245cff}.shake{animation:shake .35s ease}@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    body.dark .login-card{background:rgba(13,18,33,.88);border-color:rgba(255,255,255,.13);color:#fff}body.dark .login-subtitle,body.dark .check-label,body.dark .footer-text{color:#a8b3ca}body.dark .mode-tabs,body.dark .input-box,body.dark .google-btn{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.13);color:#fff}body.dark .input-box input{color:#fff}body.dark .field label{color:#fff}body.dark .divider{color:#a8b3ca}body.dark .divider:before,body.dark .divider:after{background:rgba(255,255,255,.13)}body.dark{background:#030919}.hidden-login-icon{display:none}
+    @media(max-width:980px){.page{grid-template-columns:1fr;background:linear-gradient(135deg,#030919 0%,#0b37d9 45%,#eef4ff 100%)}.brand-panel{min-height:auto;padding:34px 22px 24px}.brand-lockup{margin-bottom:28px}.brand-name h1{font-size:42px}.welcome h2{font-size:30px}.login-area{min-height:auto;padding:20px 18px 32px}.copyright{position:static;margin-top:28px}.page:after{display:none}}
+    @media(max-width:560px){.brand-lockup{gap:14px}.n-logo{width:82px;height:82px;border-radius:22px}.n-logo span{font-size:54px}.brand-name h1{font-size:36px}.brand-name p{font-size:14px}.features{gap:14px}.feature i{width:44px;height:44px}.login-card{padding:28px 18px}.login-card h3{font-size:29px}.form-row{flex-direction:column;align-items:flex-start}.theme-toggle{right:14px;top:14px}}
+  
+/* NexCRM final UI-only overrides: no login logic changed */
+body.admin-mode .login-btn{background:linear-gradient(135deg,#245cff,#102fe0)}
+body:not(.admin-mode) .login-btn{background:linear-gradient(135deg,#111827,#4b5563)}
+body.admin-mode .tab.active.admin{background:linear-gradient(135deg,#456cff,#102fe0);color:#fff;box-shadow:0 12px 24px rgba(36,92,255,.28)}
+body:not(.admin-mode) .tab.active.employee{background:linear-gradient(135deg,#111827,#4b5563);color:#fff;box-shadow:0 12px 24px rgba(17,24,39,.22)}
+.google-btn,.google-g{display:none!important}
+.n-logo img,.small-logo img{background:#fff;border-radius:22px;box-shadow:0 16px 38px rgba(3,9,25,.16);padding:6px}
+.brand-panel:after{content:"";position:absolute;right:-110px;bottom:-110px;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,.10);filter:blur(2px)}
+.brand-panel:before{box-shadow:0 0 70px rgba(255,255,255,.28)}
+body.dark .n-logo img,body.dark .small-logo img{background:rgba(255,255,255,.95)}
+@media (min-width:981px){html,body{height:100vh!important;overflow:hidden!important}.page,.brand-panel,.login-area{height:100vh!important;min-height:0!important}.brand-panel{padding-top:34px!important;padding-bottom:24px!important}.brand-lockup{margin-bottom:30px!important}.welcome p{margin-bottom:20px!important}.features{gap:14px!important}.login-card{padding:28px 34px!important}.login-form{gap:12px!important}.input-box{height:52px!important}.login-btn{height:54px!important}}
 
-:root{
-  --font:Calibri,Inter,Segoe UI,Arial,sans-serif;
-  --bg:#f5f7fb;--bg2:#ffffff;--card:rgba(255,255,255,.90);--card2:rgba(255,255,255,.72);--card-solid:#ffffff;
-  --text:#101827;--muted:#667085;--line:#e3e8f2;--line2:#d8deea;
-  --black:#080b12;--black2:#111827;--gold:#d7a839;--gold2:#fff1b8;--gold3:#8b6418;
-  --blue:#4f7cff;--purple:#7c3aed;--green:#16a34a;--red:#dc2626;--cyan:#0ea5e9;
-  --shadow:0 28px 80px rgba(15,23,42,.14);--soft:0 12px 28px rgba(15,23,42,.08);--glass:blur(20px) saturate(140%);
-}
-body.dark{
-  --bg:#080b12;--bg2:#0d1322;--card:rgba(18,24,38,.88);--card2:rgba(11,18,32,.78);--card-solid:#111827;
-  --text:#f8fafc;--muted:#a8b3ca;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.18);
-  --shadow:0 32px 90px rgba(0,0,0,.38);--soft:0 16px 42px rgba(0,0,0,.28);
-}
-*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
-html{scroll-behavior:smooth}button,input{font:inherit}button{border:0;cursor:pointer}a{text-decoration:none;color:inherit}
-body{
-  min-height:100vh;color:var(--text);overflow-x:hidden;background:
-  radial-gradient(circle at 6% 0%,rgba(215,168,57,.16),transparent 30%),
-  radial-gradient(circle at 94% 6%,rgba(124,58,237,.10),transparent 32%),
-  radial-gradient(circle at 50% 100%,rgba(79,124,255,.10),transparent 34%),
-  linear-gradient(180deg,#fff 0%,var(--bg) 100%);
-}
-body.dark{background:
-  radial-gradient(circle at 6% 0%,rgba(215,168,57,.18),transparent 34%),
-  radial-gradient(circle at 94% 6%,rgba(124,58,237,.18),transparent 34%),
-  radial-gradient(circle at 50% 100%,rgba(14,165,233,.12),transparent 34%),#080b12;}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(215,168,57,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.08) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 80%);z-index:0}
-.login-shell{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(460px,.95fr);gap:24px;padding:22px;align-items:stretch;}
-.brand-side{position:relative;overflow:hidden;border-radius:34px;background:linear-gradient(135deg,rgba(8,11,18,.97),rgba(17,24,39,.92));color:#fff;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.12);padding:30px;display:flex;flex-direction:column;justify-content:space-between;min-height:calc(100vh - 44px)}
-.brand-side:before{content:"";position:absolute;inset:-90px auto auto -90px;width:300px;height:300px;border-radius:999px;background:radial-gradient(circle,rgba(215,168,57,.32),transparent 70%)}
-.brand-side:after{content:"";position:absolute;right:-120px;bottom:-150px;width:430px;height:430px;border-radius:999px;background:radial-gradient(circle,rgba(79,124,255,.24),transparent 70%)}
-.brand-side>*{position:relative;z-index:1}.brand-top{display:flex;align-items:center;gap:16px}.brand-logo{width:76px;height:76px;border-radius:25px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#fff,#eef4ff);box-shadow:0 24px 52px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.9)}.brand-logo img{width:100%;height:100%;object-fit:contain;padding:7px}.brand-name h1{font-size:42px;font-weight:900;line-height:1;letter-spacing:-.055em}.brand-name h1 span{background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}.brand-name p{margin-top:7px;color:#cbd5e1;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}.hero-copy{max-width:780px;padding:34px 0 26px}.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(215,168,57,.35);background:rgba(215,168,57,.12);color:var(--gold2);padding:7px 12px;border-radius:999px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.5px}.hero-copy h2{font-size:clamp(40px,5vw,72px);line-height:.98;margin:16px 0 12px;font-weight:900;letter-spacing:-.065em}.hero-copy h2 span{color:var(--gold2)}.hero-copy p{color:#cbd5e1;font-size:17px;font-weight:700;line-height:1.6;max-width:720px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.hero-chip{min-height:42px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:#fff;font-weight:900;font-size:13px}.hero-visual{height:220px;position:relative;margin-top:16px}.big-icon{position:absolute;right:96px;top:24px;width:160px;height:160px;border-radius:42px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.20);display:grid;place-items:center;box-shadow:inset 0 1px 18px rgba(255,255,255,.18);animation:premiumHeroMove 6.4s cubic-bezier(.45,0,.25,1) infinite}.big-icon i{font-size:72px;color:var(--gold2);filter:drop-shadow(0 10px 18px rgba(0,0,0,.20))}.float{position:absolute;width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:#fff;box-shadow:0 20px 38px rgba(0,0,0,.18)}.f1{right:270px;top:26px;animation:smallOrbitOne 5.8s ease-in-out infinite}.f2{right:286px;top:142px;animation:smallOrbitTwo 6.6s ease-in-out infinite}.f3{right:24px;top:126px;animation:smallOrbitThree 6s ease-in-out infinite}
-@keyframes premiumHeroMove{0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}20%{transform:translate3d(20px,-18px,0) rotate(5deg) scale(1.035)}42%{transform:translate3d(-8px,-34px,0) rotate(-4deg) scale(1.06)}66%{transform:translate3d(-24px,4px,0) rotate(4deg) scale(1.03)}84%{transform:translate3d(10px,14px,0) rotate(-2deg) scale(1.018)}}
-@keyframes smallOrbitOne{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(18px,-20px) rotate(9deg)}}@keyframes smallOrbitTwo{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-20px,16px) rotate(-8deg)}}@keyframes smallOrbitThree{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(18px,20px) rotate(8deg)}}
-.brand-foot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric-tile{min-height:112px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);padding:16px;display:flex;align-items:center;gap:14px}.metric-tile i{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));font-size:20px}.metric-tile small{display:block;color:#cbd5e1;font-weight:900;text-transform:uppercase;font-size:11px}.metric-tile strong{display:block;font-size:24px;margin-top:5px;letter-spacing:-.04em}.login-area{position:relative;display:grid;place-items:center;min-height:calc(100vh - 44px)}.login-area:before{content:"";position:absolute;width:360px;height:360px;border-radius:999px;right:-150px;top:5%;background:radial-gradient(circle,rgba(215,168,57,.13),transparent 70%);pointer-events:none}.login-card{position:relative;overflow:hidden;width:min(560px,100%);border:1px solid var(--line);background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border-radius:30px;box-shadow:var(--shadow);padding:28px}.login-card:before{content:"";position:absolute;width:260px;height:260px;border-radius:999px;right:-125px;top:-135px;background:radial-gradient(circle,rgba(215,168,57,.18),transparent 70%);pointer-events:none}.login-card>*{position:relative;z-index:1}.theme-toggle{position:fixed;right:22px;top:22px;z-index:20;width:54px;height:54px;border-radius:19px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));box-shadow:0 16px 32px rgba(215,168,57,.22);border:1px solid rgba(139,100,24,.18);transition:.22s ease}.theme-toggle:hover{transform:translateY(-2px)}.small-logo{width:78px;height:78px;border-radius:25px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#eef4ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 14px 30px rgba(15,23,42,.10)}.small-logo img{width:100%;height:100%;object-fit:contain;padding:8px}.login-card h3{text-align:center;font-size:34px;line-height:1;font-weight:900;letter-spacing:-.04em;color:var(--text)}.login-card h3 span{color:var(--gold3)}body.dark .login-card h3 span{color:var(--gold2)}.login-subtitle{text-align:center;color:var(--muted);margin:12px auto 22px;font-size:15px;font-weight:800;max-width:360px;line-height:1.45}.mode-tabs{min-height:62px;background:var(--card-solid);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:1fr 1fr;padding:6px;gap:6px;margin-bottom:22px;box-shadow:var(--soft)}.tab{border-radius:14px;background:transparent;color:var(--text);font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:9px;transition:.22s ease}.tab:hover{transform:translateY(-1px)}.tab.active{background:linear-gradient(135deg,var(--black),var(--black2));color:#fff;box-shadow:0 16px 30px rgba(15,23,42,.18)}body.admin-mode .tab.active.admin{background:linear-gradient(135deg,var(--black),var(--black2) 58%,var(--gold) 145%)}body.employee-mode .tab.active.employee{background:linear-gradient(135deg,#111827,#374151)}.hidden-login-icon{display:none}.login-form{display:grid;gap:15px}.field label{display:block;font-weight:900;margin-bottom:8px;font-size:13px;color:var(--text)}.input-box{min-height:54px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.84);display:flex;align-items:center;overflow:hidden;transition:.18s;box-shadow:0 8px 18px rgba(15,23,42,.04)}body.dark .input-box{background:#0b1220}.input-box:focus-within{border-color:rgba(215,168,57,.75);box-shadow:0 0 0 4px rgba(215,168,57,.14)}.input-box>i{width:52px;text-align:center;color:var(--muted)}.input-box input{height:100%;width:100%;border:0;outline:0;background:transparent;font-weight:900;color:var(--text);padding-right:8px}.input-box input::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}.password-toggle{height:54px;width:52px;background:transparent;color:var(--muted);display:grid;place-items:center}.form-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.check-label,.role-hint{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:900}.check-label input{accent-color:var(--gold)}.role-hint{color:var(--green)}.login-btn{min-height:56px;border-radius:16px;background:linear-gradient(135deg,var(--black),var(--black2) 58%,var(--gold) 145%);box-shadow:0 18px 34px rgba(15,23,42,.18);color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;transition:.22s ease}.login-btn:hover{transform:translateY(-2px)}body.employee-mode .login-btn{background:linear-gradient(135deg,#111827,#374151)}.action-icon{width:23px;height:23px;object-fit:contain}.signin-fallback{display:none!important}.divider{display:flex;align-items:center;gap:14px;color:var(--muted);font-weight:900;font-size:12px;margin:2px 0;text-transform:uppercase;letter-spacing:.06em}.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}.auth-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.social-login-btn{min-height:52px;border-radius:16px;background:var(--card-solid);border:1px solid var(--line);color:var(--text);font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--soft);transition:.22s ease}.social-login-btn:hover{transform:translateY(-2px);border-color:rgba(215,168,57,.55)}.social-img{width:23px;height:23px;object-fit:contain}.phone-fallback{width:23px;height:23px;border-radius:8px;background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;display:none;place-items:center;font-size:12px}.message{display:none;min-height:44px;border-radius:16px;padding:11px 13px;align-items:center;gap:9px;font-size:13px;font-weight:900}.message.show{display:flex}.message.error{background:rgba(220,38,38,.09);border:1px solid rgba(220,38,38,.22);color:#b91c1c}.message.success{background:rgba(22,163,74,.09);border:1px solid rgba(22,163,74,.22);color:#15803d}body.dark .message.error{color:#fecaca}body.dark .message.success{color:#bbf7d0}.footer-text{text-align:center;color:var(--muted);font-size:12px;font-weight:900;margin-top:16px;text-transform:uppercase;letter-spacing:.05em}.shake{animation:shake .35s ease}@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}.login-card.mode-flip-out{transform:translateY(8px) scale(.985);opacity:.45;transition:.18s ease}.login-card.mode-flip-in{animation:cleanModeIn .28s cubic-bezier(.2,.8,.2,1) both}@keyframes cleanModeIn{from{transform:translateY(8px) scale(.985);opacity:.45}to{transform:none;opacity:1}}body.switch-lock .tab,body.switch-lock .login-btn,body.switch-lock .social-login-btn{pointer-events:none!important}.copyright{margin-top:22px;color:rgba(255,255,255,.62);font-weight:800;font-size:13px}
-@media(max-width:1180px){.login-shell{grid-template-columns:1fr}.brand-side,.login-area{min-height:auto}.brand-foot{grid-template-columns:repeat(3,1fr)}.hero-visual{display:none}.login-area{padding:10px 0 24px}.theme-toggle{position:fixed}}
-@media(max-width:760px){.login-shell{padding:12px}.brand-side{padding:22px;border-radius:26px}.brand-top{align-items:flex-start}.brand-logo{width:62px;height:62px;border-radius:20px}.brand-name h1{font-size:30px}.hero-copy h2{font-size:38px}.brand-foot{grid-template-columns:1fr}.metric-tile{min-height:86px}.login-card{padding:22px;border-radius:26px}.auth-options{grid-template-columns:1fr}.theme-toggle{right:14px;top:14px;width:48px;height:48px;border-radius:16px}.form-row{align-items:flex-start;flex-direction:column}.mode-tabs{grid-template-columns:1fr;min-height:112px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+/* Premium animated visuals added by ChatGPT - UI only */
+:root{--premium-glow:rgba(48,200,255,.55);--premium-blue:rgba(36,92,255,.48)}
+.page{overflow:hidden}
+.page .brand-panel{background:radial-gradient(circle at 25% 18%,rgba(48,200,255,.18),transparent 28%),radial-gradient(circle at 72% 72%,rgba(255,255,255,.10),transparent 24%)}
+.page:before{animation:nexcrmParticles 18s linear infinite}
+.page:after{animation:nexcrmPulse 7s ease-in-out infinite}
+.brand-lockup{animation:nexcrmFloatIn .9s ease both}
+.n-logo{position:relative;animation:nexcrmFloat 4.8s ease-in-out infinite;overflow:visible}
+.n-logo:before{content:"";position:absolute;inset:-12px;border-radius:34px;background:conic-gradient(from 0deg,transparent,rgba(48,200,255,.8),rgba(36,92,255,.9),transparent 78%);filter:blur(7px);opacity:.75;z-index:-1;animation:nexcrmSpin 5.5s linear infinite}
+.n-logo:after{content:"";position:absolute;inset:-20px;border-radius:42px;border:1px solid rgba(255,255,255,.22);box-shadow:0 0 35px rgba(48,200,255,.34);animation:nexcrmRing 2.8s ease-in-out infinite}
+.small-logo{position:relative;animation:nexcrmFloat 4.8s ease-in-out infinite}
+.small-logo:before{content:"";position:absolute;inset:-10px;border-radius:28px;background:conic-gradient(from 180deg,transparent,rgba(36,92,255,.75),rgba(48,200,255,.85),transparent);filter:blur(8px);opacity:.72;z-index:-1;animation:nexcrmSpin 6s linear infinite reverse}
+.brand-name h1,.welcome h2,.login-card h3{animation:nexcrmTextGlow 3.8s ease-in-out infinite}
+.welcome h2 span,.login-card h3 span{background:linear-gradient(90deg,#8fb0ff,#30c8ff,#ffffff,#8fb0ff);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:nexcrmShine 4s linear infinite}
+.feature{padding:12px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);transition:.25s ease;animation:nexcrmFadeUp .7s ease both}
+.feature:nth-child(2){animation-delay:.08s}.feature:nth-child(3){animation-delay:.16s}.feature:nth-child(4){animation-delay:.24s}
+.feature:hover{transform:translateY(-5px);background:rgba(255,255,255,.10);box-shadow:0 16px 40px rgba(0,0,0,.12)}
+.login-card{position:relative;overflow:hidden;animation:nexcrmCardIn .85s ease both}
+.login-card:before{content:"";position:absolute;inset:-2px;background:linear-gradient(120deg,transparent 0 22%,rgba(255,255,255,.7) 33%,transparent 44% 100%);transform:translateX(-120%);animation:nexcrmSweep 5.8s ease-in-out infinite;pointer-events:none}
+.login-card:after{content:"";position:absolute;inset:0;border-radius:26px;pointer-events:none;border:1px solid rgba(36,92,255,.12);box-shadow:inset 0 0 34px rgba(36,92,255,.05)}
+.mode-tabs,.field,.form-row,.login-btn,.footer-text{position:relative;z-index:1}
+.tab{position:relative;overflow:hidden}.tab:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(-130%);transition:.45s}.tab:hover:before{transform:translateX(130%)}
+.input-box:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(8,22,64,.08)}
+.login-btn{position:relative;overflow:hidden}.login-btn:before{content:"";position:absolute;top:0;bottom:0;width:55px;left:-70px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:nexcrmButtonShine 3.2s ease-in-out infinite}.login-btn:hover{box-shadow:0 20px 38px rgba(36,92,255,.34)}
+@keyframes nexcrmSpin{to{transform:rotate(360deg)}}
+@keyframes nexcrmFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes nexcrmRing{0%,100%{transform:scale(.97);opacity:.55}50%{transform:scale(1.06);opacity:1}}
+@keyframes nexcrmShine{to{background-position:220% center}}
+@keyframes nexcrmTextGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(48,200,255,0))}50%{filter:drop-shadow(0 0 14px rgba(48,200,255,.28))}}
+@keyframes nexcrmParticles{0%{background-position:0 0}100%{background-position:180px 180px}}
+@keyframes nexcrmPulse{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.48;transform:scale(1.06)}}
+@keyframes nexcrmFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes nexcrmFloatIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes nexcrmCardIn{from{opacity:0;transform:translateX(28px) scale(.98)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes nexcrmSweep{0%,72%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes nexcrmButtonShine{0%,55%{left:-70px}100%{left:110%}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 
-</style>
-</head>
 
-<body class="admin-mode">
+/* Premium background + feature cards refinement */
+.page{
+  background:
+    radial-gradient(circle at 12% 18%, rgba(48,200,255,.38), transparent 28%),
+    radial-gradient(circle at 36% 72%, rgba(80,118,255,.32), transparent 30%),
+    radial-gradient(circle at 88% 14%, rgba(255,255,255,.92), transparent 24%),
+    linear-gradient(116deg,#020617 0%,#06113f 27%,#1231b3 50%,#2b6fff 61%,#edf4ff 61.3%,#ffffff 100%)!important;
+}
+.page:before{
+  background-image:
+    linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px),
+    radial-gradient(rgba(80,210,255,.40) 1.3px, transparent 1.3px)!important;
+  background-size:58px 58px,58px 58px,22px 22px!important;
+  mask:linear-gradient(90deg,#000 0 72%,transparent 100%)!important;
+  opacity:.9;
+  animation:nexcrmGridMove 16s linear infinite;
+}
+.page:after{
+  width:900px!important;height:900px!important;left:9%!important;top:4%!important;
+  background:
+    repeating-radial-gradient(circle,rgba(255,255,255,.18) 0 1px,transparent 2px 17px),
+    radial-gradient(circle,rgba(48,200,255,.18),transparent 64%)!important;
+  opacity:.48!important;
+  animation:nexcrmOrbFloat 9s ease-in-out infinite alternate;
+}
+.brand-panel:before{
+  width:690px!important;height:690px!important;right:-250px!important;bottom:-200px!important;
+  background:radial-gradient(circle,rgba(255,255,255,.14),rgba(48,200,255,.06),transparent 68%);
+  border:1px solid rgba(255,255,255,.16)!important;
+  box-shadow:0 0 0 24px rgba(255,255,255,.04),0 0 90px rgba(48,200,255,.22)!important;
+}
+.brand-panel:after{
+  left:-16%!important;right:auto!important;top:8%!important;width:620px!important;height:620px!important;border-radius:50%!important;
+  background:radial-gradient(circle,rgba(36,92,255,.22),rgba(48,200,255,.08),transparent 70%)!important;
+  box-shadow:none!important;filter:blur(1px)!important;animation:nexcrmGlowPulse 5.5s ease-in-out infinite alternate;
+}
+.welcome{max-width:650px!important}
+.welcome h2{margin-bottom:28px!important;text-shadow:0 14px 42px rgba(0,0,0,.25)}
+.features{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+  width:100%;
+  max-width:620px;
+}
+.feature{
+  min-height:96px;
+  padding:18px 16px!important;
+  border-radius:24px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.055))!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.24)!important;
+  backdrop-filter:blur(18px)!important;
+  overflow:hidden;
+  position:relative;
+}
+.feature:before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent,rgba(255,255,255,.20),transparent);
+  transform:translateX(-110%);transition:.55s ease;
+}
+.feature:hover:before{transform:translateX(110%)}
+.feature:hover{transform:translateY(-6px) scale(1.015)!important;border-color:rgba(255,255,255,.38)!important}
+.feature i{
+  flex:0 0 54px!important;width:54px!important;height:54px!important;border-radius:18px!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(48,200,255,.22))!important;
+  box-shadow:0 13px 28px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.34)!important;
+  color:#fff!important;font-size:22px!important;
+}
+.feature b{
+  font-size:17px!important;line-height:1.18!important;letter-spacing:-.01em;
+  color:#fff;text-shadow:0 8px 22px rgba(0,0,0,.28);
+}
+@keyframes nexcrmGridMove{from{background-position:0 0,0 0,0 0}to{background-position:58px 58px,58px 58px,22px 22px}}
+@keyframes nexcrmOrbFloat{from{transform:translate3d(-18px,-8px,0) scale(.98)}to{transform:translate3d(24px,14px,0) scale(1.04)}}
+@keyframes nexcrmGlowPulse{from{opacity:.45;transform:scale(.95)}to{opacity:.82;transform:scale(1.08)}}
+@media(min-width:981px){
+  .features{gap:14px!important;max-width:590px!important}
+  .feature{min-height:82px!important;padding:14px 15px!important;border-radius:22px!important}
+  .feature i{width:48px!important;height:48px!important;flex-basis:48px!important;font-size:19px!important}
+  .feature b{font-size:16px!important}
+}
+@media(max-width:560px){
+  .features{grid-template-columns:1fr!important;gap:12px!important}
+  .feature{min-height:76px!important;padding:14px!important}
+}
+
+
+
+/* Final premium hero/background adjustment - UI only, no login logic changed */
+.page{
+  background:
+    radial-gradient(circle at 14% 18%, rgba(57,173,255,.40), transparent 24%),
+    radial-gradient(circle at 34% 78%, rgba(36,92,255,.35), transparent 32%),
+    radial-gradient(circle at 74% 20%, rgba(48,200,255,.22), transparent 27%),
+    radial-gradient(circle at 88% 86%, rgba(36,92,255,.16), transparent 30%),
+    linear-gradient(116deg,#061026 0%,#0a2360 31%,#1744ce 57%,#dceaff 57.4%,#f7fbff 100%)!important;
+}
+.page:before{
+  background-image:
+    linear-gradient(125deg,transparent 0 42%,rgba(255,255,255,.10) 43%,transparent 44% 100%),
+    linear-gradient(55deg,transparent 0 47%,rgba(48,200,255,.10) 48%,transparent 49% 100%)!important;
+  background-size:220px 220px,260px 260px!important;
+  mask:linear-gradient(90deg,#000 0 66%,rgba(0,0,0,.65) 82%,transparent 100%)!important;
+  opacity:.55!important;
+  animation:nexcrmSoftWaves 18s linear infinite!important;
+}
+.page:after{
+  width:980px!important;height:980px!important;left:-7%!important;top:-18%!important;
+  background:radial-gradient(circle,rgba(57,173,255,.22),rgba(36,92,255,.12) 45%,transparent 72%)!important;
+  opacity:.70!important;
+  animation:nexcrmHeroGlow 8s ease-in-out infinite alternate!important;
+}
+.brand-panel{
+  background:
+    radial-gradient(circle at 20% 16%,rgba(48,200,255,.18),transparent 30%),
+    radial-gradient(circle at 88% 72%,rgba(255,255,255,.12),transparent 30%)!important;
+}
+.brand-panel:before{
+  width:760px!important;height:760px!important;right:-260px!important;bottom:-260px!important;
+  background:radial-gradient(circle,rgba(255,255,255,.13),rgba(48,200,255,.08),transparent 70%)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 0 110px rgba(48,200,255,.22)!important;
+}
+.brand-panel:after{
+  width:720px!important;height:720px!important;left:-220px!important;top:-100px!important;
+  background:radial-gradient(circle,rgba(64,153,255,.24),rgba(48,200,255,.10),transparent 68%)!important;
+  animation:nexcrmGlowPulse 6s ease-in-out infinite alternate!important;
+}
+.login-area{
+  background:
+    radial-gradient(circle at 30% 18%,rgba(36,92,255,.10),transparent 24%),
+    radial-gradient(circle at 82% 84%,rgba(48,200,255,.12),transparent 32%),
+    linear-gradient(135deg,rgba(225,237,255,.78),rgba(255,255,255,.96))!important;
+}
+.brand-lockup{
+  gap:34px!important;
+  align-items:center!important;
+  margin-bottom:36px!important;
+}
+.n-logo{
+  width:128px!important;height:128px!important;border-radius:34px!important;
+  flex:0 0 128px!important;
+}
+.n-logo img{border-radius:28px!important;padding:7px!important}
+.n-logo:before{inset:-15px!important;border-radius:44px!important;filter:blur(9px)!important;opacity:.82!important}
+.n-logo:after{inset:-25px!important;border-radius:56px!important}
+.brand-name{padding-left:4px!important;min-width:360px!important}
+.brand-name h1{font-size:64px!important;line-height:.92!important;letter-spacing:-.065em!important;white-space:nowrap!important}
+.brand-name p{font-size:19px!important;margin-top:14px!important;white-space:nowrap!important;color:rgba(255,255,255,.88)!important}
+.features{
+  max-width:640px!important;
+  grid-template-columns:repeat(2,minmax(250px,1fr))!important;
+  gap:18px!important;
+}
+.feature{
+  min-height:88px!important;
+  padding:17px 18px!important;
+  border-radius:24px!important;
+}
+.feature i{flex:0 0 50px!important;width:50px!important;height:50px!important}
+.feature b{font-size:16.5px!important;white-space:nowrap!important}
+@keyframes nexcrmSoftWaves{from{background-position:0 0,0 0}to{background-position:220px 220px,-260px 260px}}
+@keyframes nexcrmHeroGlow{from{transform:translate(-10px,-6px) scale(.98);opacity:.58}to{transform:translate(22px,18px) scale(1.05);opacity:.82}}
+@media(min-width:981px){
+  .brand-panel{padding-left:4.2vw!important;padding-right:3.2vw!important}
+}
+@media(max-width:980px){
+  .brand-lockup{gap:24px!important}
+  .n-logo{width:108px!important;height:108px!important;flex-basis:108px!important}
+  .brand-name{min-width:0!important}
+  .brand-name h1{font-size:50px!important}
+  .brand-name p{font-size:17px!important;white-space:normal!important}
+}
+@media(max-width:560px){
+  .brand-lockup{gap:18px!important}
+  .n-logo{width:92px!important;height:92px!important;flex-basis:92px!important}
+  .brand-name h1{font-size:40px!important}
+  .brand-name p{font-size:14px!important}
+  .features{grid-template-columns:1fr!important}
+}
+
+
+
+/* Premium V3 clean login + richer background - UI only, no login/Firebase logic changed */
+.page{
+  background:
+    radial-gradient(circle at 10% 14%,rgba(82,180,255,.42),transparent 22%),
+    radial-gradient(circle at 26% 86%,rgba(11,55,217,.36),transparent 32%),
+    radial-gradient(circle at 64% 18%,rgba(48,200,255,.20),transparent 28%),
+    linear-gradient(118deg,#050b1f 0%,#071b4f 28%,#123fc6 56%,#e8f1ff 56.3%,#ffffff 100%)!important;
+}
+.page:before{
+  background-image:
+    linear-gradient(110deg,transparent 0 46%,rgba(255,255,255,.11) 47%,transparent 48% 100%),
+    linear-gradient(150deg,transparent 0 44%,rgba(48,200,255,.10) 45%,transparent 46% 100%),
+    radial-gradient(circle at 20% 30%,rgba(255,255,255,.12),transparent 9%)!important;
+  background-size:310px 310px,360px 360px,520px 520px!important;
+  opacity:.46!important;
+  mask:linear-gradient(90deg,#000 0 64%,rgba(0,0,0,.55) 83%,transparent 100%)!important;
+  animation:nexcrmLuxuryFlow 22s linear infinite!important;
+}
+.page:after{
+  width:1120px!important;height:1120px!important;left:-16%!important;top:-30%!important;
+  background:
+    radial-gradient(circle,rgba(69,108,255,.22),rgba(48,200,255,.13) 42%,transparent 70%)!important;
+  filter:none!important;
+  opacity:.82!important;
+  animation:nexcrmAurora 9s ease-in-out infinite alternate!important;
+}
+.login-area{
+  background:
+    radial-gradient(circle at 12% 22%,rgba(36,92,255,.08),transparent 25%),
+    radial-gradient(circle at 88% 80%,rgba(48,200,255,.10),transparent 28%),
+    linear-gradient(145deg,#eef5ff 0%,#ffffff 58%,#edf6ff 100%)!important;
+}
+.login-card{
+  background:#ffffff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  border:1px solid #d9e6ff!important;
+  box-shadow:0 28px 70px rgba(8,22,64,.16),0 0 0 8px rgba(36,92,255,.035)!important;
+}
+.login-card:before{
+  display:none!important;
+  animation:none!important;
+}
+.login-card:after{
+  border:1px solid rgba(36,92,255,.13)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+.input-box,.mode-tabs,.google-btn{
+  background:#ffffff!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.brand-panel:before,.brand-panel:after{
+  filter:none!important;
+}
+.brand-panel:before{
+  background:radial-gradient(circle,rgba(255,255,255,.16),rgba(48,200,255,.09) 45%,transparent 72%)!important;
+  animation:nexcrmAurora 10s ease-in-out infinite alternate-reverse!important;
+}
+.brand-panel:after{
+  background:radial-gradient(circle,rgba(48,200,255,.20),rgba(36,92,255,.10) 44%,transparent 72%)!important;
+}
+.n-logo{
+  box-shadow:0 24px 60px rgba(2,10,43,.30),0 0 0 1px rgba(255,255,255,.28),0 0 46px rgba(48,200,255,.24)!important;
+}
+.n-logo:before,.small-logo:before{
+  filter:none!important;
+  opacity:.55!important;
+}
+.brand-name{padding-left:10px!important}
+.brand-name p{letter-spacing:.01em!important}
+.feature{
+  background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045))!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  box-shadow:0 16px 38px rgba(0,0,0,.10)!important;
+  backdrop-filter:none!important;
+}
+.feature:hover{transform:translateY(-4px) scale(1.01)!important;background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(48,200,255,.08))!important}
+@keyframes nexcrmLuxuryFlow{from{background-position:0 0,0 0,0 0}to{background-position:310px 310px,-360px 360px,520px -520px}}
+@keyframes nexcrmAurora{from{transform:translate(-12px,-8px) scale(.98)}to{transform:translate(24px,18px) scale(1.04)}}
+body.dark .login-card{background:#0d1221!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+
+
+
+/* Premium v4 unified background + flip login card - UI only, no login/Firebase logic changed */
+html,body{background:#061537!important;}
+.page{
+  background:
+    radial-gradient(circle at 12% 18%, rgba(49,203,255,.28), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(88,126,255,.22), transparent 28%),
+    radial-gradient(circle at 78% 82%, rgba(48,200,255,.16), transparent 30%),
+    linear-gradient(115deg,#06142f 0%,#0a2a68 42%,#123b8f 68%,#0b2258 100%)!important;
+  overflow:hidden!important;
+}
+.page:before{
+  content:""!important;position:absolute!important;inset:-18%!important;z-index:-2!important;
+  background:
+    linear-gradient(115deg,transparent 0 35%,rgba(255,255,255,.10) 47%,transparent 58%),
+    repeating-linear-gradient(125deg,rgba(255,255,255,.060) 0 1px,transparent 1px 42px),
+    repeating-linear-gradient(35deg,rgba(48,200,255,.035) 0 1px,transparent 1px 54px)!important;
+  mask:none!important;opacity:.75!important;filter:none!important;background-size:auto!important;
+  animation:nexcrmAuroraMove 18s ease-in-out infinite alternate!important;
+}
+.page:after{
+  content:""!important;position:absolute!important;inset:auto -12% -20% auto!important;width:760px!important;height:760px!important;border-radius:50%!important;z-index:-1!important;
+  background:radial-gradient(circle,rgba(48,200,255,.18),rgba(36,92,255,.10) 42%,transparent 70%)!important;
+  opacity:.95!important;filter:blur(1px)!important;animation:nexcrmOrbFloat 10s ease-in-out infinite!important;
+}
+.brand-panel,.login-area{background:transparent!important;position:relative;z-index:1;}
+.login-area:before{
+  content:"";position:absolute;inset:10% 8%;border-radius:42px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(48,200,255,.045),rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 30px 90px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.12);
+  animation:nexcrmPanelGlow 5.5s ease-in-out infinite;
+}
+.login-area:after{
+  content:"";position:absolute;width:360px;height:360px;right:8%;top:10%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.16),rgba(48,200,255,.06) 42%,transparent 70%);
+  animation:nexcrmSoftFloat 8s ease-in-out infinite;
+}
+.login-card{
+  background:#ffffff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  border:1px solid rgba(255,255,255,.96)!important;border-radius:30px!important;
+  box-shadow:0 34px 85px rgba(0,0,0,.28), 0 0 0 1px rgba(48,200,255,.10)!important;
+  transform-style:preserve-3d;perspective:1200px;will-change:transform;
+}
+.login-card:before{display:none!important;}
+.login-card:after{border-radius:30px!important;box-shadow:inset 0 0 0 1px rgba(36,92,255,.08), inset 0 24px 70px rgba(36,92,255,.035)!important;}
+.login-card.flip-anim{animation:nexcrmLoginFlip .62s cubic-bezier(.2,.75,.2,1) both!important;}
+.mode-tabs{background:#f6f9ff!important;border:1px solid #d8e4ff!important;box-shadow:inset 0 2px 9px rgba(36,92,255,.06),0 12px 24px rgba(8,22,64,.08)!important;}
+.tab{transition:transform .22s ease,box-shadow .22s ease,background .22s ease!important;}
+.tab:hover{transform:translateY(-1px);}
+body.admin-mode .tab.active.admin,body.admin-mode .login-btn{background:linear-gradient(135deg,#3a7cff,#0e36df)!important;}
+body:not(.admin-mode) .tab.active.employee,body:not(.admin-mode) .login-btn{background:linear-gradient(135deg,#19233a,#596273)!important;}
+.input-box{background:#fff!important;border-color:#d8e4ff!important;box-shadow:0 8px 18px rgba(8,22,64,.045)!important;}
+.input-box:focus-within{box-shadow:0 0 0 4px rgba(48,200,255,.15),0 12px 24px rgba(8,22,64,.075)!important;}
+@keyframes nexcrmAuroraMove{0%{transform:translate3d(-2%,-1%,0) scale(1);opacity:.62}100%{transform:translate3d(3%,2%,0) scale(1.05);opacity:.88}}
+@keyframes nexcrmOrbFloat{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-42px,-28px,0) scale(1.08)}}
+@keyframes nexcrmPanelGlow{0%,100%{opacity:.58;transform:translateY(0)}50%{opacity:.88;transform:translateY(-6px)}}
+@keyframes nexcrmSoftFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-25px,22px,0)}}
+@keyframes nexcrmLoginFlip{0%{transform:rotateY(0) translateY(0);opacity:1}45%{transform:rotateY(89deg) translateY(-4px);opacity:.72}55%{transform:rotateY(-89deg) translateY(-4px);opacity:.72}100%{transform:rotateY(0) translateY(0);opacity:1}}
+@media(max-width:980px){.login-area:before{inset:4% 4%;border-radius:30px}.login-area:after{display:none}.page{background:linear-gradient(135deg,#06142f 0%,#123b8f 62%,#0b2258 100%)!important;}}
+
+
+
+/* Premium v5: seamless background + smoother flip + Google/Mobile login options */
+.page{
+  background:
+    radial-gradient(circle at 16% 22%, rgba(51,151,255,.34), transparent 30%),
+    radial-gradient(circle at 84% 18%, rgba(87,116,255,.25), transparent 32%),
+    radial-gradient(circle at 74% 86%, rgba(37,215,255,.18), transparent 34%),
+    linear-gradient(120deg,#061634 0%,#082764 45%,#0d3d99 72%,#071c4a 100%)!important;
+}
+.page:before{
+  inset:-25%!important;
+  background:
+    radial-gradient(ellipse at 18% 25%, rgba(255,255,255,.075), transparent 34%),
+    radial-gradient(ellipse at 88% 62%, rgba(48,200,255,.12), transparent 36%),
+    conic-gradient(from 210deg at 50% 50%, rgba(48,200,255,.10), transparent 17%, rgba(85,112,255,.11), transparent 44%, rgba(255,255,255,.055), transparent 75%)!important;
+  opacity:.95!important;
+  transform:translateZ(0)!important;
+  animation:nexcrmPremiumAtmosphere 16s ease-in-out infinite alternate!important;
+}
+.page:after{
+  width:980px!important;height:980px!important;right:-22%!important;bottom:-32%!important;
+  background:radial-gradient(circle,rgba(51,151,255,.26),rgba(48,200,255,.09) 42%,transparent 69%)!important;
+  filter:blur(4px)!important;
+}
+.login-area:before,.login-area:after{display:none!important;}
+.login-area{background:transparent!important;}
+.login-card{
+  background:linear-gradient(180deg,#ffffff 0%,#f9fbff 100%)!important;
+  box-shadow:0 38px 90px rgba(0,0,0,.24),0 0 55px rgba(48,200,255,.10)!important;
+  border:1px solid rgba(255,255,255,.96)!important;
+  overflow:hidden!important;
+  transform-origin:center center!important;
+}
+.login-card:after{display:none!important;}
+.login-card.flip-anim{animation:nexcrmSmoothFlip .48s cubic-bezier(.22,.8,.22,1) both!important;}
+.divider,.auth-options,.social-login-btn{display:flex!important;}
+.divider{margin:4px 0!important;color:#667085!important;font-size:13px!important;gap:12px!important;align-items:center!important;font-weight:900!important;}
+.divider:before,.divider:after{content:""!important;display:block!important;height:1px!important;background:#dbe5f4!important;flex:1!important;}
+.auth-options{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;position:relative;z-index:1!important;}
+.social-login-btn{height:54px!important;border-radius:14px!important;border:1px solid #dce6f6!important;background:#fff!important;color:#1f2937!important;align-items:center!important;justify-content:center!important;gap:10px!important;font-weight:900!important;box-shadow:0 10px 22px rgba(8,22,64,.06)!important;transition:.22s ease!important;}
+.social-login-btn:hover{transform:translateY(-2px)!important;box-shadow:0 16px 30px rgba(8,22,64,.12)!important;border-color:#b9ccff!important;}
+.google-icon{width:22px;height:22px;display:inline-grid;place-items:center;border-radius:50%;font-weight:950;font-size:17px;background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 0 50%,#fbbc05 0 75%,#ea4335 0);color:#fff;box-shadow:inset 0 0 0 6px #fff;}
+.phone-icon{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#245cff,#30c8ff);color:#fff;display:grid;place-items:center;font-size:13px;}
+@keyframes nexcrmPremiumAtmosphere{0%{transform:translate3d(-2%,-1%,0) rotate(0deg) scale(1)}100%{transform:translate3d(2%,1%,0) rotate(5deg) scale(1.05)}}
+@keyframes nexcrmSmoothFlip{0%{transform:translateY(0) scale(1);opacity:1}38%{transform:translateY(-7px) scale(.985) rotateY(28deg);opacity:.82}100%{transform:translateY(0) scale(1) rotateY(0);opacity:1}}
+@media(max-width:560px){.auth-options{grid-template-columns:1fr!important}.social-login-btn{height:50px!important}}
+
+
+
+/* Premium v6: followed reference background + no middle shade + stable mode flip */
+:root{--cyan:#39e7ff;--purple:#8f5cff;--green:#2bffbd;}
+html,body{background:#030915!important;min-height:100vh;}
+body{overflow:hidden!important;color:#fff!important;}
+body:before{content:"";position:fixed;inset:0;z-index:-5;background:
+  radial-gradient(circle at 14% 15%,rgba(57,231,255,.43),transparent 29%),
+  radial-gradient(circle at 86% 18%,rgba(143,92,255,.45),transparent 32%),
+  radial-gradient(circle at 64% 86%,rgba(43,255,189,.23),transparent 31%),
+  linear-gradient(125deg,#030915 0%,#071b35 45%,#120d2e 100%)!important;animation:nexcrmBgShift 9s ease-in-out infinite alternate;}
+body:after{content:"";position:fixed;inset:-35%;z-index:-4;background:conic-gradient(from 180deg at 50% 50%,transparent 0deg,rgba(57,231,255,.22) 70deg,rgba(143,92,255,.22) 135deg,rgba(43,255,189,.16) 220deg,transparent 320deg);filter:blur(55px);animation:nexcrmAuroraSpin 18s linear infinite;pointer-events:none;}
+@keyframes nexcrmBgShift{from{filter:hue-rotate(0deg) brightness(1)}to{filter:hue-rotate(16deg) brightness(1.13)}}
+@keyframes nexcrmAuroraSpin{to{transform:rotate(360deg)}}
+.page{background:transparent!important;position:relative;overflow:hidden;isolation:isolate;}
+.page:before{content:""!important;position:absolute!important;inset:0!important;z-index:-3!important;background-image:linear-gradient(rgba(255,255,255,.042) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.042) 1px,transparent 1px)!important;background-size:70px 70px!important;mask-image:linear-gradient(to bottom,transparent 0%,black 18%,black 78%,transparent 100%)!important;animation:nexcrmMeshMove 16s linear infinite!important;opacity:.9!important;}
+.page:after{content:""!important;position:absolute!important;inset:0!important;width:auto!important;height:auto!important;left:auto!important;top:auto!important;border-radius:0!important;background:
+  radial-gradient(circle at 22% 80%,rgba(255,255,255,.75) 0 3px,transparent 4px),
+  radial-gradient(circle at 72% 18%,rgba(57,231,255,.9) 0 3px,transparent 4px),
+  radial-gradient(circle at 89% 74%,rgba(255,255,255,.85) 0 2px,transparent 3px),
+  radial-gradient(circle at 47% 46%,rgba(43,255,189,.7) 0 2px,transparent 3px)!important;filter:none!important;opacity:.44!important;animation:nexcrmParticleFloat 8s ease-in-out infinite alternate!important;z-index:-2!important;pointer-events:none;}
+@keyframes nexcrmMeshMove{to{background-position:140px 140px}}
+@keyframes nexcrmParticleFloat{from{transform:translateY(0)}to{transform:translateY(-35px)}}
+.brand-panel,.login-area{background:transparent!important;box-shadow:none!important;}
+.brand-panel:before,.brand-panel:after,.login-area:before,.login-area:after{display:none!important;}
+@media(min-width:981px){.page{grid-template-columns:1.08fr .92fr!important}.brand-panel{padding-left:5.4vw!important}.login-area{padding-left:2.5vw!important;padding-right:5.2vw!important}}
+.brand-lockup{gap:34px!important;margin-bottom:40px!important;}
+.n-logo{width:142px!important;height:142px!important;border-radius:38px!important;background:linear-gradient(145deg,#ffffff 0%,#dffaff 38%,#65efff 100%)!important;box-shadow:0 0 0 1px rgba(255,255,255,.7) inset,0 28px 80px rgba(57,231,255,.42),0 0 95px rgba(143,92,255,.35)!important;animation:nexcrmLogoFloat 3.4s ease-in-out infinite!important;position:relative!important;}
+.n-logo:before{content:"";position:absolute;inset:-14px;border-radius:46px;border:2px solid rgba(57,231,255,.45);animation:nexcrmLogoRing 2.1s ease-out infinite;}
+.n-logo img{width:86%!important;height:86%!important;border-radius:28px!important;box-shadow:none!important;padding:4px!important;position:relative;z-index:1;}
+@keyframes nexcrmLogoFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-13px) rotate(-2deg)}}
+@keyframes nexcrmLogoRing{from{transform:scale(.86);opacity:1}to{transform:scale(1.22);opacity:0}}
+.brand-name{padding-left:4px!important;}
+.brand-name h1{font-size:66px!important;letter-spacing:-.075em!important;line-height:.86!important;background:linear-gradient(90deg,#fff 0%,#39e7ff 38%,#b29cff 75%,#fff 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:nexcrmTextShine 3.8s linear infinite;text-shadow:none!important;}
+.brand-name h1 em{color:transparent!important;background:inherit!important;-webkit-background-clip:text!important;background-clip:text!important;}
+.brand-name p{font-size:20px!important;margin-top:14px!important;color:rgba(255,255,255,.76)!important;white-space:nowrap!important;}
+@keyframes nexcrmTextShine{to{background-position:220% center}}
+.welcome h2{font-size:44px!important;max-width:650px!important;}
+.features{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important;max-width:570px!important;margin-top:26px!important;}
+.feature{border:1px solid rgba(255,255,255,.18)!important;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.055))!important;border-radius:22px!important;padding:18px!important;min-height:88px!important;align-items:center!important;box-shadow:0 18px 45px rgba(0,0,0,.24)!important;overflow:hidden!important;position:relative!important;}
+.feature:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent,rgba(255,255,255,.14),transparent);transform:translateX(-110%);animation:nexcrmCardShine 4s infinite;}
+.feature i,.feature div{position:relative;z-index:1}.feature i{background:linear-gradient(135deg,rgba(57,231,255,.22),rgba(143,92,255,.25))!important}.feature b{font-size:16px!important;white-space:normal!important;}
+@keyframes nexcrmCardShine{45%,100%{transform:translateX(110%)}}
+.login-card{background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.07)),radial-gradient(circle at 20% 10%,rgba(57,231,255,.18),transparent 34%),radial-gradient(circle at 90% 90%,rgba(143,92,255,.19),transparent 35%)!important;border:1px solid rgba(255,255,255,.24)!important;border-radius:36px!important;box-shadow:0 45px 110px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.08) inset!important;color:#fff!important;backdrop-filter:none!important;transform-style:preserve-3d!important;will-change:transform,opacity!important;}
+.login-card:before{content:"";position:absolute;width:330px;height:330px;border-radius:50%;right:-170px;top:-160px;background:rgba(57,231,255,.18);filter:blur(8px);pointer-events:none;}
+.login-card>*{position:relative;z-index:1}.login-subtitle,.footer-text,.check-label{color:rgba(255,255,255,.72)!important}.field label{color:rgba(255,255,255,.76)!important}.input-box{background:rgba(2,11,23,.54)!important;border:1px solid rgba(255,255,255,.17)!important;border-radius:18px!important}.input-box input{color:#fff!important}.input-box input::placeholder{color:rgba(255,255,255,.55)!important}.mode-tabs{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:24px!important;padding:8px!important;box-shadow:0 18px 45px rgba(0,0,0,.2)!important}.tab{border-radius:18px!important;color:#fff!important}.tab.active{color:#031120!important;background:linear-gradient(135deg,#fff,#39e7ff)!important;box-shadow:0 12px 34px rgba(57,231,255,.32)!important}.login-btn{color:#031120!important;background:linear-gradient(135deg,#fff,#39e7ff 55%,#bca8ff)!important;box-shadow:0 20px 46px rgba(57,231,255,.24)!important;border-radius:19px!important}.auth-options{gap:12px!important}.social-login-btn{border-radius:18px!important;background:rgba(255,255,255,.95)!important;color:#172033!important}.divider{color:rgba(255,255,255,.55)!important}.divider:before,.divider:after{background:rgba(255,255,255,.17)!important}
+.login-card.flip-anim{animation:nexcrmStableFlip .58s cubic-bezier(.2,.8,.2,1) both!important;}
+@keyframes nexcrmStableFlip{0%{transform:rotateY(0deg) scale(1);opacity:1}48%{transform:rotateY(-86deg) scale(.985);opacity:.72}52%{transform:rotateY(86deg) scale(.985);opacity:.72}100%{transform:rotateY(0deg) scale(1);opacity:1}}
+body.switch-lock .tab{pointer-events:none!important;}
+@media(max-width:980px){body{overflow:auto!important}.brand-name h1{font-size:48px!important}.brand-name p{white-space:normal!important}.n-logo{width:112px!important;height:112px!important}.features{grid-template-columns:1fr!important}.login-card{border-radius:30px!important}}
+@media(max-width:560px){.brand-lockup{gap:20px!important}.brand-name h1{font-size:38px!important}.brand-name p{font-size:15px!important}.n-logo{width:94px!important;height:94px!important}.welcome h2{font-size:32px!important}}
+
+
+
+/* Premium v7 final: Icons + light buttons + glitch-free card switch */
+body.admin-mode .tab.active.admin,
+body.employee-mode .tab.active.employee,
+.tab.active.admin,
+.tab.active.employee{
+  background:linear-gradient(135deg,#ffffff 0%,#e8fbff 38%,#39e7ff 70%,#bca8ff 100%)!important;
+  color:#031120!important;
+  border:1px solid rgba(255,255,255,.82)!important;
+  box-shadow:0 14px 38px rgba(57,231,255,.34), inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+.tab.employee:not(.active),.tab.admin:not(.active){
+  background:rgba(255,255,255,.10)!important;
+  color:rgba(255,255,255,.88)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+}
+.login-btn,
+body.employee-mode .login-btn,
+body.admin-mode .login-btn{
+  background:linear-gradient(135deg,#ffffff 0%,#e7fbff 34%,#39e7ff 64%,#8f5cff 100%)!important;
+  color:#031120!important;
+  border:1px solid rgba(255,255,255,.78)!important;
+  box-shadow:0 20px 48px rgba(57,231,255,.32),0 10px 28px rgba(143,92,255,.18)!important;
+}
+.login-btn:hover{transform:translateY(-3px)!important;filter:brightness(1.04)}
+.action-icon{width:25px;height:25px;object-fit:contain;display:inline-block}
+.signin-fallback{display:none!important}
+.social-logins{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;margin-top:13px!important}
+.social-login-btn{
+  min-height:54px!important;
+  border-radius:15px!important;
+  border:1px solid rgba(255,255,255,.76)!important;
+  background:rgba(255,255,255,.96)!important;
+  color:#172033!important;
+  font-weight:950!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.18)!important;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease!important;
+}
+.social-login-btn:hover{transform:translateY(-3px)!important;box-shadow:0 20px 46px rgba(57,231,255,.22)!important;filter:brightness(1.03)}
+.social-img{width:24px;height:24px;object-fit:contain;flex:0 0 24px}
+.phone-fallback{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#39e7ff,#8f5cff);color:#031120;display:none;place-items:center;font-size:13px}
+.login-card{will-change:transform,opacity;transform-style:flat!important;backface-visibility:hidden!important}
+.login-card.flip-anim{animation:nexcrmNoGlitchSwitch .42s cubic-bezier(.22,.8,.22,1) both!important}
+@keyframes nexcrmNoGlitchSwitch{
+  0%{opacity:1;transform:translateY(0) scale(1)}
+  45%{opacity:.35;transform:translateY(8px) scale(.985)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@media(max-width:560px){.social-logins{grid-template-columns:1fr!important}.social-login-btn{min-height:52px!important}}
+
+
+
+/* Final fix: proper 3D flip only - keeps v7 design, icons and login logic */
+.login-area{perspective:1400px!important;}
+.login-card{
+  transform-origin:center center!important;
+  transform-style:preserve-3d!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+  transition:transform .28s cubic-bezier(.22,.85,.22,1),opacity .28s ease,filter .28s ease!important;
+}
+.login-card.flip-anim{animation:none!important;}
+.login-card.mode-flip-out{
+  transform:rotateY(88deg) scale(.985)!important;
+  opacity:.55!important;
+  filter:brightness(.96)!important;
+}
+.login-card.mode-flip-in{
+  animation:nexcrmRealFlipIn .34s cubic-bezier(.18,.9,.22,1) both!important;
+}
+@keyframes nexcrmRealFlipIn{
+  0%{transform:rotateY(-88deg) scale(.985);opacity:.55;filter:brightness(.96)}
+  70%{transform:rotateY(8deg) scale(1.004);opacity:1;filter:brightness(1.02)}
+  100%{transform:rotateY(0deg) scale(1);opacity:1;filter:brightness(1)}
+}
+body.switch-lock .tab,body.switch-lock .login-btn,body.switch-lock .social-login-btn{pointer-events:none!important;}
+@media(max-width:560px){
+  .login-card.mode-flip-out{transform:rotateY(82deg) scale(.985)!important;}
+  @keyframes nexcrmRealFlipIn{
+    0%{transform:rotateY(-82deg) scale(.985);opacity:.55}
+    100%{transform:rotateY(0deg) scale(1);opacity:1}
+  }
+}
+
+.login-area{perspective:1200px!important}.login-card{transition:transform .22s ease,opacity .22s ease!important;transform-style:preserve-3d!important}.login-card.mode-flip-out{transform:rotateY(72deg) scale(.98)!important;opacity:.55!important}.login-card.mode-flip-in{animation:nexcrmCleanFlipIn .24s ease both!important}@keyframes nexcrmCleanFlipIn{from{transform:rotateY(-72deg) scale(.98);opacity:.55}to{transform:rotateY(0) scale(1);opacity:1}}.divider{display:flex!important}.social-login-btn{display:flex!important}.auth-options{display:grid!important}</style><link href="nexcrm-mobile-compact.css" rel="stylesheet"></link></head><body class="admin-mode">
 <button aria-label="Toggle Theme" class="theme-toggle" onclick="toggleTheme()" type="button"><i class="fa-solid fa-circle-half-stroke"></i></button>
-<main class="login-shell">
-  <section class="brand-side" aria-label="NexCRM login overview">
-    <div>
-      <div class="brand-top">
-        <div class="brand-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" onerror="this.style.display='none';this.parentElement.textContent='NX'"></div>
-        <div class="brand-name"><h1>Nex<span>CRM</span></h1><p>Finbud Financial Services Limited</p></div>
-      </div>
-      <div class="hero-copy">
-        <span class="eyebrow"><i class="fa-solid fa-shield-halved"></i> NexCRM Secure Login</span>
-        <h2>Admin &amp; Employee <span>Portal</span></h2>
-        <p>Premium NexCRM workspace with secured role-based access for Admin and Employee dashboards. Login screen rebuilt in the same polished Leads.html visual language.</p>
-        <div class="hero-actions">
-          <span class="hero-chip"><i class="fa-solid fa-user-shield"></i> Admin Priority</span>
-          <span class="hero-chip"><i class="fa-solid fa-id-card"></i> Employee Access</span>
-          <span class="hero-chip"><i class="fa-solid fa-database"></i> Firebase Ready</span>
-        </div>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="big-icon"><i class="fa-solid fa-lock"></i></div>
-        <div class="float f1"><i class="fa-solid fa-chart-line"></i></div>
-        <div class="float f2"><i class="fa-solid fa-users-gear"></i></div>
-        <div class="float f3"><i class="fa-solid fa-gear"></i></div>
-      </div>
-    </div>
-    <div>
-      <div class="brand-foot">
-        <div class="metric-tile"><i class="fa-solid fa-shield-halved"></i><div><small>Security</small><strong>Protected</strong></div></div>
-        <div class="metric-tile"><i class="fa-solid fa-gauge-high"></i><div><small>Access</small><strong>Role Based</strong></div></div>
-        <div class="metric-tile"><i class="fa-solid fa-cloud"></i><div><small>System</small><strong>Live Ready</strong></div></div>
-      </div>
-      <div class="copyright">© 2026 NexCRM. All rights reserved.</div>
-    </div>
-  </section>
-  <section class="login-area" aria-label="NexCRM login form">
-    <div class="login-card" id="loginCard">
-      <div class="small-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" onerror="this.style.display='none'"></div>
-      <h3>Welcome <span>Back!</span></h3>
-      <p class="login-subtitle" id="loginSubtitle">Enter your admin credential and password to continue.</p>
-      <div class="mode-tabs">
-        <button class="tab admin active" id="adminTab" onclick="setMode('admin')" type="button"><i class="fa-solid fa-user-shield"></i> Admin Login</button>
-        <button class="tab employee" id="employeeTab" onclick="setMode('employee')" type="button"><i class="fa-regular fa-user"></i> Employee Login</button>
-      </div>
-      <div class="hidden-login-icon"><i class="fa-solid fa-user-shield" id="loginIcon"></i></div>
-      <h3 id="loginTitle" style="display:none">Admin Login</h3>
-      <form class="login-form" onsubmit="loginUser(event)">
-        <div class="field"><label for="username" id="credentialLabel">Admin Credential</label><div class="input-box"><i class="fa-regular fa-envelope"></i><input autocomplete="username" id="username" placeholder="Enter Admin Credential" required type="text"></div></div>
-        <div class="field"><label for="password">Password</label><div class="input-box"><i class="fa-solid fa-lock"></i><input autocomplete="current-password" id="password" placeholder="Enter your password" required type="password"><button class="password-toggle" onclick="togglePassword()" type="button"><i class="fa-regular fa-eye" id="eyeIcon"></i></button></div></div>
-        <div class="form-row"><label class="check-label"><input id="rememberMe" type="checkbox"> Remember me</label><div class="role-hint"><i class="fa-solid fa-circle-check"></i><span id="roleHint">Role: Admin</span></div></div>
-        <button class="login-btn" type="submit"><img alt="Sign In" class="action-icon" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'" src="Meterial/signin.png"> <i class="fa-solid fa-right-to-bracket signin-fallback"></i> Sign In</button>
-        <div class="divider">or continue with</div>
-        <div class="auth-options">
-          <button class="social-login-btn google-login" onclick="googleUiNotice()" type="button"><img alt="Google" class="social-img" src="Meterial/google.png" onerror="this.style.display='none'"> Google</button>
-          <button class="social-login-btn phone-login" onclick="phoneUiNotice()" type="button"><img alt="Phone" class="social-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-grid'" src="Meterial/phone.png"><span class="phone-fallback"><i class="fa-solid fa-mobile-screen-button"></i></span> Phone</button>
-        </div>
-        <div class="message" id="loginMessage"></div>
-      </form>
-      <div class="footer-text" id="footerText">NexCRM Admin Portal • Secure Admin Access</div>
-    </div>
-  </section>
+<main class="page">
+<section class="brand-panel">
+<div class="brand-lockup">
+<div class="n-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" style="width:85%;height:85%;object-fit:contain;border-radius:20px"/></div>
+<div class="brand-name"><h1>Nex<em>CRM</em></h1><p>Smart CRM. Stronger Relationships.</p></div>
+</div>
+<div class="welcome">
+<h2>Welcome to <span>NexCRM</span><br/>Employee &amp; Admin Portal</h2>
+<div class="features">
+<div class="feature"><i class="fa-solid fa-shield-halved"></i><div><b>Secure &amp; Protected</b></div></div>
+<div class="feature"><i class="fa-solid fa-chart-line"></i><div><b>Analytics Dashboard</b></div></div>
+<div class="feature"><i class="fa-solid fa-users-gear"></i><div><b>User Management</b></div></div>
+<div class="feature"><i class="fa-solid fa-gear"></i><div><b>System Settings</b></div></div>
+</div>
+</div>
+<div class="copyright">© 2026 NexCRM. All rights reserved.</div>
+</section>
+<section class="login-area">
+<div class="login-card" id="loginCard">
+<div class="small-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" style="width:70px;height:70px;object-fit:contain"/></div>
+<h3>Welcome <span>Back!</span></h3>
+<p class="login-subtitle" id="loginSubtitle">Sign in to access your NexCRM workspace</p>
+<div class="mode-tabs">
+<button class="tab admin active" id="adminTab" onclick="setMode('admin')"><i class="fa-solid fa-user-shield"></i> Admin Login</button>
+<button class="tab employee" id="employeeTab" onclick="setMode('employee')"><i class="fa-regular fa-user"></i> Employee Login</button>
+</div>
+<div class="hidden-login-icon"><i class="fa-solid fa-user-tie" id="loginIcon"></i></div>
+<h3 id="loginTitle" style="display:none">Employee Login</h3>
+<form class="login-form" onsubmit="loginUser(event)">
+<div class="field"><label for="username" id="credentialLabel">Admin Credential</label><div class="input-box"><i class="fa-regular fa-envelope"></i><input autocomplete="username" id="username" placeholder="Enter Admin Credential" required="" type="text"/></div></div>
+<div class="field"><label for="password">Password</label><div class="input-box"><i class="fa-solid fa-lock"></i><input autocomplete="current-password" id="password" placeholder="Enter your password" required="" type="password"/><button class="password-toggle" onclick="togglePassword()" type="button"><i class="fa-regular fa-eye" id="eyeIcon"></i></button></div></div>
+<div class="form-row"><label class="check-label"><input id="rememberMe" type="checkbox"/> Remember me</label><div class="role-hint"><i class="fa-solid fa-circle-check"></i><span id="roleHint">Role: Admin</span></div></div>
+<button class="login-btn" type="submit"><img alt="Sign In" class="action-icon" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'" src="Meterial/signin.png"/> <i class="fa-solid fa-right-to-bracket signin-fallback"></i> Sign In</button>
+<div class="divider">or continue with</div>
+<div class="auth-options">
+<button class="social-login-btn google-login" onclick="googleUiNotice()" type="button"><img alt="Google" class="social-img" src="Meterial/google.png"/> Sign In with Google</button>
+<button class="social-login-btn phone-login" onclick="phoneUiNotice()" type="button"><img alt="Phone" class="social-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-grid'" src="Meterial/phone.png"/><span class="phone-fallback"><i class="fa-solid fa-mobile-screen-button"></i></span> Sign In with Phone</button>
+</div>
+<div class="message" id="loginMessage"></div>
+</form>
+<div class="footer-text" id="footerText">NexCRM Admin Portal • Secure Admin Access</div>
+</div>
+</section>
 </main>
-
 <script>
-
 const LOGIN_CONFIG_KEY='nexcrm_login_config_v1';
 const DEFAULT_LOGIN_CONFIG={
  employee:{role:'Employee',title:'Employee Login',subtitle:'Enter your Employee Credential and Password to Continue.',redirect:'employee-dashboard.html',icon:'fa-solid fa-user-tie',hint:'Role: Employee',footer:'NexCRM Launcher • Secure Employee Access'},
@@ -251,7 +768,14 @@ async function loginUser(e){
   const localMatch=loginMode==='admin'?adminMatch:employeeMatch;
   if(!localMatch){showMsg('error','Invalid credential or password. Please check Portal Settings.');return shakeLogin()}
   const meta=roleMeta(loginMode);
-  const session={user:localMatch.email||localMatch.username,email:localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:false};
+  let firebaseResult=null;
+  if(loginMode==='admin'){
+    try{
+      if(!window.NexCRMFirebase||!window.NexCRMFirebase.activateConfiguredCredential)throw new Error('Firebase Authentication is not ready.');
+      firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,'admin',remember);
+    }catch(err){showMsg('error',(err&&err.message)||'Firebase admin login failed.');return shakeLogin()}
+  }
+  const session={user:(firebaseResult&&firebaseResult.email)||localMatch.email||localMatch.username,uid:(firebaseResult&&firebaseResult.user&&firebaseResult.user.uid)||'',email:(firebaseResult&&firebaseResult.email)||localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:!!firebaseResult};
   clearSession();
   (remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));
   localStorage.setItem('nexcrm_logged_in','true');
@@ -273,8 +797,12 @@ function resetLocalLoginIfRequested(){
   return true;
 }
 restoreTheme();setMode('admin');prefetchRemoteLoginConfig();resetLocalLoginIfRequested();
+</script><script src="nexcrm-form-autosave.js"></script></body></html>
 
-</script>
-<script src="nexcrm-form-autosave.js"></script>
-</body>
-</html>
+
+
+
+
+
+
+

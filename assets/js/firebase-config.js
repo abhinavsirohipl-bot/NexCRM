@@ -6,7 +6,7 @@ import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.5/firebase
 export const firebaseConfig = {
   apiKey: "AIzaSyBOzXioyIop1bL0KDARSv9aZjLx9n41N54",
   authDomain: "nexcrm-372c7.firebaseapp.com",
-  databaseURL: "https://nexcrm-372c7-default-rtdb.firebaseio.com",
+  databaseURL: "https://nexcrm-372c7-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "nexcrm-372c7",
   storageBucket: "nexcrm-372c7.firebasestorage.app",
   messagingSenderId: "512061780494",

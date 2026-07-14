@@ -1,0 +1,163 @@
+<!DOCTYPE html><html lang="en"><head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="../Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="../Others Files/nexcrm-realtime-database.js"></script><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Chola Personal Loan Policy | Bandhan Style</title><link rel="icon" type="image/png" href="../Meterial/tab.png"><link rel="shortcut icon" type="image/png" href="../Meterial/tab.png"><link rel="apple-touch-icon" href="../Meterial/tab.png"><link rel="preconnect" href="https://cdnjs.cloudflare.com" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" /><style>
+:root{
+  --deep:#020a14;
+  --navy:#061d33;
+  --navy2:#092b4d;
+  --navy3:#0d3b68;
+  --gold:#ffc23d;
+  --gold2:#ffe59a;
+  --red:#ec1c24;
+  --red2:#ff5760;
+  --green:#22c55e;
+  --cyan:#38bdf8;
+  --text:#f8fbff;
+  --muted:#b9c7d6;
+  --line:rgba(255,255,255,.16);
+  --glass:rgba(255,255,255,.085);
+  --glass2:rgba(255,255,255,.155);
+  --shadow:0 26px 80px rgba(0,0,0,.42);
+  --radius:28px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Calibri,Arial,sans-serif;
+  color:var(--text);
+  background:#020a14;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.bg{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 8% 10%,rgba(255,194,61,.24),transparent 28%),
+    radial-gradient(circle at 90% 6%,rgba(236,28,36,.20),transparent 24%),
+    radial-gradient(circle at 70% 80%,rgba(56,189,248,.15),transparent 30%),
+    linear-gradient(135deg,#03101f 0%,#082a49 48%,#02101d 100%);
+}
+.bg:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(120deg,transparent 0 55%,rgba(255,255,255,.035) 55% 66%,transparent 66%),
+    radial-gradient(circle,rgba(255,255,255,.20) 1px,transparent 1px);
+  background-size:100% 100%,24px 24px;
+  background-position:0 0,calc(100% - 280px) 65px;
+  opacity:.55;
+}
+.wrap{max-width:1380px;margin:auto;padding:22px}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  margin:-22px -22px 22px;
+  padding:14px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  background:rgba(2,10,20,.78);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{
+  width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,#ff3838 0 54%,#b5000b 55% 100%);
+  display:grid;place-items:center;
+  box-shadow:0 16px 40px rgba(236,28,36,.42);
+  flex:0 0 auto;
+}
+.logo i{font-size:25px;color:#fff;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.brand h1{margin:0;font-size:30px;line-height:1;font-weight:900;white-space:nowrap}
+.brand h1 span{font-weight:400;color:var(--gold)}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.hamburger,.print,.chipBtn{
+  cursor:pointer;border:0;border-radius:999px;font-family:Calibri,Arial,sans-serif;font-weight:900;
+}
+.hamburger{
+  width:48px;height:48px;display:grid;place-items:center;
+  color:#061d33;background:linear-gradient(135deg,var(--gold),#ff9d00);
+  box-shadow:0 13px 26px rgba(255,194,61,.22);
+}
+.print{
+  color:#061d33;background:linear-gradient(135deg,var(--gold),#ff9d00);
+  padding:11px 16px;
+  box-shadow:0 13px 26px rgba(255,194,61,.22);
+}
+.pill{
+  border:1px solid rgba(255,194,61,.42);
+  background:linear-gradient(135deg,rgba(255,194,61,.17),rgba(255,255,255,.06));
+  color:var(--gold2);
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(9px);z-index:90;display:none}
+.drawerBackdrop.show{display:block}
+.drawer{
+  position:fixed;top:0;left:0;bottom:0;width:min(360px,92vw);z-index:100;
+  background:linear-gradient(180deg,rgba(6,29,51,.96),rgba(2,10,20,.96));
+  border-right:1px solid var(--line);
+  box-shadow:35px 0 85px rgba(0,0,0,.42);
+  transform:translateX(-105%);
+  transition:.25s ease;
+  padding:18px;
+  overflow:auto;
+}
+.drawer.show{transform:translateX(0)}
+.drawerTop{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.drawerTop h3{margin:0;font-size:24px}.close{background:rgba(255,255,255,.10);color:white;border:1px solid var(--line);border-radius:16px;width:42px;height:42px;cursor:pointer}
+.navList{display:grid;gap:9px}
+.navList a{
+  text-decoration:none;color:var(--text);display:flex;align-items:center;gap:12px;
+  padding:12px;border-radius:16px;border:1px solid var(--line);
+  background:rgba(255,255,255,.065);font-weight:800;
+}
+.navList a:hover{background:rgba(255,194,61,.16);border-color:rgba(255,194,61,.35);transform:translateX(3px)}
+.navList i{width:24px;color:var(--gold);text-align:center}
+.hero{
+  position:relative;overflow:hidden;border:1px solid var(--line);border-radius:34px;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.045));
+  box-shadow:var(--shadow);padding:34px;margin-bottom:22px;
+}
+.hero:before{content:"";position:absolute;right:-90px;top:-140px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(255,194,61,.28),transparent 68%)}
+.hero:after{content:"";position:absolute;right:78px;bottom:-125px;width:390px;height:390px;border:2px solid rgba(255,194,61,.35);transform:rotate(45deg);border-radius:28px}
+.heroInner{position:relative;z-index:1;display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch}
+.eyebrow{display:inline-flex;gap:9px;align-items:center;border:1px solid rgba(236,28,36,.42);background:rgba(236,28,36,.17);color:#ffd5d7;border-radius:999px;padding:9px 13px;font-weight:900}
+.hero h2{font-size:54px;line-height:.96;margin:15px 0 12px;letter-spacing:-1px}.hero h2 b{color:var(--gold)}
+.hero p{margin:0;color:var(--muted);font-size:19px;max-width:760px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:25px}.metric{padding:17px;border-radius:23px;background:rgba(255,255,255,.085);border:1px solid var(--line)}.metric i{font-size:21px;color:var(--gold)}.metric strong{display:block;font-size:25px;margin:9px 0 2px;color:white}.metric span{font-size:13px;color:var(--muted)}
+.newUpdate{padding:24px;border:1px solid rgba(255,194,61,.45);border-radius:30px;background:linear-gradient(180deg,rgba(255,194,61,.18),rgba(255,255,255,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}.newUpdate h3{margin:0 0 16px;font-size:25px;color:var(--gold)}
+.miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:14px;background:rgba(0,0,0,.12)}.mini small{display:block;color:var(--muted);font-weight:700}.mini b{display:block;font-size:20px;margin-top:3px;color:white}
+.indexRow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}.index{padding:16px;border-radius:22px;text-decoration:none;color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--line);display:flex;align-items:center;gap:12px;transition:.22s}.index:hover{transform:translateY(-3px);background:rgba(255,255,255,.13)}.index .no{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--gold),#ff9900);color:#07192b;display:grid;place-items:center;font-weight:900;flex:0 0 auto}.index small{color:var(--muted)}
+.sectionTitle{display:flex;align-items:center;gap:12px;margin:30px 0 14px}.sectionTitle .no{width:44px;height:44px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#ff9300);color:#07192b;display:grid;place-items:center;font-weight:900;font-size:20px;flex:0 0 auto}.sectionTitle h2{margin:0;font-size:32px}.sectionTitle p{margin:3px 0 0;color:var(--muted)}
+.product{border:1px solid var(--line);border-radius:30px;background:linear-gradient(180deg,var(--glass2),var(--glass));box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}.productHead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 22px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.055)}.productTitle{display:flex;align-items:center;gap:14px}.icon{width:54px;height:54px;border-radius:20px;background:linear-gradient(135deg,var(--gold),#ff9300);color:#07192b;display:grid;place-items:center;font-size:24px;box-shadow:0 16px 32px rgba(255,194,61,.24);flex:0 0 auto}.productTitle h3{margin:0;font-size:25px}.productTitle p{margin:4px 0 0;color:var(--muted)}.tag{border-radius:999px;border:1px solid rgba(255,194,61,.35);color:var(--gold2);padding:8px 12px;background:rgba(255,194,61,.11);font-weight:800;text-align:center}
+.content{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.065);padding:17px}.panel h4{margin:0 0 12px;font-size:20px;color:var(--gold2)}.full{grid-column:1/-1}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.chip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);padding:8px 11px;border-radius:999px;font-weight:800;color:#fff}.list{display:grid;gap:10px}.li{display:flex;gap:10px;color:#edf5ff;line-height:1.38}.li i{color:var(--gold);margin-top:3px;min-width:17px}.highlight{border-left:4px solid var(--gold);border-radius:16px;background:rgba(255,194,61,.115);padding:13px 14px;margin-top:12px;color:#fff;line-height:1.35}
+.tableWrap{border-radius:18px;border:1px solid var(--line);overflow:hidden;width:100%}table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;word-break:break-word;overflow-wrap:anywhere;line-height:1.36}th{background:rgba(255,194,61,.18);color:var(--gold2);font-size:15px}tr:last-child td{border-bottom:0}td{color:#eef6ff}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.snapshot{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.065);padding:17px}.snapshot i{color:var(--gold);font-size:21px}.snapshot b{display:block;color:#fff;font-size:19px;margin:8px 0 4px}.snapshot span{color:var(--muted);line-height:1.35;display:block}.dangerBox{background:linear-gradient(135deg,rgba(236,28,36,.95),rgba(124,10,18,.90));border-color:rgba(255,255,255,.20)}
+.footer{margin-top:22px;padding:18px;text-align:center;color:var(--muted);border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.06)}
+@media(max-width:1050px){.heroInner,.content{grid-template-columns:1fr}.indexRow{grid-template-columns:repeat(2,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.cards3{grid-template-columns:1fr 1fr}.topbar{align-items:flex-start}.brand h1{white-space:normal}}
+@media(max-width:650px){.wrap{padding:14px}.topbar{margin:-14px -14px 18px;align-items:flex-start;flex-direction:column}.actions{width:100%;justify-content:space-between}.hero{padding:22px}.hero h2{font-size:34px}.metrics,.miniGrid,.indexRow,.cards3{grid-template-columns:1fr}.productHead{align-items:flex-start;flex-direction:column}.tag{white-space:normal}.brand h1{font-size:25px}.brand p{font-size:13px}th,td{font-size:13px;padding:10px}.tableWrap table,.tableWrap thead,.tableWrap tbody,.tableWrap th,.tableWrap td,.tableWrap tr{display:block}.tableWrap thead{display:none}.tableWrap tr{border-bottom:1px solid var(--line);padding:8px}.tableWrap tr:last-child{border-bottom:0}.tableWrap td{border-bottom:0;padding:7px 8px}.tableWrap td:before{content:attr(data-label);display:block;color:var(--gold2);font-weight:900;font-size:12px;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}}
+@media print{body{background:white;color:#111}.bg,.topbar,.drawer,.drawerBackdrop,.hamburger,.print{display:none!important}.wrap{max-width:none;padding:0}.hero,.product,.footer,.panel,.snapshot{box-shadow:none;background:white;color:#111;border-color:#bbb;break-inside:avoid}.hero p,.productTitle p,.li,td,.footer,.snapshot span{color:#111}.chip,.tag,.mini{color:#111;border-color:#bbb;background:white}th{color:#111;background:#f0f0f0}.sectionTitle h2,.panel h4,.newUpdate h3,.metric strong,.mini b,.highlight,.snapshot b{color:#111}.highlight{background:#fff7dc}}
+</style><link rel="stylesheet" href="../nexcrm-mobile-compact.css" /></head><body><div class="bg"></div><div class="drawerBackdrop" id="drawerBackdrop" onclick="toggleDrawer(false)"></div><aside class="drawer" id="drawer"><div class="drawerTop"><h3><i class="fa-solid fa-bars"></i> Policy Menu</h3><button class="close" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button></div><nav class="navList"><a href="#top" onclick="toggleDrawer(false)"><i class="fa-solid fa-crown"></i> Top USP Dashboard</a><a href="#features" onclick="toggleDrawer(false)"><i class="fa-solid fa-clipboard-check"></i> Policy Features</a><a href="#calculation" onclick="toggleDrawer(false)"><i class="fa-solid fa-calculator"></i> Calculation Exclusions</a><a href="#restrictions" onclick="toggleDrawer(false)"><i class="fa-solid fa-triangle-exclamation"></i> Restrictions</a><a href="#snapshot" onclick="toggleDrawer(false)"><i class="fa-solid fa-star"></i> Quick Snapshot</a><a href="#table" onclick="toggleDrawer(false)"><i class="fa-solid fa-table-list"></i> Parameter Table</a></nav></aside><div class="wrap" id="top"><header class="topbar"><div class="brand"><button class="hamburger" onclick="toggleDrawer(true)" aria-label="Open Menu"><i class="fa-solid fa-bars"></i></button><div class="logo"><i class="fa-solid fa-wave-square"></i></div><div><h1>Chola <span>Personal Loan</span></h1><p>Delhi NCR Policy • Bandhan Style Theme</p></div></div><div class="actions"><div class="pill"><i class="fa-solid fa-location-dot"></i> Delhi NCR Policy</div><button class="print" onclick="window.print()"><i class="fa-solid fa-print"></i> Print / PDF</button></div></header><section class="hero"><div class="heroInner"><div><div class="eyebrow"><i class="fa-solid fa-bolt"></i> Policy Refresher</div><h2>Chola Personal Loan <b>One Pager Policy</b></h2><p>Bandhan-style policy dashboard for Delhi NCR with all major USPs, eligibility rules, calculation exclusions, restrictions and quick snapshot in a clean CRM-ready HTML format.</p><div class="metrics"><div class="metric"><i class="fa-solid fa-percent"></i><strong>13.5%</strong><span>ROI for Govt. & Cat A</span></div><div class="metric"><i class="fa-solid fa-sack-dollar"></i><strong>₹30L</strong><span>Maximum Loan Amount</span></div><div class="metric"><i class="fa-solid fa-calendar-days"></i><strong>84M</strong><span>Eligibility Calculation</span></div><div class="metric"><i class="fa-solid fa-user-check"></i><strong>₹1.5L</strong><span>Salary Requirement</span></div></div></div><aside class="newUpdate"><h3><i class="fa-solid fa-crown"></i> Major Policy Highlights</h3><div class="miniGrid"><div class="mini"><small>Eligible Category</small><b>A / B / Govt</b></div><div class="mini"><small>BT Tracks</small><b>6 Tracks</b></div><div class="mini"><small>BT CC O/S</small><b>Up to 8×</b></div><div class="mini"><small>Govt -1 Employee</small><b>Up to ₹20L</b></div></div></aside></div></section><nav class="indexRow"><a class="index" href="#features"><span class="no">1</span><span><b>Policy Features</b><br><small>Loan amount, CC OS, inquiries, BT</small></span></a><a class="index" href="#calculation"><span class="no">2</span><span><b>Calculation Rules</b><br><small>EMI, joint loan, GL/KCC, rental</small></span></a><a class="index" href="#restrictions"><span class="no">3</span><span><b>Restrictions</b><br><small>Profile exclusions and danger rules</small></span></a><a class="index" href="#snapshot"><span class="no">4</span><span><b>Quick Snapshot</b><br><small>ROI, company category, BT rule</small></span></a></nav><div class="sectionTitle" id="features"><div class="no">1</div><div><h2>Policy Features & Guidelines</h2><p>Main policy points presented in CRM readable format.</p></div></div><section class="product"><div class="productHead"><div class="productTitle"><div class="icon"><i class="fa-solid fa-clipboard-check"></i></div><div><h3>Chola Personal Loan — Delhi NCR</h3><p>Loan amount, tenure calculation, credit card outstanding and balance transfer points.</p></div></div><div class="tag">Policy Features</div></div><div class="content"><div class="panel"><h4><i class="fa-solid fa-circle-check"></i> Major USPs</h4><div class="chips"><span class="chip">₹30L Max LA</span><span class="chip">84M Calculation</span><span class="chip">ROI 13.5%</span><span class="chip">A / B / Govt</span></div><div class="list"><div class="li"><i class="fa-solid fa-check"></i><span><b>Loan Amount:</b> Rs. 30L. Salary should be 1.5L, JCP 5 years, working with A, B and Govt.</span></div><div class="li"><i class="fa-solid fa-check"></i><span><b>84 Months Calculations:</b> Eligibility will be calculated on 84 months.</span></div><div class="li"><i class="fa-solid fa-check"></i><span><b>CC OS:</b> 3 times credit card outstanding from gross salary will not be obligated.</span></div></div><div class="highlight"><b>ROI:</b> 13.5% valid till 30th April-26 for Government and Cat A profiles.</div></div><div class="panel"><h4><i class="fa-solid fa-right-left"></i> BT & Inquiry Rules</h4><div class="list"><div class="li"><i class="fa-solid fa-list-check"></i><span><b>Inquiries:</b> 5 unique inquiries required in last 30 days. Top-up inquiry can be ignored.</span></div><div class="li"><i class="fa-solid fa-route"></i><span><b>Tracks:</b> 6 tracks are allowed for BT, PL/OD/DOD/CC and 6 MOB to be paid.</span></div><div class="li"><i class="fa-solid fa-wallet"></i><span><b>BT Credit Card Outstanding:</b> Up to 8 times allowed for balance transfer.</span></div></div><div class="highlight"><b>BT Rule:</b> PL / OD / DOD / CC can be considered under track rule with 6 MOB paid condition.</div></div></div></section><div class="sectionTitle" id="calculation"><div class="no">2</div><div><h2>Calculation Exclusions & Adjustments</h2><p>Important obligation, EMI exclusion and income add-back points.</p></div></div><section class="product"><div class="productHead"><div class="productTitle"><div class="icon"><i class="fa-solid fa-calculator"></i></div><div><h3>Eligibility Calculation Rules</h3><p>Clear rule-wise structure for underwriting and CRM training use.</p></div></div><div class="tag">Calculation Rules</div></div><div class="content"><div class="panel full"><div class="cards3"><div class="snapshot"><i class="fa-solid fa-user-tie"></i><b>-1 Govt Employee</b><span>Loan amount can be funded up to 20L.</span></div><div class="snapshot"><i class="fa-solid fa-clock"></i><b>EMI Exclusions</b><span>6 EMI pending if tenure is greater than 18 months, 3 EMI on 18 months, CD loans not if tenure is 6 months.</span></div><div class="snapshot"><i class="fa-solid fa-people-arrows"></i><b>Joint Loan EMI</b><span>Not obligated based on income documents and banking.</span></div><div class="snapshot"><i class="fa-solid fa-gem"></i><b>ZERO GL / KCC</b><span>No obligation if interest is not from bank account.</span></div><div class="snapshot"><i class="fa-solid fa-chart-line"></i><b>Income Add Back</b><span>Monthly, quarterly and rental income added up to 60% for cancellation.</span></div><div class="snapshot"><i class="fa-solid fa-building-shield"></i><b>Category Support</b><span>Policy is focused on A, B and Government profiles with salary/JCP filters.</span></div></div></div></div></section><div class="sectionTitle" id="restrictions"><div class="no">3</div><div><h2>Eligibility & Restrictions</h2><p>Important rejection/red flag profiles highlighted in alert format.</p></div></div><section class="product"><div class="productHead"><div class="productTitle"><div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div><div><h3>Restricted Profiles & Negative Points</h3><p>Use this section to avoid sourcing non-policy cases.</p></div></div><div class="tag">Red Flag Rules</div></div><div class="content"><div class="panel"><h4><i class="fa-solid fa-user-shield"></i> Allowed With Conditions</h4><div class="list"><div class="li"><i class="fa-solid fa-check"></i><span><b>4th Grade Funding:</b> Up to 7.5L except MCD and Railways.</span></div><div class="li"><i class="fa-solid fa-check"></i><span><b>Profile & CIBIL:</b> CIBIL 700, NTH for Delhi Location. Age, Govt/Pvt differences, bankers rules and negative profile details clarified with sub-points and cleaner flow.</span></div></div></div><div class="panel dangerBox"><h4><i class="fa-solid fa-ban"></i> Not Allowed / Restricted</h4><div class="list"><div class="li"><i class="fa-solid fa-circle-xmark"></i><span><b>4th Grade Exclusions:</b> MCD & Railway. No Safai Karamchari allowed.</span></div><div class="li"><i class="fa-solid fa-circle-xmark"></i><span><b>Restrictions:</b> Manpower / Media company, belt employees, advocate / police / political relations.</span></div></div></div></div></section><div class="sectionTitle" id="snapshot"><div class="no">4</div><div><h2>Quick Policy Snapshot</h2><p>Single view summary for daily CRM usage.</p></div></div><section class="product"><div class="productHead"><div class="productTitle"><div class="icon"><i class="fa-solid fa-star"></i></div><div><h3>Chola Personal Loan Snapshot</h3><p>Fast overview for callers, TLs and managers.</p></div></div><div class="tag">Quick View</div></div><div class="content"><div class="panel full"><div class="cards3"><div class="snapshot"><i class="fa-solid fa-percent"></i><b>ROI</b><span>13.5% for Govt & Cat A, valid till 30th April-26.</span></div><div class="snapshot"><i class="fa-solid fa-building"></i><b>Company Category</b><span>A, B and Government profiles.</span></div><div class="snapshot"><i class="fa-solid fa-file-invoice-dollar"></i><b>BT Rule</b><span>6 MOB paid for BT / PL / OD / DOD / CC.</span></div><div class="snapshot"><i class="fa-solid fa-indian-rupee-sign"></i><b>Loan Amount</b><span>Rs. 30L subject to salary 1.5L, JCP 5 years and profile category norms.</span></div><div class="snapshot"><i class="fa-solid fa-credit-card"></i><b>CC OS</b><span>3 times credit card outstanding from gross salary will not be obligated.</span></div><div class="snapshot"><i class="fa-solid fa-wallet"></i><b>BT CC Outstanding</b><span>Up to 8 times allowed for balance transfer.</span></div></div></div></div></section><div class="sectionTitle" id="table"><div class="no">5</div><div><h2>Policy Parameter Table</h2><p>Structured table format for website / NexCRM upload.</p></div></div><section class="product"><div class="productHead"><div class="productTitle"><div class="icon"><i class="fa-solid fa-table-list"></i></div><div><h3>Policy Parameter / Policy Norms</h3><p>Clean table view with no horizontal scroller.</p></div></div><div class="tag">Table Format</div></div><div class="content"><div class="panel full"><div class="tableWrap"><table><thead><tr><th>Policy Parameter</th><th>Policy Norms</th></tr></thead><tbody><tr><td data-label="Policy Parameter"><b>Loan Amount</b></td><td data-label="Policy Norms">Rs. 30L. Salary should be 1.5L, JCP 5 years, working with A, B and Govt.</td></tr><tr><td data-label="Policy Parameter"><b>Eligibility Calculation</b></td><td data-label="Policy Norms">Eligibility will be calculated on 84 months.</td></tr><tr><td data-label="Policy Parameter"><b>Credit Card Outstanding</b></td><td data-label="Policy Norms">3 times credit card outstanding from gross salary will not be obligated.</td></tr><tr><td data-label="Policy Parameter"><b>Inquiries</b></td><td data-label="Policy Norms">5 unique inquiries required in last 30 days. Top-up inquiry can be ignored.</td></tr><tr><td data-label="Policy Parameter"><b>BT / Tracks</b></td><td data-label="Policy Norms">6 tracks are allowed for BT, PL / OD / DOD / CC and 6 MOB to be paid.</td></tr><tr><td data-label="Policy Parameter"><b>BT Credit Card Outstanding</b></td><td data-label="Policy Norms">Up to 8 times allowed for balance transfer.</td></tr><tr><td data-label="Policy Parameter"><b>-1 Govt Employee</b></td><td data-label="Policy Norms">Loan amount can be funded up to 20L.</td></tr><tr><td data-label="Policy Parameter"><b>EMI Exclusions</b></td><td data-label="Policy Norms">6 EMI pending if tenure is &gt;18M, 3 EMI on 18M, CD loans not if tenure is 6M.</td></tr><tr><td data-label="Policy Parameter"><b>Joint Loan EMI</b></td><td data-label="Policy Norms">Not obligated based on income documents and banking.</td></tr><tr><td data-label="Policy Parameter"><b>ZERO GL / KCC</b></td><td data-label="Policy Norms">No obligation if interest is not from bank account.</td></tr><tr><td data-label="Policy Parameter"><b>Income Add Back</b></td><td data-label="Policy Norms">Monthly, quarterly and rental income added up to 60% for cancellation.</td></tr><tr><td data-label="Policy Parameter"><b>4th Grade Funding</b></td><td data-label="Policy Norms">Up to 7.5L except MCD and Railways.</td></tr><tr><td data-label="Policy Parameter"><b>4th Grade Exclusions</b></td><td data-label="Policy Norms">MCD & Railway. No Safai Karamchari allowed.</td></tr><tr><td data-label="Policy Parameter"><b>Restrictions</b></td><td data-label="Policy Norms">Manpower / Media company, belt employees, advocate / police / political relations.</td></tr><tr><td data-label="Policy Parameter"><b>Profile & CIBIL</b></td><td data-label="Policy Norms">CIBIL 700, NTH for Delhi Location. Age, Govt/Pvt differences, bankers rules and negative profile details clarified with sub-points and cleaner flow.</td></tr></tbody></table></div></div></div></section><div class="footer">Prepared as a Bandhan-style HTML remake for Chola Personal Loan Policy. Verify final values with official policy circular before customer communication.</div></div><script>
+function toggleDrawer(force){
+  const drawer=document.getElementById('drawer');
+  const backdrop=document.getElementById('drawerBackdrop');
+  const show=typeof force==='boolean'?force:!drawer.classList.contains('show');
+  drawer.classList.toggle('show',show);
+  backdrop.classList.toggle('show',show);
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') toggleDrawer(false); });
+</script><script src="../nexcrm-form-autosave.js"></script></body></html>
+
+
+
+
+

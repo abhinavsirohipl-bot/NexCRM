@@ -1,0 +1,774 @@
+<!DOCTYPE html><html lang="en"><head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="../Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="../Others Files/nexcrm-realtime-database.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NexHRMS</title><link rel="icon" type="image/png" href="../Meterial/tab.png"><link rel="shortcut icon" type="image/png" href="../Meterial/tab.png"><link rel="apple-touch-icon" href="../Meterial/tab.png"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>
+:root{
+  --font:Calibri,Arial,sans-serif;
+  --bg:#f5f7fb;--card:#fff;--text:#07143d;--muted:#53638d;--line:#e3e9f7;
+  --blue:#315cff;--purple:#7c2cff;--green:#16c765;--orange:#f59e0b;--pink:#ef2f73;
+  --shadow:0 18px 45px rgba(31,45,100,.09);--shadow2:0 28px 80px rgba(49,92,255,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
+html,body{min-height:100%}
+body{
+  background:radial-gradient(circle at 8% 2%,rgba(49,92,255,.08),transparent 30%),
+  radial-gradient(circle at 92% 4%,rgba(124,44,255,.10),transparent 32%),linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  color:var(--text);min-height:100vh;
+}
+body.dark{
+  --bg:#080b12;--card:#121826;--text:#f8fafc;--muted:#a8b3ca;--line:rgba(255,255,255,.11);
+  background:radial-gradient(circle at 8% 2%,rgba(49,92,255,.20),transparent 34%),
+  radial-gradient(circle at 94% 8%,rgba(124,58,237,.22),transparent 34%),#080b12;
+}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}a{text-decoration:none;color:inherit}
+.topbar{min-height:86px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 30px;background:rgba(255,255,255,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+body.dark .topbar{background:rgba(8,11,18,.86)}
+.brand,.left,.right,.crumb,.top-pill{display:flex;align-items:center}.left{gap:30px;min-width:0}.right{gap:16px;flex-wrap:wrap;justify-content:flex-end}.brand{gap:14px;min-width:260px}
+.logo{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;color:#fff;font-size:31px;font-weight:900;background:linear-gradient(135deg,#315cff,#8b2cff);box-shadow:0 16px 34px rgba(49,92,255,.24)}
+.brand h1{font-size:25px;line-height:1}.brand p{font-size:14px;color:var(--muted);font-weight:700;margin-top:4px}
+.crumb{min-height:52px;border:1px solid #dce4fb;border-radius:16px;background:#fff;box-shadow:0 10px 26px rgba(31,45,100,.06);overflow:hidden;font-weight:900;color:#071a8c;flex-wrap:wrap}
+.crumb span{padding:0 20px}.crumb .sep{color:#6b7ca5}
+.top-pill{min-height:52px;padding:0 22px;border-radius:16px;border:1px solid #dce4fb;background:#fff;box-shadow:0 10px 26px rgba(31,45,100,.06);font-weight:900;gap:11px;white-space:nowrap;color:var(--text)}
+.dot{width:15px;height:15px;border-radius:50%;background:#16c765;box-shadow:0 0 0 6px rgba(22,199,101,.12)}
+.theme-{padding:0 12px;background:linear-gradient(135deg,rgba(49,92,255,.08),rgba(124,44,255,.10));border-color:#d6ddff}
+.theme-track{width:78px;height:36px;border-radius:999px;background:linear-gradient(135deg,#315cff,#7c2cff);position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 10px 24px rgba(49,92,255,.22)}
+.theme-track:after{content:"";position:absolute;width:28px;height:28px;border-radius:50%;background:#fff;left:4px;top:4px;transition:.25s;box-shadow:0 8px 18px rgba(0,0,0,.20)}
+body.dark .theme-track:after{left:46px}
+.logout{background:linear-gradient(135deg,#ff416c,#ef2f73);color:#fff;border:0}
+body.dark .top-pill,body.dark .crumb{background:#121826;color:#f8fafc;border-color:rgba(255,255,255,.11)}
+.main{padding:18px 28px 28px;max-width:1920px;margin:auto}
+.hero{min-height:348px;border-radius:28px;overflow:hidden;position:relative;padding:48px 55px;color:#fff;display:grid;grid-template-columns:1fr 630px;align-items:center;margin-bottom:28px;background:radial-gradient(circle at 82% 45%,rgba(255,255,255,.16),transparent 24%),linear-gradient(135deg,#081a62 0%,#172b97 48%,#8729ff 100%);box-shadow:var(--shadow2)}
+.hero:before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;left:-110px;top:-70px;background:rgba(255,255,255,.1)}
+.hero:after{content:"";position:absolute;width:520px;height:280px;right:270px;bottom:-120px;background:radial-gradient(circle,rgba(255,255,255,.14),transparent 66%);filter:blur(2px)}
+.kicker{height:42px;display:inline-flex;align-items:center;gap:11px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.24);font-weight:900;margin-bottom:18px}
+.kicker b{width:18px;height:18px;border-radius:50%;background:linear-gradient(145deg,#ffc247,#ff5d7a)}
+.hero h2{font-size:49px;line-height:1.05;letter-spacing:-.04em}.hero p{font-size:20px;line-height:1.45;color:rgba(255,255,255,.9);max-width:700px;margin-top:16px}
+.hero-actions{display:flex;gap:14px;margin-top:25px;flex-wrap:wrap}.hero-chip{height:52px;padding:0 24px;border-radius:999px;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;gap:12px;font-weight:900;background:rgba(255,255,255,.08);transition:.22s}.hero-chip:hover{transform:translateY(-2px)}
+.hero-art{height:300px;position:relative}.ring{position:absolute;inset:5px 60px 8px 0;border:2px solid rgba(255,255,255,.17);border-radius:50%}
+.big-icon{position:absolute;right:190px;top:50px;width:205px;height:205px;border-radius:44px;background:linear-gradient(145deg,rgba(255,255,255,.35),rgba(255,255,255,.1));display:grid;place-items:center;border:1px solid rgba(255,255,255,.28);box-shadow:0 30px 70px rgba(0,0,0,.18),inset 0 1px 22px rgba(255,255,255,.32);animation:float 4.5s ease-in-out infinite}.big-icon i{font-size:90px}
+.float{position:absolute;width:90px;height:90px;border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.35),rgba(255,255,255,.1));display:grid;place-items:center;border:1px solid rgba(255,255,255,.24);box-shadow:0 22px 50px rgba(0,0,0,.16);animation:float2 3.8s ease-in-out infinite}.float i{font-size:39px}.f1{right:415px;top:20px}.f2{right:445px;top:160px}.f3{right:55px;top:30px}.f4{right:45px;top:176px}
+@keyframes float{50%{transform:translateY(-14px)}}@keyframes float2{50%{transform:translateY(-10px)}}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;margin-bottom:20px}.stat{height:145px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:20px;padding:22px;transition:.22s}.stat:hover{transform:translateY(-2px)}
+body.dark .stat,body.dark .card,body.dark .module-card,body.dark .quick-tile{background:#121826;color:#f8fafc;border-color:rgba(255,255,255,.11)}
+.stat-icon{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:31px;position:relative;flex:none}.stat-icon:before{content:"";position:absolute;inset:-13px;border-radius:50%;background:var(--halo);opacity:.22}.stat-icon i{position:relative;color:#fff;text-shadow:0 8px 16px rgba(0,0,0,.25)}.s1{background:linear-gradient(145deg,#7d67ff,#315cff);--halo:#7d67ff}.s2{background:linear-gradient(145deg,#57e08a,#16c765);--halo:#16c765}.s3{background:linear-gradient(145deg,#ffc247,#f59e0b);--halo:#f59e0b}.s4{background:linear-gradient(145deg,#42c7ff,#118ce8);--halo:#118ce8}.s5{background:linear-gradient(145deg,#a855f7,#7c2cff);--halo:#7c2cff}.s6{background:linear-gradient(145deg,#ff7bb0,#ef2f73);--halo:#ef2f73}.stat small{font-size:14px;color:var(--muted);font-weight:900}.stat strong{display:block;font-size:30px;margin:7px 0}.stat span{color:var(--muted);font-weight:700}.green{color:#00b44c!important}.red{color:#f01452!important}
+.module-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:22px}.module-card{min-height:168px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;justify-content:space-between;transition:.22s;position:relative;overflow:hidden}.module-card:after{content:"";position:absolute;right:-42px;top:-46px;width:120px;height:120px;border-radius:50%;background:rgba(49,92,255,.08)}.module-card:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(49,92,255,.16)}
+.module-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.module-icon{width:52px;height:52px;border-radius:18px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#315cff,#7c2cff);font-size:22px;box-shadow:0 14px 28px rgba(49,92,255,.18)}.module-badge{font-size:11px;font-weight:900;color:#3150d4;background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:6px 10px}.module-card h3{margin-top:14px;font-size:18px;font-weight:900}.module-card p{margin-top:6px;color:var(--muted);font-size:13px;font-weight:700;line-height:1.35}.open{color:#3150d4;font-size:13px;font-weight:900;margin-top:14px}
+.layout{display:grid;grid-template-columns:1fr 540px;gap:20px}.layout.layout-full{grid-template-columns:1fr}.card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}.card-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}.card-title{display:flex;align-items:center;gap:14px}.card-title i,.head-icon{width:45px;height:45px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#315cff,#7c2cff);font-size:20px}.card-title h3{font-size:21px}.card-title p{font-size:13px;color:var(--muted);font-weight:700;margin-top:3px}.pill{border-radius:999px;padding:7px 11px;font-size:12px;font-weight:900}.pill.green{background:#dcfce7;color:#15803d}.pill.blue{background:#eef2ff;color:#3150d4}.card-body{padding:18px 22px}.quick-list{display:grid;gap:12px}.quick-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(49,92,255,.05)}.quick-row strong{font-size:15px}.quick-row span{display:block;margin-top:3px;font-size:13px;color:var(--muted);font-weight:700}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.field label{display:block;color:var(--muted);font-size:12px;font-weight:900;margin-bottom:7px;text-transform:uppercase}.field input,.field select,.field textarea{width:100%;height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text);padding:0 12px;font-weight:700;outline:none}.field textarea{height:78px;padding:12px;resize:vertical}.field.full{grid-column:1/-1}body.dark input,body.dark select,body.dark textarea{background:#0b1220;color:#f8fafc;border-color:rgba(255,255,255,.14)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px}.btn{height:46px;border-radius:13px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:900}.btn.primary{color:#fff;background:linear-gradient(135deg,#315cff,#8b2cff);box-shadow:0 14px 28px rgba(49,92,255,.20)}.btn.soft{background:#fff;color:#16169a;border:1px solid var(--line)}.btn.green{background:linear-gradient(145deg,#16a34a,#15803d);color:#fff}
+.table-card{margin-top:20px}.table-wrap{overflow:auto;max-height:460px}table{width:100%;min-width:1200px;border-collapse:separate;border-spacing:0}th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:14px}th{background:#f1f4ff;color:#11218f;position:sticky;top:0;z-index:2}body.dark th{background:#172036;color:#dbeafe}.badge{padding:6px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-weight:900;font-size:12px}
+.quick-panel{position:relative;background:radial-gradient(circle at 18% 0%,rgba(49,92,255,.12),transparent 32%),radial-gradient(circle at 100% 8%,rgba(124,44,255,.12),transparent 34%),#fff!important}.joining-card{margin-bottom:14px;min-height:112px;border-radius:20px;padding:18px;display:flex;align-items:center;gap:16px;color:#fff;position:relative;overflow:hidden;background:radial-gradient(circle at 86% 18%,rgba(255,255,255,.26),transparent 18%),linear-gradient(135deg,#071a62,#315cff 52%,#7c2cff);box-shadow:0 20px 46px rgba(49,92,255,.24),inset 0 1px 0 rgba(255,255,255,.28)}.joining-icon{width:70px;height:70px;border-radius:24px;display:grid;place-items:center;flex:none;background:linear-gradient(145deg,rgba(255,255,255,.35),rgba(255,255,255,.10));border:1px solid rgba(255,255,255,.30);box-shadow:inset 0 1px 18px rgba(255,255,255,.32),0 16px 32px rgba(0,0,0,.16)}.joining-icon i{font-size:31px}.joining-card b{display:block;font-size:18px;font-weight:900}.joining-card span{display:block;margin-top:5px;font-size:13px;font-weight:700;color:rgba(255,255,255,.86)}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:14px;padding:12px 16px;font-weight:900;opacity:0;transform:translateY(12px);transition:.25s;z-index:200}.toast.show{opacity:1;transform:translateY(0)}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.58);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}.modal.open{display:flex}.modal-card{width:80vw;height:80vh;max-width:1500px;max-height:88vh;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:0 34px 90px rgba(0,0,0,.36);display:flex;flex-direction:column}.modal-head{min-height:60px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(49,92,255,.08),rgba(124,44,255,.10))}.modal-body{padding:0;flex:1;min-height:0}.modal-body iframe{width:100%!important;height:100%!important;border:0!important;display:block}.icon-btn{height:40px;width:40px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);display:inline-grid;place-items:center;cursor:pointer;box-shadow:var(--soft-shadow)}.icon-btn:hover{transform:translateY(-2px);color:#fff;background:linear-gradient(135deg,#ff416c,#ef2f73)}@media(max-width:900px){.modal{padding:12px}.modal-card{width:96vw;height:86vh;border-radius:18px}}
+@media(max-width:1500px){.hero{grid-template-columns:1fr 430px}.stats{grid-template-columns:repeat(3,1fr)}.module-grid{grid-template-columns:repeat(3,1fr)}.layout{grid-template-columns:1fr}.form-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.topbar{height:auto;flex-direction:column;align-items:flex-start}.left,.right{flex-wrap:wrap}.brand{min-width:0}.hero{grid-template-columns:1fr;height:auto;padding:28px}.hero-art{display:none}.hero h2{font-size:34px}.stats,.module-grid,.form-grid{grid-template-columns:1fr}.main{padding:14px}}
+@media print{.topbar,.hero,.stats,.module-grid,.layout .card:not(.printable),.actions{display:none!important}.main{padding:0}.card{box-shadow:none;border:0}}
+</style><style id="global-responsive-fit">
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
+.main,.app-shell{max-width:min(1600px,100vw)!important;margin:0 auto!important;padding-left:clamp(10px,2vw,24px)!important;padding-right:clamp(10px,2vw,24px)!important}
+.hero{min-height:clamp(160px,32vh,360px)!important;padding:clamp(18px,2.8vw,36px)!important}
+.hero h1,.hero h2,.hero h3{font-size:clamp(1.35rem,3.2vw,3rem)!important;line-height:1.1!important}
+.hero p{font-size:clamp(.92rem,1.6vw,1.2rem)!important;line-height:1.5!important}
+.stats,.module-grid,.quick-action-grid,.summary-grid,.qa-toolbar,.metrics,.quick-buttons{gap:clamp(8px,1.4vw,18px)!important}
+.card,.panel,.module,.quick-action-card,.stat{border-radius:clamp(14px,1.2vw,24px)!important}
+.table-wrap,.table-holder,.employee-table-wrap,.docs-table-wrap{overflow:auto!important;max-width:100%}
+@media (max-width:1200px){
+  .hero{grid-template-columns:1fr!important}
+  .hero-art,.hero-visual{display:none!important}
+  .stats,.module-grid,.quick-action-grid,.summary-grid,.metrics,.qa-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media (max-width:900px){
+  .topbar,.top-header{padding:12px 14px!important}
+  .brand h1{font-size:18px!important}
+  .stats,.module-grid,.quick-action-grid,.summary-grid,.metrics,.qa-toolbar,.quick-buttons{grid-template-columns:1fr!important}
+  .card-head,.panel-head,.section-head{flex-direction:column!important;align-items:flex-start!important}
+}
+@media (max-width:640px){
+  .topbar,.top-header{height:auto!important;min-height:0!important;flex-direction:column!important;align-items:flex-start!important}
+  .right,.header-actions,.actions{width:100%!important}
+  .top-pill,.status-pill,.theme-toggle,.logout-btn,.back-btn,.admin-btn,.logout,.back,.primary-btn,.soft-btn,.danger-btn,.btn,.qbtn{width:100%!important}
+}
+</style><style id="global-header-kit-v2">
+.topbar{
+  min-height:78px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:14px 26px;
+  background:rgba(255,255,255,.90);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+
+body.dark .topbar{
+  background:rgba(8,11,18,.86);
+}
+
+.left,.right,.brand,.crumb,.top-pill{
+  display:flex;
+  align-items:center;
+}
+
+.left{
+  gap:24px;
+  min-width:0;
+}
+
+.right{
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.brand{
+  gap:12px;
+  min-width:245px;
+}
+
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:linear-gradient(135deg,#315cff,#8b2cff);
+  box-shadow:0 14px 30px rgba(49,92,255,.24);
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:inherit;
+  display:block;
+}
+
+.brand h1{
+  font-size:23px;
+  line-height:1;
+  font-weight:900;
+}
+
+.brand p{
+  font-size:13px;
+  color:var(--muted);
+  font-weight:700;
+  margin-top:4px;
+}
+
+.crumb{
+  min-height:46px;
+  border:1px solid #dce4fb;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(31,45,100,.06);
+  overflow:hidden;
+  font-weight:900;
+  color:#071a8c;
+  flex-wrap:wrap;
+}
+
+.crumb span{
+  padding:0 16px;
+}
+
+.crumb .sep{
+  color:#6b7ca5;
+  padding:0 6px;
+}
+
+.top-pill{
+  min-height:46px;
+  padding:0 17px;
+  border-radius:15px;
+  border:1px solid #dce4fb;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(31,45,100,.06);
+  font-weight:900;
+  gap:9px;
+  white-space:nowrap;
+  color:var(--text);
+  transition:.22s ease;
+}
+
+.top-pill i{
+  font-size:15px;
+}
+
+.top-pill:hover{
+  transform:translateY(-2px);
+  box-shadow:0 16px 34px rgba(49,92,255,.14);
+}
+
+.system-pill{
+  color:#0f7a3c;
+}
+
+.dot{
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  background:#16c765;
+  box-shadow:0 0 0 6px rgba(22,199,101,.12);
+}
+
+.theme-{
+  padding:0 10px;
+  background:linear-gradient(135deg,rgba(49,92,255,.08),rgba(124,44,255,.10));
+  border-color:#d6ddff;
+}
+
+.theme-track{
+  width:70px;
+  height:32px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#315cff,#7c2cff);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 9px;
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 10px 22px rgba(49,92,255,.22);
+}
+
+.theme-track i{
+  font-size:13px;
+  z-index:2;
+}
+
+.theme-track:after{
+  content:"";
+  position:absolute;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:#fff;
+  left:4px;
+  top:3.5px;
+  transition:.25s;
+  box-shadow:0 8px 18px rgba(0,0,0,.20);
+}
+
+body.dark .theme-track:after{
+  left:41px;
+}
+
+.logout{
+  background:linear-gradient(135deg,#ff416c,#ef2f73);
+  color:#fff;
+  border:0;
+}
+
+body.dark .top-pill,
+body.dark .crumb{
+  background:#121826;
+  color:#f8fafc;
+  border-color:rgba(255,255,255,.11);
+}
+
+body.dark .system-pill{
+  color:#7dffae;
+}
+
+@media(max-width:900px){
+  .topbar{
+    height:auto;
+    flex-direction:column;
+    align-items:flex-start;
+    padding:12px 14px;
+  }
+
+  .left,.right{
+    flex-wrap:wrap;
+  }
+
+  .brand{
+    min-width:0;
+  }
+
+  .brand h1{
+    font-size:18px;
+  }
+}
+
+@media(max-width:640px){
+  .right{
+    width:100%;
+  }
+
+  .top-pill{
+    width:100%;
+    justify-content:center;
+  }
+}
+</style><style id="hrms-admin-launch-button-fit-v3">
+/* Admin-Portal-Launch style buttons + fitted page sizing */
+:root{--fit-max:1540px;--btn-glass:rgba(255,255,255,.86)}
+body{overflow-x:hidden!important}
+.main{max-width:var(--fit-max)!important;padding:16px 22px 28px!important}
+.topbar{min-height:76px!important;padding:12px 24px!important}
+.logo{width:50px!important;height:50px!important}.brand h1{font-size:22px!important}.brand p{font-size:12.5px!important}.crumb,.top-pill{min-height:44px!important;border-radius:16px!important}.top-pill{padding:0 15px!important}.theme-track{width:66px!important;height:30px!important}.theme-track:after{width:23px!important;height:23px!important;top:3.5px!important}body.dark .theme-track:after{left:39px!important}
+.hero{min-height:292px!important;margin-bottom:18px!important;border-radius:28px!important;padding:30px 42px!important;grid-template-columns:minmax(0,1fr) 430px!important;box-shadow:0 26px 78px rgba(49,92,255,.22),inset 0 1px 0 rgba(255,255,255,.30)!important}.hero h2{font-size:clamp(2rem,3vw,3.15rem)!important}.hero p{font-size:clamp(.98rem,1.2vw,1.18rem)!important;margin-top:14px!important}.kicker{height:40px!important;margin-bottom:16px!important}.hero-actions{margin-top:20px!important}.hero-art{height:250px!important}.big-icon{width:190px!important;height:190px!important;right:118px!important;top:35px!important;border-radius:44px!important}.big-icon i{font-size:82px!important}.float{width:76px!important;height:76px!important;border-radius:24px!important}.float i{font-size:32px!important}.f1{right:315px!important;top:10px!important}.f2{right:330px!important;top:145px!important}.f3{right:20px!important;top:18px!important}.f4{right:28px!important;top:157px!important}
+.hero-chip,.btn,.quick-row,.joining-card,.top-pill{position:relative;overflow:hidden;transition:.24s ease!important}.hero-chip:before,.btn:before,.quick-row:before,.joining-card:before,.top-pill:before{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-44px;top:-48px;background:rgba(255,255,255,.16);pointer-events:none}.btn:hover,.hero-chip:hover,.quick-row:hover,.joining-card:hover,.top-pill:hover{transform:translateY(-3px)!important}
+.stats{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px!important;margin-bottom:16px!important}.stat{min-height:112px!important;height:auto!important;padding:16px!important;border-radius:20px!important;background:var(--card)!important;backdrop-filter:blur(16px)!important}.stat-icon{width:60px!important;height:60px!important;border-radius:20px!important;font-size:24px!important}.stat small{font-size:12.5px!important}.stat strong{font-size:25px!important;margin:4px 0!important}.stat span{font-size:12.5px!important}
+.module-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important;margin-bottom:18px!important}.module-card{min-height:226px!important;padding:22px 16px 18px!important;border-radius:24px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center!important;background:var(--card)!important;backdrop-filter:blur(18px)!important;border:1px solid var(--line)!important;box-shadow:0 20px 55px rgba(37,55,110,.11),inset 0 1px 0 rgba(255,255,255,.38)!important}.module-card:before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-74px;top:-88px;background:linear-gradient(145deg,var(--tone1,#4f7cff),var(--tone2,#7c3aed));opacity:.12}.module-card:after{content:""!important;position:absolute!important;inset:0!important;width:auto!important;height:auto!important;right:auto!important;top:auto!important;border-radius:inherit!important;background:linear-gradient(145deg,rgba(255,255,255,.28),transparent 44%)!important;pointer-events:none}.module-card:hover{transform:translateY(-7px)!important;border-color:rgba(79,124,255,.38)!important;box-shadow:0 30px 80px rgba(79,124,255,.18),inset 0 1px 0 rgba(255,255,255,.28)!important}.module-top{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:12px!important;position:relative;z-index:2}.module-icon{width:88px!important;height:88px!important;border-radius:26px!important;font-size:0!important;background:linear-gradient(145deg,var(--tone1,#4f7cff),var(--tone2,#7c3aed))!important;border:1px solid rgba(255,255,255,.48)!important;box-shadow:inset 0 2px 14px rgba(255,255,255,.35),0 20px 38px rgba(79,124,255,.24)!important;position:relative!important;overflow:visible!important}.module-icon:before{content:"";position:absolute;inset:10px;border-radius:21px;background:linear-gradient(145deg,rgba(255,255,255,.32),rgba(255,255,255,.10));box-shadow:inset 0 1px 16px rgba(255,255,255,.46),0 14px 24px rgba(15,23,42,.18);backdrop-filter:blur(14px);animation:hrmsFloat 4s ease-in-out infinite}.module-icon:after{content:"\f061";font-family:"Font Awesome 6 Free";font-weight:900;position:absolute;right:-2px;bottom:-3px;width:31px;height:31px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#eaf1ff);color:#2563eb;border:1px solid rgba(255,255,255,.92);box-shadow:0 10px 19px rgba(15,23,42,.16);font-size:12px;z-index:3}.module-icon i{position:relative!important;z-index:2!important;font-size:30px!important;color:#fff!important;text-shadow:0 10px 18px rgba(0,0,0,.2)}.module-badge{order:-1;border-radius:999px!important;padding:6px 12px!important;background:#eef4ff!important;border:1px solid #c7d2fe!important;color:#2346b8!important;box-shadow:0 10px 24px rgba(37,55,110,.08)!important}.module-card h3{position:relative;z-index:2;font-size:20px!important;margin-top:15px!important;letter-spacing:-.02em!important}.module-card p{position:relative;z-index:2;font-size:13px!important;line-height:1.38!important;max-width:270px;margin-inline:auto!important}.open{position:relative;z-index:2;margin-top:auto!important;min-height:40px;padding:0 16px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:9px;color:#fff!important;background:linear-gradient(145deg,var(--tone1,#315cff),var(--tone2,#7c3aed));font-size:13px!important;font-weight:900;box-shadow:0 16px 32px rgba(79,124,255,.22);transition:.22s ease}.module-card:hover .open{transform:translateY(-2px) scale(1.03)}
+.module-card:nth-child(1){--tone1:#315cff;--tone2:#7c3aed}.module-card:nth-child(2){--tone1:#7c3aed;--tone2:#ec4899}.module-card:nth-child(3){--tone1:#16a34a;--tone2:#22c55e}.module-card:nth-child(4){--tone1:#f59e0b;--tone2:#fb7185}.module-card:nth-child(5){--tone1:#0ea5e9;--tone2:#315cff}.module-card:nth-child(6){--tone1:#8b5cf6;--tone2:#7c3aed}.module-card:nth-child(7){--tone1:#14b8a6;--tone2:#2563eb}
+@keyframes hrmsFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.layout{grid-template-columns:minmax(0,1fr) 430px!important;gap:18px!important}.card{border-radius:24px!important;background:var(--card)!important;backdrop-filter:blur(18px)!important}.card-head{padding:16px 18px!important}.card-body{padding:16px 18px!important}.form-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}.quick-panel{align-self:start!important}.quick-row{min-height:64px!important;border-radius:18px!important;background:linear-gradient(145deg,var(--card),rgba(238,244,255,.72))!important;box-shadow:0 14px 32px rgba(15,23,42,.07),inset 0 1px 0 rgba(255,255,255,.34)!important}.quick-row i{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#315cff,#7c3aed);box-shadow:0 10px 20px rgba(79,124,255,.22)}.joining-card{min-height:104px!important}.table-wrap{max-height:380px!important}th,td{padding:11px 12px!important;font-size:13.5px!important}.btn{border-radius:15px!important;min-height:42px!important;height:42px!important;box-shadow:0 14px 28px rgba(49,92,255,.15)}
+body.dark .module-card,body.dark .stat,body.dark .card{background:rgba(18,24,38,.78)!important}body.dark .quick-row{background:linear-gradient(145deg,rgba(17,24,39,.90),rgba(11,16,32,.86))!important}body.dark .module-badge{background:rgba(79,124,255,.15)!important;color:#dbeafe!important;border-color:rgba(129,140,248,.34)!important}
+@media(max-width:1280px){.hero{grid-template-columns:1fr!important}.hero-art{display:none!important}.stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}.module-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.layout{grid-template-columns:1fr!important}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:760px){.main{padding:12px!important}.stats,.module-grid,.form-grid{grid-template-columns:1fr!important}.module-card{min-height:210px!important}.hero{padding:22px!important;border-radius:24px!important}.hero-chip{width:100%;justify-content:center}.right{width:100%!important}.top-pill{width:100%!important;justify-content:center}.table-wrap{max-height:none!important}}
+</style><style id="section-fit-no-horizontal-scroll-v3">
+/* Fit Leave Entry, Employee Details and Banking Details inside page width */
+.main{max-width:min(1560px,100vw)!important;padding-left:clamp(10px,1.5vw,22px)!important;padding-right:clamp(10px,1.5vw,22px)!important;}
+.layout.layout-full{display:block!important;width:100%!important;}
+.layout.layout-full > div{width:100%!important;min-width:0!important;}
+#leavePanel .form-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:end!important;}
+#leavePanel .field.full{grid-column:1/-1!important;}
+.table-card{width:100%!important;min-width:0!important;}
+.table-wrap{overflow-x:hidden!important;overflow-y:visible!important;max-height:none!important;width:100%!important;}
+table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important;}
+th,td{white-space:normal!important;word-break:break-word!important;overflow-wrap:anywhere!important;line-height:1.25!important;padding:10px 9px!important;font-size:clamp(11.5px,.82vw,13.2px)!important;vertical-align:middle!important;}
+th{position:static!important;}
+#employeeTable table th:nth-child(1),#employeeTable table td:nth-child(1){width:8%;}
+#employeeTable table th:nth-child(2),#employeeTable table td:nth-child(2){width:12%;}
+#employeeTable table th:nth-child(3),#employeeTable table td:nth-child(3){width:10%;}
+#employeeTable table th:nth-child(4),#employeeTable table td:nth-child(4){width:12%;}
+#employeeTable table th:nth-child(5),#employeeTable table td:nth-child(5){width:13%;}
+#employeeTable table th:nth-child(6),#employeeTable table td:nth-child(6){width:10%;}
+#employeeTable table th:nth-child(7),#employeeTable table td:nth-child(7){width:14%;}
+#employeeTable table th:nth-child(8),#employeeTable table td:nth-child(8){width:8%;}
+#employeeTable table th:nth-child(9),#employeeTable table td:nth-child(9){width:8%;}
+#employeeTable table th:nth-child(10),#employeeTable table td:nth-child(10){width:7%;}
+#employeeTable table th:nth-child(11),#employeeTable table td:nth-child(11){width:8%;}
+.card.table-card:last-of-type table th:nth-child(1),.card.table-card:last-of-type table td:nth-child(1){width:10%;}
+.card.table-card:last-of-type table th:nth-child(2),.card.table-card:last-of-type table td:nth-child(2){width:16%;}
+.card.table-card:last-of-type table th:nth-child(3),.card.table-card:last-of-type table td:nth-child(3){width:13%;}
+.card.table-card:last-of-type table th:nth-child(4),.card.table-card:last-of-type table td:nth-child(4){width:16%;}
+.card.table-card:last-of-type table th:nth-child(5),.card.table-card:last-of-type table td:nth-child(5){width:14%;}
+.card.table-card:last-of-type table th:nth-child(6),.card.table-card:last-of-type table td:nth-child(6){width:13%;}
+.card.table-card:last-of-type table th:nth-child(7),.card.table-card:last-of-type table td:nth-child(7){width:9%;}
+.card.table-card:last-of-type table th:nth-child(8),.card.table-card:last-of-type table td:nth-child(8){width:9%;}
+.card-head{gap:10px!important;}
+.card-title{min-width:0!important;}
+.card-title h3{font-size:clamp(18px,1.35vw,22px)!important;}
+.card-title p{font-size:clamp(12px,.9vw,13px)!important;}
+@media(max-width:1100px){
+  #leavePanel .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  th,td{font-size:12px!important;padding:9px 7px!important;}
+}
+@media(max-width:760px){
+  #leavePanel .form-grid{grid-template-columns:1fr!important;}
+  table,thead,tbody,tr,th,td{display:block!important;width:100%!important;}
+  thead{display:none!important;}
+  tr{border:1px solid var(--line);border-radius:16px;margin:10px 0;padding:8px;background:var(--card);}
+  td{border-bottom:1px dashed var(--line)!important;padding:9px 10px!important;}
+  td:last-child{border-bottom:0!important;}
+  .table-wrap{overflow:visible!important;}
+}
+</style><!-- ===== 7 HRMS BUTTONS SINGLE ROW FIT OVERRIDE ===== --><style id="seven-buttons-single-row-fit">
+/* Keep all 7 module buttons in one clean row on desktop */
+.module-grid{
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:10px!important;
+  margin-bottom:18px!important;
+  width:100%!important;
+}
+.module-card{
+  min-height:176px!important;
+  padding:14px 8px 12px!important;
+  border-radius:18px!important;
+}
+.module-card:before{width:120px!important;height:120px!important;right:-58px!important;top:-62px!important}
+.module-top{gap:8px!important}
+.module-icon{
+  width:62px!important;
+  height:62px!important;
+  border-radius:19px!important;
+}
+.module-icon:before{inset:7px!important;border-radius:15px!important}
+.module-icon:after{
+  width:24px!important;
+  height:24px!important;
+  border-radius:8px!important;
+  font-size:10px!important;
+}
+.module-icon i{font-size:22px!important}
+.module-badge{
+  font-size:10px!important;
+  padding:4px 8px!important;
+}
+.module-card h3{
+  font-size:15px!important;
+  margin-top:9px!important;
+  line-height:1.12!important;
+}
+.module-card p{
+  font-size:11px!important;
+  line-height:1.25!important;
+  margin-top:5px!important;
+  max-width:150px!important;
+}
+.open{
+  min-height:32px!important;
+  padding:0 10px!important;
+  border-radius:11px!important;
+  font-size:11px!important;
+  gap:6px!important;
+  margin-top:10px!important;
+}
+
+/* Fit desktop/laptop width without horizontal page scroll */
+.main{max-width:100vw!important;padding-left:clamp(10px,1.4vw,22px)!important;padding-right:clamp(10px,1.4vw,22px)!important;}
+body{overflow-x:hidden!important;}
+
+/* Medium screens: readable fallback */
+@media(max-width:1380px){
+  .module-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:8px!important;}
+  .module-card{min-height:164px!important;padding:12px 6px 10px!important;}
+  .module-icon{width:56px!important;height:56px!important;}
+  .module-icon i{font-size:20px!important;}
+  .module-card h3{font-size:14px!important;}
+  .module-card p{display:none!important;}
+  .open{font-size:10.5px!important;min-height:30px!important;padding:0 8px!important;}
+}
+@media(max-width:980px){
+  .module-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;}
+  .module-card{min-height:190px!important;padding:16px 12px!important;}
+  .module-card p{display:block!important;max-width:250px!important;font-size:12px!important;}
+}
+@media(max-width:620px){
+  .module-grid{grid-template-columns:1fr!important;}
+}
+
+/* Fixed compact Action View icon button */
+.action-view-btn{
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  padding:0!important;
+  border-radius:13px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  background:linear-gradient(145deg,#315cff,#7c3aed)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  box-shadow:0 12px 24px rgba(49,92,255,.22),inset 0 1px 0 rgba(255,255,255,.24)!important;
+  line-height:1!important;
+}
+.action-view-btn i{font-size:15px!important;color:#fff!important;margin:0!important;}
+.action-view-btn:hover{transform:translateY(-2px)!important;box-shadow:0 16px 30px rgba(49,92,255,.30)!important;}
+td.action-cell{text-align:center!important;}
+</style><style id="nexcrm-shared-layout-fix">
+/* Shared Admin Portal sizing: headers, toggles, and heroes */
+:root{--nx-header-height:76px;--nx-header-pad-y:10px;--nx-header-pad-x:22px;--nx-action-height:44px;--nx-action-radius:14px;--nx-hero-min:260px;--nx-hero-pad-y:28px;--nx-hero-pad-x:34px;--nx-hero-radius:24px}
+.topbar,.top-header,.nx-topbar{min-height:var(--nx-header-height)!important;height:auto!important;padding:var(--nx-header-pad-y) var(--nx-header-pad-x)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;box-sizing:border-box!important}
+.left-nav,.right-nav,.top-actions,.brand-row,.nx-topbar .left,.nx-topbar .right{display:flex!important;align-items:center!important;gap:12px!important;flex-wrap:wrap!important}
+.brand,.brand-row,.nx-brand{min-height:52px!important;display:flex!important;align-items:center!important;gap:12px!important}
+.logo,.brand-mark,.brand-icon,.nx-logo{width:48px!important;height:48px!important;min-width:48px!important;border-radius:16px!important;display:grid!important;place-items:center!important;font-size:24px!important}
+.brand h1,.brand-title,.nx-brand h1{font-size:21px!important;line-height:1.05!important;letter-spacing:0!important;margin:0!important}
+.brand p,.brand-subtitle,.nx-brand p{font-size:12px!important;line-height:1.25!important;margin:3px 0 0!important;letter-spacing:0!important}
+.top-pill,.status,.toggle,.logout,.back,.theme-pill,.theme-toggle,.theme-,.theme-toggle-,.logout-btn,.back-btn,.admin-btn,.nx-btn.secondary,.nx-btn.primary{min-height:var(--nx-action-height)!important;height:var(--nx-action-height)!important;border-radius:var(--nx-action-radius)!important;padding:0 16px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;box-sizing:border-box!important;font-size:14px!important;line-height:1!important;letter-spacing:0!important;white-space:nowrap!important}
+.theme-,.theme-toggle-{width:122px!important;min-width:122px!important;flex:0 0 122px!important;padding:0 10px!important}
+.theme-track,.toggle-track{width:82px!important;height:34px!important;min-width:82px!important;border-radius:999px!important;position:relative!important}
+.theme-track:after,.toggle-track:after{width:26px!important;height:26px!important;top:4px!important;left:4px!important}
+body.dark .theme-track:after,body.dark .toggle-track:after{left:52px!important}
+.switch{width:58px!important;height:30px!important;min-width:58px!important;border-radius:999px!important;position:relative!important}
+.switch:after{width:24px!important;height:24px!important;top:3px!important;left:4px!important}
+body.dark .switch:after{left:30px!important}
+.hero,.-hero{min-height:var(--nx-hero-min)!important;padding:var(--nx-hero-pad-y) var(--nx-hero-pad-x)!important;border-radius:var(--nx-hero-radius)!important;margin-bottom:20px!important;box-sizing:border-box!important;align-items:center!important;gap:24px!important}
+.hero h1,.hero h2,.hero h3,.-hero h1,.-hero h2,.-hero h3{font-size:clamp(28px,3.2vw,42px)!important;line-height:1.1!important;letter-spacing:0!important;margin:0!important;max-width:860px!important}
+.hero p,.-hero p{font-size:clamp(15px,1.35vw,18px)!important;line-height:1.5!important;letter-spacing:0!important;max-width:820px!important;margin-top:14px!important}
+.hero-actions{gap:10px!important;margin-top:22px!important}
+.hero-chip{min-height:44px!important;height:44px!important;border-radius:14px!important;padding:0 16px!important;font-size:14px!important;letter-spacing:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important}
+.hero-art,.hero-visual{max-height:245px!important;min-height:0!important}
+@media(max-width:900px){.topbar,.top-header,.nx-topbar{min-height:0!important;padding:12px 14px!important;align-items:flex-start!important}.left-nav,.right-nav,.top-actions,.nx-topbar .left,.nx-topbar .right{width:100%!important}.top-pill,.status,.toggle,.logout,.back,.theme-pill,.theme-toggle,.logout-btn,.back-btn,.admin-btn{width:100%!important}.theme-,.theme-toggle-{width:100%!important;flex:1 1 100%!important}.hero,.-hero{grid-template-columns:1fr!important;min-height:0!important;padding:22px 18px!important;border-radius:20px!important}.hero-art,.hero-visual{display:none!important}.hero h1,.hero h2,.hero h3,.-hero h1,.-hero h2,.-hero h3{font-size:28px!important}.hero p,.-hero p{font-size:15px!important}.hero-chip{width:100%!important}}
+</style><link rel="stylesheet" href="../nexcrm-mobile-compact.css" /></head><body><header class="topbar"><div class="left"><div class="brand"><div class="logo"><img src="../Meterial/FB-logo.png" alt="Finbud Logo"></div><div><h1>NexCRM</h1><p>Business Suite</p></div></div><div class="crumb"><span><i class="fa-solid fa-users-gear"></i> HRMS</span><span class="sep">/</span><span>Control Dashboard</span></div></div><div class="right"><div class="top-pill system-pill"><span class="dot"></span> System Active
+    </div><button class="top-pill theme-" id="themeBtn" title="Theme"><span class="theme-track"><i class="fa-regular fa-sun"></i><i class="fa-solid fa-moon"></i></span></button><button class="top-pill" onclick="location.href='Admin-Portal-Launch.html'"><i class="fa-solid fa-arrow-left"></i> Back to Admin
+    </button><button class="top-pill logout" onclick="localStorage.removeItem('nexcrm_session');localStorage.removeItem('nexcrm_logged_in');sessionStorage.removeItem('nexcrm_session');sessionStorage.removeItem('nexcrm_logged_in');location.replace('../index.html')"><i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button></div></header><main class="main"><section class="hero"><div><div class="kicker"><b></b>NexCRM HRMS Suite</div><h2>HRMS Control Dashboard</h2><p>Manage employee master data, attendance, leave, payroll and HR records from one NexCRM control center.</p><div class="hero-actions"><a class="hero-chip" href="employee-add.html"><i class="fa-solid fa-user-plus"></i> Employee Add</a><a class="hero-chip" href="attendance-chart.html"><i class="fa-solid fa-calendar-check"></i> Attendance</a><a class="hero-chip" href="payslip.html"><i class="fa-solid fa-file-invoice-dollar"></i> Payslip</a><a class="hero-chip" href="#employeeTable"><i class="fa-solid fa-list"></i> Master List</a></div></div><div class="hero-art"><div class="ring"></div><div class="big-icon"><i class="fa-solid fa-briefcase"></i></div><div class="float f1"><i class="fa-solid fa-users"></i></div><div class="float f2"><i class="fa-solid fa-shield-halved"></i></div><div class="float f3"><i class="fa-solid fa-chart-line"></i></div><div class="float f4"><i class="fa-solid fa-file-invoice"></i></div></div></section><section class="stats"><div class="stat"><div class="stat-icon s1"><i class="fa-solid fa-users"></i></div><div><small>Total Employees</small><strong id="totalEmp">0</strong><span>All Employees</span></div></div><div class="stat"><div class="stat-icon s2"><i class="fa-solid fa-user-check"></i></div><div><small>Active Employees</small><strong id="activeEmp">0</strong><span class="green" id="activePct">0% Active</span></div></div><div class="stat"><div class="stat-icon s3"><i class="fa-solid fa-headphones"></i></div><div><small>Tele Caller</small><strong id="totalTC">0</strong><span>Caller Team</span></div></div><div class="stat"><div class="stat-icon s4"><i class="fa-solid fa-user-tie"></i></div><div><small>Team Leader</small><strong id="totalTL">0</strong><span>Team Leads</span></div></div><div class="stat"><div class="stat-icon s5"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><small>Payslips</small><strong id="slipCount">0</strong><span>This Month</span></div></div><div class="stat"><div class="stat-icon s6"><i class="fa-solid fa-calendar-xmark"></i></div><div><small>Pending Leaves</small><strong id="pendingLeaves">0</strong><span class="red">Need Approval</span></div></div></section><section class="module-grid"><a class="module-card" href="employee-add.html"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-user-plus"></i></div><span class="module-badge">Master</span></div><h3>Employee Add</h3><p>Add and manage employee details, reporting manager, bank and work data.</p></div><div class="open">Open Page <i class="fa-solid fa-arrow-right"></i></div></a><a class="module-card" href="employee-joining-form.html"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-file-signature"></i></div><span class="module-badge">Joining</span></div><h3>Joining Form</h3><p>Open onboarding form for complete employee joining records.</p></div><div class="open">Open Page <i class="fa-solid fa-arrow-right"></i></div></a><a class="module-card" href="attendance-chart.html"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-calendar-check"></i></div><span class="module-badge">Attendance</span></div><h3>Attendance Chart</h3><p>Monthly attendance, salary and leave calculation sheet.</p></div><div class="open">Open Page <i class="fa-solid fa-arrow-right"></i></div></a><a class="module-card" href="payslip.html"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-file-arrow-down"></i></div><span class="module-badge">Payslip</span></div><h3>Payslip Download</h3><p>Open payslip generation and monthly payroll download page.</p></div><div class="open">Open Page <i class="fa-solid fa-arrow-right"></i></div></a><a class="module-card" href="offer-latter.html"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-file-lines"></i></div><span class="module-badge">Offer</span></div><h3>Offer Letter Generator</h3><p>Create and manage offer letters with a clean HR workflow.</p></div><div class="open">Open Page <i class="fa-solid fa-arrow-right"></i></div></a><a class="module-card" href="#leavePanel"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-person-walking-arrow-right"></i></div><span class="module-badge">Leave</span></div><h3>Leave Request</h3><p>Create leave entries and track HR approval details.</p></div><div class="open">Manage Below <i class="fa-solid fa-arrow-down"></i></div></a><a class="module-card" href="#employeeTable"><div><div class="module-top"><div class="module-icon"><i class="fa-solid fa-building-columns"></i></div><span class="module-badge">Banking</span></div><h3>Banking Details</h3><p>View and export bank details from employee master.</p></div><div class="open">Manage Below <i class="fa-solid fa-arrow-down"></i></div></a></section><section class="layout layout-full"><div><div class="card" id="leavePanel"><div class="card-head"><div class="card-title"><i class="fa-solid fa-calendar-minus"></i><div><h3>Leave Entry</h3><p>Create leave records and HR approval entries</p></div></div><span class="pill blue">HR</span></div><div class="card-body"><div class="form-grid"><div class="field"><label>Employee Code</label><select id="leaveEmp"></select></div><div class="field"><label>Leave Type</label><select><option>Casual Leave</option><option>Sick Leave</option><option>Emergency Leave</option><option>Leave Without Pay</option></select></div><div class="field"><label>From Date</label><input type="date"></div><div class="field"><label>To Date</label><input type="date"></div><div class="field full"><label>Reason</label><textarea placeholder="Enter leave reason"></textarea></div></div><div class="actions"><button class="btn primary" onclick="saveLeave()"><i class="fa-solid fa-floppy-disk"></i> Save Leave</button></div></div></div><div class="card table-card" id="employeeTable"><div class="card-head"><div class="card-title"><i class="fa-solid fa-users"></i><div><h3>All Employee Full Details</h3><p>Employee Add + Joining Form master data</p></div></div><span class="pill green">Live Data</span></div><div class="table-wrap"><table><thead><tr><th>Emp ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Reporting Manager</th><th>Mobile</th><th>Email</th><th>Salary</th><th>Joining Date</th><th>Status</th><th class="action-head">Action</th></tr></thead><tbody id="fullEmpBody"></tbody></table></div></div><div class="card table-card deleted-table-card" id="deletedEmployeeTable"><div class="card-head"><div class="card-title"><i class="fa-solid fa-user-slash"></i><div><h3>Deleted Employee Details</h3><p>Employees removed from HRMS master list</p></div></div><div class="deleted-actions"><span class="deleted-badge" id="deletedCount">0 Deleted</span><button class="permanent-delete-btn" type="button" onclick="permanentDeleteSelectedEmployees()"><i class="fa-solid fa-trash-can"></i> Permanent Delete Selected</button></div></div><div class="table-wrap"><table><thead><tr><th class="select-col"><label class="check-wrap"><input id="selectAllDeleted" type="checkbox" onchange="toggleAllDeletedEmployees(this.checked)"><span></span></label></th><th>Emp ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Reporting Manager</th><th>Mobile</th><th>Email</th><th>Deleted On</th><th>Status</th><th>Action</th></tr></thead><tbody id="deletedEmpBody"></tbody></table></div></div><div class="card table-card"><div class="card-head"><div class="card-title"><i class="fa-solid fa-building-columns"></i><div><h3>Employee Banking Details</h3><p>Fetched from Employee Add page</p></div></div><button class="btn green" onclick="exportBankingCsv()"><i class="fa-solid fa-file-csv"></i> Export CSV</button></div><div class="table-wrap"><table><thead><tr><th>Employee ID</th><th>Employee Name</th><th>Designation</th><th>Account Holder Name</th><th>Bank Name</th><th>Account No</th><th>IFSC</th><th>Branch Name</th></tr></thead><tbody id="docBody"></tbody></table></div></div></div></section></main><div class="modal" id="detailsModal"><div class="modal-card"><div class="modal-head"><strong id="detailsTitle">Employee Joining Form</strong><button class="icon-btn" type="button" onclick="closeEmployeeModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div id="employeeDetailForm" class="employee-detail-grid"></div></div></div></div><div class="toast" id="toast">Saved</div><script>
+const MASTER_EMP_KEY='nexcrm_employee_master_final_custom';
+const DELETED_EMP_KEY='nexcrm_deleted_employee_details';
+const $=id=>document.getElementById(id);
+function toast(m){$('toast').textContent=m;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function getEmployees(){
+  try{
+    const arr=JSON.parse(localStorage.getItem(MASTER_EMP_KEY)||'[]');
+    return Array.isArray(arr)?arr:[];
+  }catch(e){return []}
+}
+function setEmployees(list){localStorage.setItem(MASTER_EMP_KEY,JSON.stringify(list))}
+function getDeletedEmployees(){try{const arr=JSON.parse(localStorage.getItem(DELETED_EMP_KEY)||'[]');return Array.isArray(arr)?arr:[]}catch(e){return []}}
+function setDeletedEmployees(list){localStorage.setItem(DELETED_EMP_KEY,JSON.stringify(list))}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function money(n){return '₹'+Number(n||0).toLocaleString('en-IN')}
+function render(){
+  const emps=getEmployees();
+  const active=emps.filter(e=>(e.status||'Active')==='Active').length;
+  $('totalEmp').textContent=emps.length;
+  $('activeEmp').textContent=active;
+  $('activePct').textContent=emps.length?((active/emps.length)*100).toFixed(2)+'% Active':'0% Active';
+  $('totalTC').textContent=emps.filter(e=>e.designation==='Tele Caller').length;
+  $('totalTL').textContent=emps.filter(e=>e.designation==='Team Leader').length;
+  $('pendingLeaves').textContent=localStorage.getItem('nexcrm_pending_leaves')||'0';
+  $('slipCount').textContent=localStorage.getItem('nexcrm_payslip_count')||'0';
+
+  const leave=$('leaveEmp');leave.innerHTML='';
+  emps.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=(e.id||'')+' - '+(e.name||'');leave.appendChild(o)});
+
+  const body=$('fullEmpBody');body.innerHTML='';
+  emps.forEach(e=>{
+    body.innerHTML+=`<tr><td><b>${esc(e.id)}</b></td><td><b>${esc(e.name)}</b></td><td>${esc(e.department)}</td><td>${esc(e.designation)}</td><td>${esc(e.manager)}</td><td>${esc(e.mobile)||'-'}</td><td>${esc(e.email)||'-'}</td><td>${money(e.salary)}</td><td>${esc(e.joining)||'-'}</td><td><span class="badge">${esc(e.status||'Active')}</span></td><td class="action-cell"><div class="action-row"><button class="action-view-btn" title="View Employee" onclick="openEmployeeModal('${esc(e.id)}')"><i class="fa-solid fa-eye"></i></button><button class="action-delete-btn" title="Delete Employee" onclick="deleteEmployee('${esc(e.id)}')"><i class="fa-solid fa-trash"></i></button></div></td></tr>`;
+  });
+  renderDeletedEmployees();
+
+  const bank=$('docBody');bank.innerHTML='';
+  emps.forEach(e=>{
+    bank.innerHTML+=`<tr><td>${esc(e.id)}</td><td>${esc(e.name)}</td><td>${esc(e.designation)}</td><td>${esc(e.accountHolderName||e.accountHolder||'')}</td><td>${esc(e.bankName||e.bank||'')}</td><td>${esc(e.accountNo||'')}</td><td>${esc(e.ifscCode||e.ifsc||'')}</td><td>${esc(e.branchName||'')}</td></tr>`;
+  });
+}
+function saveLeave(){const n=Number(localStorage.getItem('nexcrm_pending_leaves')||0)+1;localStorage.setItem('nexcrm_pending_leaves',String(n));render();toast('Leave Saved')}
+function detailInput(label,value,type='text'){return `<div class="employee-detail-field"><label>${label}</label><input type="${type}" value="${esc(value||'')}" readonly></div>`}
+function detailText(label,value){return `<div class="employee-detail-field full"><label>${label}</label><textarea readonly>${esc(value||'')}</textarea></div>`}
+function openEmployeeModal(empId){
+  const e=getEmployees().find(x=>String(x.id||'')===String(empId||''));
+  if(!e){toast('Employee record not found');return}
+  $('detailsTitle').textContent=`Employee Details - ${e.name||e.id||''}`;
+  $('employeeDetailForm').innerHTML=[
+    detailInput('Employee ID',e.id),detailInput('Employee Name',e.name),detailInput('Department',e.department),detailInput('Designation',e.designation),
+    detailInput('Reporting Manager',e.manager),detailInput('Mobile',e.mobile),detailInput('Email',e.email),detailInput('Official Mail',e.officialMail),
+    detailInput('Work Location',e.location),detailInput('Salary',money(e.salary)),detailInput('Target',money(e.target)),detailInput('Joining Date',e.joining,'date'),
+    detailInput('Status',e.status||'Active'),detailInput('Education',e.education),detailInput('Bank',e.bankName||e.bank),detailInput('Account Holder Name',e.accountHolderName||e.accountHolder),detailInput('Account No',e.accountNo),
+    detailInput('IFSC',e.ifscCode||e.ifsc),detailInput('Branch Name',e.branchName),detailInput('Residential City',e.resCity),detailInput('Permanent City',e.permCity),
+    detailText('Residential Address',[e.resHouse,e.resArea,e.resLandmark,e.resCity,e.resPin,e.resState,e.resCountry].filter(Boolean).join(', ')),
+    detailText('Permanent Address',[e.permHouse,e.permArea,e.permLandmark,e.permCity,e.permPin,e.permState,e.permCountry].filter(Boolean).join(', ')),
+    `<div class="employee-detail-field full"><button class="modal-delete-btn" type="button" onclick="deleteEmployee('${esc(e.id)}')"><i class="fa-solid fa-trash"></i> Delete Employee</button></div>`
+  ].join('');
+  $('detailsModal').classList.add('open');
+  document.body.classList.add('modal-view-open');
+}
+function closeEmployeeModal(){$('detailsModal').classList.remove('open');document.body.classList.remove('modal-view-open')}
+function deleteEmployee(empId){
+  const emps=getEmployees();
+  const index=emps.findIndex(e=>String(e.id||'')===String(empId||''));
+  if(index<0){toast('Employee record not found');return}
+  const emp=emps[index];
+  if(!confirm(`Delete employee ${emp.name||emp.id}?`)) return;
+  emps.splice(index,1);
+  const deleted=getDeletedEmployees();
+  deleted.unshift({...emp,deletedAt:new Date().toISOString(),deletedStatus:'Deleted'});
+  setEmployees(emps);
+  setDeletedEmployees(deleted);
+  closeEmployeeModal();
+  render();
+  toast('Employee Deleted');
+}
+function restoreDeletedEmployee(empId,deletedAt){
+  const deleted=getDeletedEmployees();
+  const targetIndex=deleted.findIndex(e=>String(e.id||'')===String(empId||'')&&String(e.deletedAt||'')===String(deletedAt||''));
+  if(targetIndex<0){toast('Deleted employee record not found');return}
+  const emps=getEmployees();
+  if(emps.some(e=>String(e.id||'')===String(empId||''))){toast('Employee ID already exists in active list');return}
+  const restored={...deleted[targetIndex],status:'Active'};
+  delete restored.deletedAt;
+  delete restored.deletedStatus;
+  emps.unshift(restored);
+  deleted.splice(targetIndex,1);
+  setEmployees(emps);
+  setDeletedEmployees(deleted);
+  render();
+  toast('Employee restored successfully');
+}
+function renderDeletedEmployees(){
+  const deleted=getDeletedEmployees();
+  const body=$('deletedEmpBody');
+  if(!body)return;
+  $('deletedCount').textContent=`${deleted.length} Deleted`;
+  if(!deleted.length){body.innerHTML='<tr><td colspan="11" style="padding:24px;color:var(--muted)">No deleted employee records.</td></tr>';const all=$('selectAllDeleted');if(all)all.checked=false;return}
+  body.innerHTML=deleted.map((e,i)=>`<tr><td class="select-col"><label class="check-wrap"><input class="deleted-employee-check" type="checkbox" value="${i}" onchange="syncDeletedSelectAll()"><span></span></label></td><td><b>${esc(e.id)}</b></td><td><b>${esc(e.name)}</b></td><td>${esc(e.department)}</td><td>${esc(e.designation)}</td><td>${esc(e.manager)}</td><td>${esc(e.mobile)||'-'}</td><td>${esc(e.email)||'-'}</td><td>${e.deletedAt?new Date(e.deletedAt).toLocaleString('en-IN'):'-'}</td><td><span class="deleted-badge">Deleted</span></td><td><div class="deleted-action-row"><button class="action-restore-btn" title="Restore Employee" onclick="restoreDeletedEmployee('${esc(e.id)}','${esc(e.deletedAt||'')}')"><i class="fa-solid fa-rotate-left"></i> Restore</button><button class="action-permanent-delete-btn" title="Permanent Delete" onclick="permanentDeleteDeletedEmployee(${i})"><i class="fa-solid fa-trash-can"></i> Permanent</button></div></td></tr>`).join('');
+  syncDeletedSelectAll();
+}
+function selectedDeletedEmployeeIndexes(){return [...document.querySelectorAll('.deleted-employee-check:checked')].map(ch=>Number(ch.value)).filter(i=>Number.isInteger(i))}
+function toggleAllDeletedEmployees(checked){document.querySelectorAll('.deleted-employee-check').forEach(ch=>ch.checked=!!checked)}
+function syncDeletedSelectAll(){const all=$('selectAllDeleted');if(!all)return;const checks=[...document.querySelectorAll('.deleted-employee-check')];all.checked=checks.length>0&&checks.every(ch=>ch.checked);all.indeterminate=checks.some(ch=>ch.checked)&&!all.checked}
+function permanentDeleteDeletedEmployee(index){const deleted=getDeletedEmployees();const emp=deleted[index];if(!emp){toast('Deleted employee record not found');return}if(!confirm(`Permanent delete ${emp.name||emp.id}? This cannot be restored.`))return;deleted.splice(index,1);setDeletedEmployees(deleted);renderDeletedEmployees();toast('Employee permanently deleted')}
+function permanentDeleteSelectedEmployees(){const indexes=selectedDeletedEmployeeIndexes().sort((a,b)=>b-a);if(!indexes.length){toast('Select deleted employees first');return}if(!confirm(`Permanent delete ${indexes.length} selected employee record(s)? This cannot be restored.`))return;const deleted=getDeletedEmployees();indexes.forEach(i=>{if(i>=0&&i<deleted.length)deleted.splice(i,1)});setDeletedEmployees(deleted);renderDeletedEmployees();toast('Selected employees permanently deleted')}
+
+document.addEventListener('keydown',function(ev){
+  if(ev.key==='Escape' && $('detailsModal') && $('detailsModal').classList.contains('open')) closeEmployeeModal();
+});
+document.addEventListener('click',function(ev){
+  const modal=$('detailsModal');
+  if(modal && ev.target===modal) closeEmployeeModal();
+});
+
+function exportBankingCsv(){
+  const emps=getEmployees();
+  let csv='Employee ID,Employee Name,Designation,Account Holder Name,Bank Name,Account No,IFSC,Branch Name\\n';
+  emps.forEach(e=>{csv+=[e.id,e.name,e.designation,e.accountHolderName||e.accountHolder||'',e.bankName||e.bank||'',e.accountNo||'',e.ifscCode||e.ifsc||'',e.branchName||''].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')+'\\n'});
+  download(csv,'employee-banking-details.csv','text/csv');
+}
+function exportEmployeeCsv(){
+  const emps=getEmployees(); if(!emps.length){toast('No employee data found');return}
+  const cols=['id','name','department','designation','manager','mobile','email','salary','target','joining','status','location'];
+  let csv=cols.join(',')+'\\n';
+  emps.forEach(e=>{csv+=cols.map(c=>`"${String(e[c]||'').replace(/"/g,'""')}"`).join(',')+'\\n'});
+  download(csv,'employee-master-details.csv','text/csv');
+}
+function download(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click()}
+function refreshData(){render();toast('Live Data Refreshed')}
+$('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('dark');localStorage.setItem('nexcrmTheme',document.body.classList.contains('dark')?'dark':'light')});
+if(localStorage.getItem('nexcrmTheme')==='dark')document.body.classList.add('dark');
+window.addEventListener('storage',render);
+render();
+</script><script id="global-header-theme-v2">
+(function(){
+  const themeBtn = document.getElementById('themeBtn');
+  if(!themeBtn) return;
+
+  const apply = (mode)=>{
+    const dark = mode === 'dark';
+    document.body.classList.toggle('dark', dark);
+    localStorage.setItem('nexcrmTheme', mode);
+    localStorage.setItem('nexcrm_theme', mode);
+    localStorage.setItem('nexcrm-finance-theme', mode);
+    localStorage.setItem('nexcrm_finance_theme', mode);
+    localStorage.setItem('nexcrmDdrTheme', mode);
+    localStorage.setItem('nexcrm-mis-theme', mode);
+    localStorage.setItem('emp-cost-theme', mode);
+    localStorage.setItem('hrms_payslip_theme', mode);
+  };
+
+  const saved =
+    localStorage.getItem('nexcrmTheme') || localStorage.getItem('nexcrm_theme') || localStorage.getItem('nexcrm-finance-theme') || localStorage.getItem('nexcrm_finance_theme') || localStorage.getItem('nexcrmDdrTheme') || localStorage.getItem('nexcrm-mis-theme') || localStorage.getItem('emp-cost-theme') || localStorage.getItem('hrms_payslip_theme');
+
+  if(saved === 'dark') document.body.classList.add('dark');
+
+  themeBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const next = document.body.classList.contains('dark') ? 'light' : 'dark';
+    apply(next);
+  }, true);
+})();
+</script><!-- FINAL EYE POPUP FIX START --><style id="final-eye-popup-fix">
+  /* Force Action Eye popup to open as centered 80% screen modal with blurred background */
+  #detailsModal.modal{
+    position:fixed!important;
+    inset:0!important;
+    width:100vw!important;
+    height:100vh!important;
+    display:none!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:24px!important;
+    background:rgba(2,6,23,.58)!important;
+    backdrop-filter:blur(14px)!important;
+    -webkit-backdrop-filter:blur(14px)!important;
+    z-index:999999!important;
+  }
+  #detailsModal.modal.open{display:flex!important;}
+  #detailsModal .modal-card{
+    width:95vw!important;
+    height:95vh!important;
+    max-width:1800px!important;
+    max-height:95vh!important;
+    min-width:0!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    border-radius:26px!important;
+    background:var(--card)!important;
+    border:1px solid rgba(255,255,255,.18)!important;
+    box-shadow:0 36px 100px rgba(0,0,0,.38)!important;
+  }
+  #detailsModal .modal-head{
+    min-height:62px!important;
+    flex:0 0 auto!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:14px!important;
+    padding:14px 18px!important;
+    border-bottom:1px solid var(--line)!important;
+    background:linear-gradient(135deg,rgba(49,92,255,.10),rgba(124,44,255,.12))!important;
+  }
+  #detailsModal .modal-head strong{font-size:18px!important;font-weight:900!important;}
+  #detailsModal .modal-body{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:18px!important;
+    overflow:auto!important;
+  }
+  .employee-detail-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+  .employee-detail-field{
+    border:1px solid var(--line)!important;
+    border-radius:16px!important;
+    background:rgba(255,255,255,.72)!important;
+    padding:12px!important;
+  }
+  body.dark .employee-detail-field{background:rgba(255,255,255,.055)!important;}
+  .employee-detail-field label{
+    display:block!important;
+    color:var(--muted)!important;
+    font-size:11px!important;
+    font-weight:900!important;
+    text-transform:uppercase!important;
+    margin-bottom:7px!important;
+  }
+  .employee-detail-field input,.employee-detail-field textarea{
+    width:100%!important;
+    min-height:42px!important;
+    border:1px solid var(--line)!important;
+    border-radius:12px!important;
+    background:var(--card)!important;
+    color:var(--text)!important;
+    padding:9px 10px!important;
+    font-weight:800!important;
+  }
+  .employee-detail-field.full{grid-column:1/-1!important;}
+  .employee-detail-field textarea{min-height:78px!important;resize:vertical!important;}
+  .modal-delete-btn{height:40px;border-radius:13px;padding:0 14px;background:linear-gradient(145deg,#ef4444,#991b1b);color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:8px}
+  .action-delete-btn{width:40px;height:40px;border-radius:13px;background:linear-gradient(145deg,#ef4444,#991b1b);color:#fff;display:inline-grid;place-items:center;box-shadow:0 14px 28px rgba(239,68,68,.18)}
+  .action-restore-btn{min-height:38px;border-radius:13px;padding:0 12px;background:linear-gradient(145deg,#16a34a,#15803d);color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:8px;box-shadow:0 14px 28px rgba(34,197,94,.18)}
+  .deleted-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}.permanent-delete-btn,.action-permanent-delete-btn{min-height:38px;border-radius:13px;padding:0 12px;background:linear-gradient(145deg,#ef4444,#7f1d1d);color:#fff;font-weight:900;display:inline-flex;align-items:center;gap:8px;box-shadow:0 14px 28px rgba(239,68,68,.18)}.action-permanent-delete-btn{background:linear-gradient(145deg,#f97316,#991b1b)}.deleted-action-row{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}.select-col{width:54px!important;text-align:center!important}.check-wrap{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.check-wrap input{position:absolute;opacity:0;pointer-events:none}.check-wrap span{width:20px;height:20px;border-radius:7px;border:2px solid #93a4bd;background:#fff;display:inline-block;position:relative;box-shadow:0 5px 12px rgba(15,23,42,.08)}.check-wrap input:checked+span{background:linear-gradient(145deg,#2563eb,#06b6d4);border-color:#2563eb}.check-wrap input:checked+span:after{content:"";position:absolute;left:5px;top:2px;width:6px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}body.dark .check-wrap span{background:#0b1728;border-color:rgba(255,255,255,.28)}
+  .action-cell .action-row{display:flex;gap:8px;justify-content:center;align-items:center}
+  .deleted-table-card{margin-top:18px!important}
+  .deleted-badge{padding:6px 10px;border-radius:999px;background:#fee2e2;color:#991b1b;font-weight:900;font-size:12px}
+  @media(max-width:1200px){.employee-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+  @media(max-width:760px){.employee-detail-grid{grid-template-columns:1fr!important}}
+  }
+  body.modal-view-open{overflow:hidden!important;}
+  @media(max-width:900px){
+    #detailsModal.modal{padding:12px!important;}
+    #detailsModal .modal-card{width:96vw!important;height:92vh!important;border-radius:20px!important;}
+  }
+</style><script id="final-eye-popup-fix-script">
+(function(){
+  function byId(id){ return document.getElementById(id); }
+  document.addEventListener('click',function(e){
+    var closeBtn=e.target.closest && (e.target.closest('#detailsModalClose') || e.target.closest('#detailsModal .icon-btn'));
+    if(closeBtn){ e.preventDefault(); window.closeEmployeeModal(); return; }
+    var modal=byId('detailsModal');
+    if(modal && e.target===modal){ window.closeEmployeeModal(); return; }
+  },true);
+  document.addEventListener('keydown',function(e){
+    var modal=byId('detailsModal');
+    if(e.key==='Escape' && modal && modal.classList.contains('open')) window.closeEmployeeModal();
+  });
+})();
+</script><!-- FINAL EYE POPUP FIX END --><script src="../nexcrm-form-autosave.js"></script></body></html>
+
+
+
+
+

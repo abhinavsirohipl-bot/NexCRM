@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="../Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="../Others Files/nexcrm-realtime-database.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NexCRM | Employee Joining Form</title>
+<link rel="icon" type="image/png" href="../Meterial/tab.png" />
+<link rel="shortcut icon" type="image/png" href="../Meterial/tab.png" />
+<link rel="apple-touch-icon" href="../Meterial/tab.png" />
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="../nexcrm-mobile-compact.css" />
+<style>
+:root{
+  --font:Calibri,Inter,Segoe UI,Arial,sans-serif;
+  --bg:#f5f7fb;
+  --bg2:#ffffff;
+  --card:rgba(255,255,255,.92);
+  --card-solid:#ffffff;
+  --text:#101827;
+  --muted:#667085;
+  --line:#e3e8f2;
+  --line2:#d8deea;
+  --black:#080b12;
+  --black2:#111827;
+  --gold:#d7a839;
+  --gold2:#fff1b8;
+  --gold3:#8b6418;
+  --blue:#315cff;
+  --cyan:#0ea5e9;
+  --purple:#7c3aed;
+  --green:#16a34a;
+  --red:#dc2626;
+  --orange:#f59e0b;
+  --pink:#ec4899;
+  --shadow:0 24px 70px rgba(15,23,42,.12);
+  --soft:0 14px 34px rgba(15,23,42,.08);
+  --glass:blur(20px) saturate(140%);
+}
+body.dark{
+  --bg:#05070d;
+  --bg2:#0d1322;
+  --card:rgba(15,23,42,.84);
+  --card-solid:#111827;
+  --text:#f8fafc;
+  --muted:#a8b3ca;
+  --line:rgba(255,255,255,.11);
+  --line2:rgba(255,255,255,.18);
+  --shadow:0 30px 90px rgba(0,0,0,.38);
+  --soft:0 16px 42px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh;
+  color:var(--text);
+  overflow-x:hidden;
+  background:
+    radial-gradient(circle at 8% 6%,rgba(215,168,57,.17),transparent 28%),
+    radial-gradient(circle at 90% 3%,rgba(49,92,255,.14),transparent 28%),
+    radial-gradient(circle at 50% 105%,rgba(124,58,237,.08),transparent 28%),
+    linear-gradient(135deg,var(--bg),var(--bg2));
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background-image:
+    linear-gradient(rgba(215,168,57,.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(49,92,255,.055) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.55),transparent 82%);
+}
+body:after{
+  content:"";
+  position:fixed;
+  width:390px;
+  height:390px;
+  border-radius:999px;
+  right:-150px;
+  bottom:-150px;
+  z-index:0;
+  background:radial-gradient(circle,rgba(215,168,57,.18),transparent 66%);
+  pointer-events:none;
+}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{border:0;background:none;color:inherit;cursor:pointer}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--line2);
+  border-radius:16px;
+  background:rgba(255,255,255,.88);
+  color:var(--text);
+  outline:none;
+  font-weight:800;
+  transition:.18s ease;
+}
+input,select{height:50px;padding:0 14px 0 42px}
+textarea{min-height:98px;resize:vertical;padding:15px 14px 14px 42px}
+body.dark input,body.dark select,body.dark textarea{background:rgba(2,6,23,.46)}
+input:focus,select:focus,textarea:focus{
+  border-color:rgba(215,168,57,.75);
+  box-shadow:0 0 0 4px rgba(215,168,57,.13);
+}
+input[readonly]{background:rgba(148,163,184,.12);color:var(--muted)}
+.main-shell{position:relative;z-index:1;width:min(1580px,100%);margin:0 auto;padding:22px 24px 42px}
+.hero{
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:32px;
+  padding:30px;
+  color:#fff;
+  background:
+    radial-gradient(circle at 84% 24%,rgba(215,168,57,.24),transparent 30%),
+    radial-gradient(circle at 8% 22%,rgba(255,255,255,.10),transparent 28%),
+    linear-gradient(135deg,#080b12,#111827 54%,#1f2937);
+  box-shadow:var(--shadow);
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  width:320px;height:320px;border-radius:999px;
+  left:-120px;top:-140px;
+  background:radial-gradient(circle,rgba(215,168,57,.40),transparent 70%);
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  width:360px;height:360px;border-radius:999px;
+  right:-120px;bottom:-180px;
+  background:radial-gradient(circle,rgba(49,92,255,.26),transparent 70%);
+}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.brand-block{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.brand-logo{width:64px;height:64px;min-width:64px;border-radius:23px;background:linear-gradient(145deg,#080b12 0%,#111827 46%,var(--gold) 100%);display:grid;place-items:center;box-shadow:0 18px 38px rgba(215,168,57,.20),inset 0 1px 0 rgba(255,255,255,.20);overflow:hidden;border:1px solid rgba(255,255,255,.22)}
+.brand-logo img{width:100%;height:100%;object-fit:contain;padding:5px;border-radius:inherit;display:block}
+.brand-logo span{font-weight:900;color:#fff}
+.brand-block h1{font-size:32px;line-height:1;font-weight:900;letter-spacing:-.04em}
+.brand-block p{margin-top:6px;color:#cbd5e1;font-weight:900;text-transform:uppercase;font-size:12px;letter-spacing:.08em}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid rgba(215,168,57,.35);background:rgba(215,168,57,.12);color:var(--gold2);padding:8px 13px;border-radius:999px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.45px}
+.hero h2{font-size:46px;line-height:1.04;margin:16px 0 12px;letter-spacing:-1.5px}
+.hero p{font-size:16px;line-height:1.6;color:#dbe4f3;max-width:860px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.hero-chip,.hero-btn{
+  min-height:42px;
+  border-radius:999px;
+  padding:0 15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  font-size:13px;
+  font-weight:900;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff;
+  transition:.18s;
+}
+.hero-btn:hover,.hero-chip:hover{transform:translateY(-2px);border-color:rgba(215,168,57,.52)}
+.hero-btn.gold{background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;border:0}
+.hero-metrics{display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:12px;width:min(440px,100%)}
+.hero-tile{min-height:104px;border-radius:22px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);padding:15px;display:flex;align-items:center;gap:12px}
+.hero-tile i{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;font-size:19px}
+.hero-tile small{display:block;color:#cbd5e1;font-size:11px;font-weight:900;text-transform:uppercase}
+.hero-tile strong{display:block;margin-top:5px;font-size:22px;font-weight:900}
+.step-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;margin-top:18px;align-items:start}
+.stepper{
+  position:sticky;
+  top:18px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:var(--card);
+  box-shadow:var(--soft);
+  backdrop-filter:var(--glass);
+  padding:16px;
+  overflow:hidden;
+}
+.stepper:before{content:"";position:absolute;right:-85px;top:-95px;width:190px;height:190px;border-radius:999px;background:radial-gradient(circle,rgba(215,168,57,.16),transparent 70%)}
+.progress-card{position:relative;z-index:1;padding:16px;border-radius:22px;background:linear-gradient(135deg,rgba(8,11,18,.96),rgba(17,24,39,.92));color:#fff;margin-bottom:12px;overflow:hidden}
+.progress-card:after{content:"";position:absolute;width:130px;height:130px;right:-60px;bottom:-70px;border-radius:999px;background:radial-gradient(circle,rgba(215,168,57,.24),transparent 70%)}
+.progress-card small{display:block;color:#cbd5e1;font-weight:900;text-transform:uppercase;font-size:11px;letter-spacing:.08em}
+.progress-card strong{display:block;font-size:28px;margin-top:7px;letter-spacing:-.04em}
+.progress-bar{height:11px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:14px}
+.progress-fill{height:100%;width:10%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:.25s}
+.step-list{position:relative;z-index:1;display:grid;gap:8px}
+.step-tab{
+  width:100%;
+  min-height:54px;
+  border-radius:18px;
+  padding:8px 10px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  text-align:left;
+  background:transparent;
+  transition:.18s;
+  border:1px solid transparent;
+}
+.step-tab:hover{background:rgba(215,168,57,.08);transform:translateX(2px)}
+.step-tab.active{background:linear-gradient(135deg,rgba(215,168,57,.16),rgba(49,92,255,.08));border-color:rgba(215,168,57,.24)}
+.step-no{
+  width:38px;
+  height:38px;
+  min-width:38px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  color:#121826;
+  background:linear-gradient(145deg,var(--gold),var(--gold2));
+  font-weight:900;
+  box-shadow:0 10px 22px rgba(215,168,57,.18);
+}
+.step-tab.done .step-no{background:linear-gradient(145deg,#22c55e,#86efac)}
+.step-copy b{display:block;font-size:14px;font-weight:900;color:var(--text)}
+.step-copy span{display:block;margin-top:3px;font-size:11px;color:var(--muted);font-weight:800}
+.form-card{
+  border:1px solid var(--line);
+  background:var(--card);
+  box-shadow:var(--shadow);
+  border-radius:30px;
+  backdrop-filter:var(--glass);
+  overflow:hidden;
+  min-height:690px;
+}
+.form-head{
+  padding:22px 24px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  background:linear-gradient(135deg,rgba(255,255,255,.68),rgba(248,250,252,.42));
+}
+body.dark .form-head{background:linear-gradient(135deg,rgba(15,23,42,.68),rgba(2,6,23,.36))}
+.title-pack{display:flex;align-items:center;gap:14px}
+.title-icon{width:58px;height:58px;min-width:58px;border-radius:20px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));box-shadow:0 16px 34px rgba(215,168,57,.22);font-size:23px}
+.form-head h3{font-size:25px;line-height:1;font-weight:900;letter-spacing:-.03em}
+.form-head p{margin-top:6px;color:var(--muted);font-weight:800}
+.step-badge{min-height:40px;border-radius:999px;padding:0 13px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--card-solid);font-size:12px;font-weight:900;color:var(--muted)}
+.step-page{display:none;padding:24px}
+.step-page.active{display:block;animation:fadeSlide .22s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}
+.field{display:flex;flex-direction:column;gap:8px}
+.field.full{grid-column:1/-1}
+.field.half{grid-column:span 2}
+.field label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.input-wrap{position:relative}
+.input-wrap>i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--gold3);z-index:1}
+body.dark .input-wrap>i{color:var(--gold2)}
+.input-wrap.textarea>i{top:22px;transform:none}
+.inline-check{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;border:1px solid var(--line);background:rgba(148,163,184,.08);border-radius:18px;padding:14px;color:var(--text)!important;text-transform:none!important;letter-spacing:0!important;font-size:14px!important}
+.inline-check input{width:18px;height:18px;padding:0}
+.hint{font-size:12px;color:var(--muted);font-weight:800;line-height:1.45}
+.checks{display:grid;grid-template-columns:repeat(3,minmax(210px,1fr));gap:10px;margin-top:10px}
+.checks label{
+  min-height:46px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:rgba(148,163,184,.08);
+  padding:10px 12px;
+  font-size:13px;
+  font-weight:800;
+  color:var(--text);
+}
+.checks input{width:17px;height:17px;padding:0}
+.exp-row{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr)) 44px;gap:8px;margin-top:10px}
+.exp-row input{padding-left:12px}
+.row-trash{border-radius:14px;background:rgba(239,68,68,.10);color:#b91c1c;border:1px solid rgba(239,68,68,.16)}
+.add-row-btn{
+  margin-top:12px;
+  min-height:42px;
+  border-radius:15px;
+  padding:0 14px;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  color:#fff;
+  background:linear-gradient(135deg,#0f172a,#315cff);
+  font-weight:900;
+}
+.hidden{display:none!important}
+.attach-box{border:1px dashed var(--line2);border-radius:22px;padding:18px;background:linear-gradient(135deg,rgba(215,168,57,.07),rgba(49,92,255,.04))}
+.review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.review-tile{border:1px solid var(--line);border-radius:20px;background:rgba(148,163,184,.08);padding:16px;min-height:96px}
+.review-tile small{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+.review-tile strong{display:block;margin-top:8px;font-size:18px;font-weight:900;word-break:break-word}
+.review-tile span{display:block;margin-top:5px;color:var(--muted);font-weight:800;font-size:12px}
+.form-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:20px 24px;
+  border-top:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(255,255,255,.58),rgba(248,250,252,.40));
+}
+body.dark .form-footer{background:linear-gradient(135deg,rgba(15,23,42,.58),rgba(2,6,23,.40))}
+.footer-left,.footer-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.action-btn{
+  min-height:48px;
+  border-radius:17px;
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-weight:900;
+  border:1px solid var(--line);
+  background:var(--card-solid);
+  box-shadow:var(--soft);
+  color:var(--text);
+  transition:.18s;
+}
+.action-btn:hover{transform:translateY(-2px)}
+.action-btn.primary{background:linear-gradient(135deg,#0f172a,#315cff);color:#fff;border:0}
+.action-btn.gold{background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;border:0}
+.action-btn.danger{background:rgba(239,68,68,.10);color:#b91c1c;border-color:rgba(239,68,68,.18)}
+.action-btn.save{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:0;min-width:180px}
+.toast{position:fixed;right:22px;bottom:22px;background:#111827;color:#fff;border-radius:16px;padding:13px 17px;font-weight:900;opacity:0;transform:translateY(12px);transition:.25s;z-index:2000;box-shadow:0 22px 50px rgba(15,23,42,.22)}
+.toast.show{opacity:1;transform:translateY(0)}
+.share-strip{
+  margin-top:14px;
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:24px;
+  padding:14px 16px;
+  box-shadow:var(--soft);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.share-strip p{color:var(--muted);font-weight:800}
+.share-strip b{color:var(--text)}
+@media(max-width:1280px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-metrics{width:100%;grid-template-columns:repeat(4,minmax(0,1fr))}
+  .step-layout{grid-template-columns:1fr}
+  .stepper{position:relative;top:auto}
+  .step-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .checks{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .main-shell{padding:12px}
+  .hero{padding:22px;border-radius:24px}
+  .brand-block{align-items:flex-start}
+  .hero h2{font-size:32px}
+  .hero-metrics,.step-list,.form-grid,.checks,.review-grid{grid-template-columns:1fr}
+  .field.half{grid-column:1/-1}
+  .exp-row{grid-template-columns:1fr}
+  .form-head,.form-footer{padding:18px}
+  .footer-left,.footer-right,.action-btn{width:100%}
+  .action-btn{justify-content:center}
+}
+</style>
+
+
+
+
+
+</head>
+<body>
+<main class="main-shell">
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="brand-block">
+          <div class="brand-logo">
+            <img src="../Meterial/FB-logo.png" alt="Finbud Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />
+            <span style="display:none">FB</span>
+          </div>
+          <div>
+            <h1>NexCRM HRMS</h1>
+            <p>Finbud Financial Services Limited</p>
+          </div>
+        </div>
+        <span class="eyebrow"><i class="fa-solid fa-id-card-clip"></i> Employee Joining Form</span>
+        <h2>Premium step-wise joining form</h2>
+        <p>
+          Fill employee profile, KYC, address, family, experience, bank, emergency and documentation details step by step.
+          Each step opens like a separate page and saves only through Firebase Realtime Database.
+        </p>
+        <div class="hero-actions">
+          <button type="button" class="hero-btn gold" onclick="showStep(0)"><i class="fa-solid fa-play"></i> Start Form</button>
+          <button type="button" class="hero-btn" id="themeBtn"><i class="fa-solid fa-circle-half-stroke"></i> Theme</button>
+          <button type="button" class="hero-btn copy-only-internal" onclick="copyFormLink()"><i class="fa-solid fa-link"></i> Copy Employee Link</button>
+          <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Firebase RTDB Only</span>
+        </div>
+      </div>
+      <div class="hero-metrics">
+        <div class="hero-tile"><i class="fa-solid fa-layer-group"></i><div><small>Total Steps</small><strong>10</strong></div></div>
+        <div class="hero-tile"><i class="fa-solid fa-floppy-disk"></i><div><small>Database</small><strong>RTDB</strong></div></div>
+        <div class="hero-tile"><i class="fa-solid fa-file-arrow-up"></i><div><small>Docs</small><strong>Meta</strong></div></div>
+        <div class="hero-tile"><i class="fa-solid fa-users-gear"></i><div><small>HRMS</small><strong>Active</strong></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="share-strip">
+    <p><b>Note:</b> No Admin header and no sidebar added. This page is a clean step-wise form only.</p>
+    <span class="step-badge"><i class="fa-solid fa-circle-check"></i> Admin Launch theme aligned</span>
+  </section>
+
+  <section class="step-layout" id="form">
+    <aside class="stepper" aria-label="Joining form steps">
+      <div class="progress-card">
+        <small>Form Completion</small>
+        <strong id="progressText">10%</strong>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="step-list" id="stepList">
+        <button type="button" class="step-tab active" onclick="showStep(0)"><span class="step-no">1</span><span class="step-copy"><b>Employee Details</b><span>Basic and job profile</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(1)"><span class="step-no">2</span><span class="step-copy"><b>KYC Details</b><span>Aadhar, PAN, education</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(2)"><span class="step-no">3</span><span class="step-copy"><b>Current Address</b><span>Residence information</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(3)"><span class="step-no">4</span><span class="step-copy"><b>Permanent Address</b><span>Same or different address</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(4)"><span class="step-no">5</span><span class="step-copy"><b>Family Details</b><span>Parents and family count</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(5)"><span class="step-no">6</span><span class="step-copy"><b>Work Experience</b><span>Fresher / experienced</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(6)"><span class="step-no">7</span><span class="step-copy"><b>Bank Details</b><span>Salary account info</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(7)"><span class="step-no">8</span><span class="step-copy"><b>Emergency Contact</b><span>Emergency person</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(8)"><span class="step-no">9</span><span class="step-copy"><b>Documentation</b><span>Files and checklist</span></span></button>
+        <button type="button" class="step-tab" onclick="showStep(9)"><span class="step-no">10</span><span class="step-copy"><b>Review & Save</b><span>Final confirmation</span></span></button>
+      </div>
+    </aside>
+
+    <section class="form-card">
+      <div class="form-head">
+        <div class="title-pack">
+          <span class="title-icon" id="pageIcon"><i class="fa-solid fa-id-card"></i></span>
+          <div>
+            <h3 id="pageTitle">Employee Details</h3>
+            <p id="pageSub">Basic, job, reporting and joining details.</p>
+          </div>
+        </div>
+        <span class="step-badge" id="pageBadge"><i class="fa-solid fa-location-crosshairs"></i> Step 1 of 10</span>
+      </div>
+
+      <article class="step-page active" data-title="Employee Details" data-sub="Basic, job, reporting and joining details." data-icon="fa-solid fa-id-card">
+        <div class="form-grid">
+          <div class="field"><label>Employee Name *</label><div class="input-wrap"><i class="fa-regular fa-user"></i><input id="empName" placeholder="Full name" /></div></div>
+          <div class="field"><label>Mobile No. *</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="mobile" placeholder="Mobile number" /></div></div>
+          <div class="field"><label>Email ID</label><div class="input-wrap"><i class="fa-regular fa-envelope"></i><input id="email" type="email" placeholder="Personal email" /></div></div>
+          <div class="field"><label>Department *</label><div class="input-wrap"><i class="fa-regular fa-building"></i><select id="department"><option value="">Select Department</option><option>Sales</option><option>HR</option><option>Operations</option><option>Management</option></select></div></div>
+          <div class="field"><label>Designation *</label><div class="input-wrap"><i class="fa-solid fa-briefcase"></i><select id="designation" onchange="loadManagerOptions()"><option value="">Select Designation</option><option>Tele Caller</option><option>Team Leader</option><option>Senior Manager</option><option>HR Executive</option><option>Manager</option></select></div></div>
+          <div class="field"><label>Reporting Manager *</label><div class="input-wrap"><i class="fa-regular fa-user"></i><select id="manager"><option value="">Select Reporting Manager</option></select></div></div>
+          <div class="field"><label>Interview Date</label><div class="input-wrap"><i class="fa-regular fa-calendar"></i><input id="interviewDate" type="date" /></div></div>
+          <div class="field"><label>Joining Date</label><div class="input-wrap"><i class="fa-regular fa-calendar-check"></i><input id="joiningDate" type="date" /></div></div>
+          <div class="field"><label>HR Name</label><div class="input-wrap"><i class="fa-solid fa-user-tie"></i><input id="hrName" placeholder="HR executive name" /></div></div>
+          <div class="field"><label>Salary</label><div class="input-wrap"><i class="fa-solid fa-indian-rupee-sign"></i><input id="salary" type="number" min="0" placeholder="Monthly salary" /></div></div>
+          <div class="field"><label>CTC Auto</label><div class="input-wrap"><i class="fa-solid fa-sack-dollar"></i><input id="ctc" type="number" readonly /></div></div>
+          <div class="field"><label>Work Location</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input id="location" placeholder="Branch / office location" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="KYC Details" data-sub="Aadhar, PAN and education information." data-icon="fa-regular fa-file-lines">
+        <div class="form-grid">
+          <div class="field"><label>Aadhar No</label><div class="input-wrap"><i class="fa-solid fa-address-card"></i><input id="aadharNo" placeholder="Aadhar number" /></div></div>
+          <div class="field"><label>PAN No</label><div class="input-wrap"><i class="fa-solid fa-id-badge"></i><input id="panNo" placeholder="PAN number" /></div></div>
+          <div class="field half"><label>Education</label><div class="input-wrap"><i class="fa-solid fa-graduation-cap"></i><select id="education"><option value="">Select Education</option><option>10th (High School)</option><option>12th (Intermediate)</option><option>Diploma</option><option>Graduation</option><option>Post Graduation</option></select></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Current Residence Address" data-sub="House, area, landmark, city and state." data-icon="fa-solid fa-house">
+        <div class="form-grid">
+          <div class="field"><label>House No</label><div class="input-wrap"><i class="fa-solid fa-house"></i><input id="resHouseNo" /></div></div>
+          <div class="field"><label>Area</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input id="resArea" /></div></div>
+          <div class="field"><label>Landmark</label><div class="input-wrap"><i class="fa-solid fa-map-location-dot"></i><input id="resLandmark" /></div></div>
+          <div class="field"><label>City</label><div class="input-wrap"><i class="fa-solid fa-city"></i><input id="resCity" /></div></div>
+          <div class="field"><label>Pincode</label><div class="input-wrap"><i class="fa-solid fa-map-pin"></i><input id="resPincode" /></div></div>
+          <div class="field"><label>State</label><div class="input-wrap"><i class="fa-solid fa-map"></i><input id="resState" /></div></div>
+          <div class="field"><label>Country</label><div class="input-wrap"><i class="fa-solid fa-globe"></i><input id="resCountry" value="India" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Permanent Address" data-sub="Same as current residence or different address." data-icon="fa-solid fa-location-dot">
+        <div class="form-grid">
+          <div class="field full"><label class="inline-check"><input id="sameAsRes" type="checkbox" onchange="copyAddress()" /> Same as Current Residence</label></div>
+          <div class="field"><label>House No</label><div class="input-wrap"><i class="fa-solid fa-house"></i><input id="permHouseNo" /></div></div>
+          <div class="field"><label>Area</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input id="permArea" /></div></div>
+          <div class="field"><label>Landmark</label><div class="input-wrap"><i class="fa-solid fa-map-location-dot"></i><input id="permLandmark" /></div></div>
+          <div class="field"><label>City</label><div class="input-wrap"><i class="fa-solid fa-city"></i><input id="permCity" /></div></div>
+          <div class="field"><label>Pincode</label><div class="input-wrap"><i class="fa-solid fa-map-pin"></i><input id="permPincode" /></div></div>
+          <div class="field"><label>State</label><div class="input-wrap"><i class="fa-solid fa-map"></i><input id="permState" /></div></div>
+          <div class="field"><label>Country</label><div class="input-wrap"><i class="fa-solid fa-globe"></i><input id="permCountry" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Family Details" data-sub="Family information for employee record." data-icon="fa-solid fa-people-roof">
+        <div class="form-grid">
+          <div class="field"><label>Father Name</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="fatherName" /></div></div>
+          <div class="field"><label>Mother Name</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="motherName" /></div></div>
+          <div class="field"><label>Father Occupation</label><div class="input-wrap"><i class="fa-solid fa-briefcase"></i><select id="fatherOccupation"><option value="">Select</option><option>Pvt Employee</option><option>Govt Employee</option><option>Business Man</option><option>Freelancer</option><option>Farmer</option><option>Other</option></select></div></div>
+          <div class="field"><label>Mother Occupation</label><div class="input-wrap"><i class="fa-solid fa-user-tie"></i><select id="motherOccupation"><option value="">Select</option><option>Pvt Employee</option><option>Govt Employee</option><option>Business Women</option><option>Freelancer</option><option>House Wife</option><option>Other</option></select></div></div>
+          <div class="field"><label>No Of Family Members</label><div class="input-wrap"><i class="fa-solid fa-users"></i><input id="familyMembers" type="number" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Work Experience" data-sub="Fresher or experienced with previous company rows." data-icon="fa-solid fa-briefcase">
+        <div class="form-grid">
+          <div class="field"><label>Experience Type</label><div class="input-wrap"><i class="fa-solid fa-briefcase"></i><select id="experienceType" onchange="toggleExperienceFields()"><option>Fresher</option><option>Experienced</option></select></div></div>
+          <div class="field" id="expYearsWrap"><label>Total Experience Years</label><div class="input-wrap"><i class="fa-regular fa-calendar"></i><input id="experienceYears" type="number" min="0" /></div></div>
+          <div class="field" id="expMonthsWrap"><label>Total Experience Months</label><div class="input-wrap"><i class="fa-regular fa-calendar-days"></i><input id="experienceMonths" type="number" min="0" max="11" /></div></div>
+          <div class="field full" id="expListWrap">
+            <label>Previous Company Experience</label>
+            <div id="expRows"></div>
+            <button type="button" class="add-row-btn" onclick="addExperienceRow()"><i class="fa-solid fa-plus"></i> Add Company Experience</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Bank Account Details" data-sub="Bank account, IFSC and branch information." data-icon="fa-solid fa-building-columns">
+        <div class="form-grid">
+          <div class="field"><label>Account Holder Name</label><div class="input-wrap"><i class="fa-regular fa-user"></i><input id="accountHolderName" /></div></div>
+          <div class="field"><label>Bank Name</label><div class="input-wrap"><i class="fa-solid fa-building-columns"></i><input id="bankName" /></div></div>
+          <div class="field"><label>Account No.</label><div class="input-wrap"><i class="fa-solid fa-hashtag"></i><input id="accountNo" /></div></div>
+          <div class="field"><label>IFSC Code</label><div class="input-wrap"><i class="fa-solid fa-code"></i><input id="ifscCode" /></div></div>
+          <div class="field half"><label>Branch Name</label><div class="input-wrap"><i class="fa-solid fa-building"></i><input id="branchName" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Emergency Contact Details" data-sub="Emergency person name, number and relation." data-icon="fa-solid fa-phone">
+        <div class="form-grid">
+          <div class="field"><label>Contact Person Name</label><div class="input-wrap"><i class="fa-regular fa-user"></i><input id="emergencyContactName" /></div></div>
+          <div class="field"><label>Contact No.</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="emergencyContactNo" /></div></div>
+          <div class="field"><label>Relation</label><div class="input-wrap"><i class="fa-solid fa-people-arrows"></i><input id="emergencyRelation" /></div></div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Employee Documentation" data-sub="Attachment names and required document checklist." data-icon="fa-solid fa-paperclip">
+        <div class="attach-box">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Attachment All Documents</label>
+              <div class="input-wrap"><i class="fa-solid fa-file-arrow-up"></i><input id="empDocsInput" type="file" multiple /><input id="empDocsMeta" type="hidden" /></div>
+              <p class="hint">Selected document names and metadata save in Firebase Realtime Database only. Google Drive, Google Sheet and localStorage sync are removed.</p>
+            </div>
+            <div class="field full">
+              <label>Required Documents Checklist</label>
+              <div class="checks" id="docChecklist">
+                <label><input type="checkbox" value="Aadhar Card" /> Aadhar Card</label>
+                <label><input type="checkbox" value="Pan Card" /> Pan Card</label>
+                <label><input type="checkbox" value="1 Photo" /> 1 Photo</label>
+                <label><input type="checkbox" value="Bank Details - 3 Month Statement" /> Bank Details - 3 Month Statement</label>
+                <label><input type="checkbox" value="Bank Details - Cancel Cheque" /> Bank Details - Cancel Cheque</label>
+                <label><input type="checkbox" value="Bank Details - Passbook" /> Bank Details - Passbook</label>
+                <label><input type="checkbox" value="Previous Company - Relieving Letter" /> Previous Company - Relieving Letter</label>
+                <label><input type="checkbox" value="Previous Company - Last 3 Month Pay Slip" /> Previous Company - Last 3 Month Pay Slip</label>
+                <label><input type="checkbox" value="Education Certificate - 10th (High School)" /> Education Certificate - 10th</label>
+                <label><input type="checkbox" value="Education Certificate - 12th (Intermediate)" /> Education Certificate - 12th</label>
+                <label><input type="checkbox" value="Education Certificate - Diploma" /> Education Certificate - Diploma</label>
+                <label><input type="checkbox" value="Education Certificate - Graduation" /> Education Certificate - Graduation</label>
+                <label><input type="checkbox" value="Education Certificate - Post Graduation" /> Education Certificate - Post Graduation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-page" data-title="Review & Save" data-sub="Confirm key details before saving the joining form." data-icon="fa-solid fa-circle-check">
+        <div class="review-grid" id="reviewGrid"></div>
+        <p class="hint" style="margin-top:16px">Click Save after reviewing. This version saves only to Firebase Realtime Database; localStorage, Google Sheet, Firestore and autosave logic are removed.</p>
+      </article>
+
+      <div class="form-footer">
+        <div class="footer-left">
+          <button type="button" class="action-btn danger" onclick="resetForm()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <button type="button" class="action-btn copy-only-internal" onclick="copyFormLink()"><i class="fa-solid fa-link"></i> Copy Link</button>
+        </div>
+        <div class="footer-right">
+          <button type="button" class="action-btn" id="prevBtn" onclick="prevStep()"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+          <button type="button" class="action-btn primary" id="nextBtn" onclick="nextStep()">Next <i class="fa-solid fa-arrow-right"></i></button>
+          <button type="button" class="action-btn save" id="saveBtn" onclick="submitForm()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+<div class="toast" id="toast">Saved</div>
+<script>
+const $=id=>document.getElementById(id);
+const urlParams=new URLSearchParams(window.location.search);
+const isSharedMode=['employee','public','shared'].includes(String(urlParams.get('share')||urlParams.get('mode')||'').toLowerCase())||urlParams.get('public')==='1';
+const editEmpId=(urlParams.get('empId')||'').trim();
+const FIREBASE_EMPLOYEE_PATH='hrms/employees';
+const FIREBASE_JOINING_PATH='hrms/employeeJoiningForms';
+let currentStep=0;
+let firebaseEmployeeCache=[];
+const stepPages=()=>[...document.querySelectorAll('.step-page')];
+const stepTabs=()=>[...document.querySelectorAll('.step-tab')];
+
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function toast(m){const t=$('toast');if(!t)return; t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function getFirebaseConfig(){return window.firebaseConfig||window.NEXCRM_FIREBASE_CONFIG||window.nexcrmFirebaseConfig||(typeof firebaseConfig!=='undefined'?firebaseConfig:null);}
+function getRealtimeDb(){
+  if(!window.firebase||!firebase.database)throw new Error('Firebase Realtime Database SDK not loaded');
+  if(!firebase.apps.length){
+    const cfg=getFirebaseConfig();
+    if(!cfg)throw new Error('firebase-config.js not loaded or Firebase config missing');
+    firebase.initializeApp(cfg);
+  }
+  return firebase.database();
+}
+async function readFirebaseEmployees(){
+  try{
+    const db=getRealtimeDb();
+    const snap=await db.ref(FIREBASE_EMPLOYEE_PATH).once('value');
+    const val=snap.val()||{};
+    firebaseEmployeeCache=Array.isArray(val)?val.filter(Boolean):Object.values(val).filter(Boolean);
+  }catch(e){console.warn('Firebase employee read failed:',e);firebaseEmployeeCache=[];}
+  return firebaseEmployeeCache;
+}
+async function saveEmployeeToRealtime(emp){
+  const db=getRealtimeDb();
+  const cleanId=String(emp.id||'').replace(/[.#$\[\]/]/g,'-');
+  const payload={...emp,updatedAt:new Date().toISOString(),source:'employee-joining-form.html',dataStore:'Firebase Realtime Database'};
+  await db.ref(`${FIREBASE_EMPLOYEE_PATH}/${cleanId}`).set(payload);
+  await db.ref(`${FIREBASE_JOINING_PATH}/${cleanId}`).set({employeeId:emp.id,employeeName:emp.name,submittedAt:new Date().toISOString(),employee:payload});
+  return payload;
+}
+function nextPrefix(designation){
+  if(designation==='Tele Caller')return 'E-TC';
+  if(designation==='Team Leader')return 'E-TL';
+  if(designation==='Senior Manager')return 'E-SM';
+  if(designation==='HR Executive')return 'E-HR';
+  if(designation==='Manager')return 'E-MG';
+  return 'E-OT';
+}
+async function nextId(designation){
+  const prefix=nextPrefix(designation);
+  const list=await readFirebaseEmployees();
+  const nums=list.filter(e=>String(e.id||'').startsWith(prefix)).map(e=>parseInt(String(e.id).replace(prefix,''),10)).filter(n=>!isNaN(n));
+  return prefix+String((nums.length?Math.max(...nums):0)+1).padStart(3,'0');
+}
+async function loadManagerOptions(){
+  const mgr=$('manager'); if(!mgr)return;
+  const current=mgr.value;
+  const designation=$('designation')?.value||'';
+  const list=await readFirebaseEmployees();
+  let names=[];
+  if(designation==='Tele Caller')names=list.filter(e=>e.designation==='Team Leader');
+  else names=list.filter(e=>['Team Leader','Senior Manager','Manager'].includes(e.designation));
+  names=[...new Set(names.filter(e=>String(e.status||'Active').toLowerCase()==='active').map(e=>String(e.name||'').trim()).filter(Boolean))];
+  ['Abhinav Sirohi','Niraj Kumar Jha','HR Team'].forEach(n=>{if(!names.includes(n))names.push(n)});
+  mgr.innerHTML='<option value="">Select Reporting Manager</option>';
+  names.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;mgr.appendChild(o)});
+  if([...mgr.options].some(o=>o.value===current))mgr.value=current;
+}
+function copyAddress(){
+  const same=$('sameAsRes')?.checked;
+  if(same){
+    $('permHouseNo').value=$('resHouseNo').value;$('permArea').value=$('resArea').value;$('permLandmark').value=$('resLandmark').value;$('permCity').value=$('resCity').value;$('permPincode').value=$('resPincode').value;$('permState').value=$('resState').value;$('permCountry').value=$('resCountry').value;
+  }else{['permHouseNo','permArea','permLandmark','permCity','permPincode','permState','permCountry'].forEach(id=>$(id).value='');}
+  updateReview();
+}
+function toggleExperienceFields(){
+  const show=$('experienceType')?.value==='Experienced';
+  ['expYearsWrap','expMonthsWrap','expListWrap'].forEach(id=>$(id)?.classList.toggle('hidden',!show));
+  if(show&&$('expRows')&&!$('expRows').children.length)addExperienceRow();
+  if(!show&&$('expRows')){$('experienceYears').value='';$('experienceMonths').value='';$('expRows').innerHTML='';}
+  updateReview();
+}
+function addExperienceRow(data={}){
+  const row=document.createElement('div');
+  row.className='exp-row';
+  row.innerHTML=`
+    <input class="exp-company" placeholder="Previous Company Name" value="${escHtml(data.companyName||data.company||'')}">
+    <input class="exp-role" placeholder="Job Role / Designation" value="${escHtml(data.jobRole||data.role||'')}">
+    <input class="exp-dept" placeholder="Department" value="${escHtml(data.department||'')}">
+    <input class="exp-ctc" type="number" min="0" placeholder="Last CTC" value="${escHtml(data.lastCtc||'')}">
+    <input class="exp-join" type="date" value="${escHtml(data.joiningDate||data.joining||'')}">
+    <input class="exp-relieve" type="date" value="${escHtml(data.relievingDate||data.relieving||'')}">
+    <button type="button" onclick="this.closest('.exp-row').remove();updateReview();" style="border-radius:14px;background:rgba(239,68,68,.12);color:#dc2626"><i class="fa-solid fa-trash"></i></button>`;
+  $('expRows').appendChild(row);
+}
+function collectExperienceRows(){
+  return [...document.querySelectorAll('#expRows .exp-row')].map(r=>({
+    companyName:r.querySelector('.exp-company')?.value.trim()||'',
+    jobRole:r.querySelector('.exp-role')?.value.trim()||'',
+    department:r.querySelector('.exp-dept')?.value.trim()||'',
+    lastCtc:Number(r.querySelector('.exp-ctc')?.value||0),
+    joiningDate:r.querySelector('.exp-join')?.value||'',
+    relievingDate:r.querySelector('.exp-relieve')?.value||''
+  })).filter(x=>Object.values(x).some(Boolean));
+}
+function collectDocumentMeta(){
+  const files=Array.from($('empDocsInput')?.files||[]);
+  return files.map(f=>({name:f.name,size:f.size,type:f.type||'application/octet-stream',selectedAt:new Date().toISOString()}));
+}
+async function buildEmpObject(){
+  const designation=$('designation').value;
+  const salary=Number($('salary').value||0);
+  const id=editEmpId||await nextId(designation);
+  const docs=collectDocumentMeta();
+  return {
+    id,
+    name:$('empName').value.trim(),
+    department:$('department').value,
+    designation,
+    manager:$('manager').value.trim(),
+    salary,
+    target:designation==='Tele Caller'?salary*150:0,
+    ctc:Number($('ctc').value||salary*12||0),
+    mobile:$('mobile').value.trim(),
+    email:$('email').value.trim(),
+    interviewDate:$('interviewDate').value,
+    joining:$('joiningDate').value,
+    hrName:$('hrName').value.trim(),
+    status:'Active',
+    location:$('location').value.trim(),
+    notes:'',
+    aadharNo:$('aadharNo').value.trim(),
+    panNo:$('panNo').value.trim(),
+    education:$('education').value,
+    resHouseNo:$('resHouseNo').value.trim(),resArea:$('resArea').value.trim(),resLandmark:$('resLandmark').value.trim(),resCity:$('resCity').value.trim(),resPincode:$('resPincode').value.trim(),resState:$('resState').value.trim(),resCountry:$('resCountry').value.trim(),
+    permAddressType:$('sameAsRes').checked?'Same':'Different',permHouseNo:$('permHouseNo').value.trim(),permArea:$('permArea').value.trim(),permLandmark:$('permLandmark').value.trim(),permCity:$('permCity').value.trim(),permPincode:$('permPincode').value.trim(),permState:$('permState').value.trim(),permCountry:$('permCountry').value.trim(),
+    experienceType:$('experienceType').value,experienceYears:Number($('experienceYears').value||0),experienceMonths:Number($('experienceMonths').value||0),previousExperiences:collectExperienceRows(),
+    accountHolderName:$('accountHolderName').value.trim(),bankName:$('bankName').value.trim(),bank:$('bankName').value.trim(),accountNo:$('accountNo').value.trim(),ifscCode:$('ifscCode').value.trim(),ifsc:$('ifscCode').value.trim(),branchName:$('branchName').value.trim(),
+    emergencyContactName:$('emergencyContactName').value.trim(),emergencyContactNo:$('emergencyContactNo').value.trim(),emergencyRelation:$('emergencyRelation').value.trim(),
+    fatherName:$('fatherName').value.trim(),motherName:$('motherName').value.trim(),fatherOccupation:$('fatherOccupation').value,motherOccupation:$('motherOccupation').value,familyMembers:Number($('familyMembers').value||0),
+    employeeDocumentsMeta:docs.map(x=>x.name).join(', '),employeeDocuments:docs,
+    documentsChecklist:[...document.querySelectorAll('#docChecklist input:checked')].map(c=>c.value),
+    dataStore:'Firebase Realtime Database',createdFrom:'employee-joining-form.html'
+  };
+}
+async function submitForm(){
+  const submitBtn=$('saveBtn')||document.querySelector('.form-footer .save');
+  const oldHtml=submitBtn?submitBtn.innerHTML:'';
+  if(submitBtn){submitBtn.disabled=true;submitBtn.innerHTML='<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';}
+  try{
+    const emp=await buildEmpObject();
+    if(!emp.name||!emp.mobile||!emp.department||!emp.designation||(!isSharedMode&&!emp.manager)){
+      toast(isSharedMode?'Please fill Name, Mobile, Department and Designation':'Please fill Name, Mobile, Department, Designation and Reporting Manager');
+      showStep(0,true);return;
+    }
+    await saveEmployeeToRealtime(emp);
+    toast(editEmpId?'Employee updated in Firebase Realtime Database':'Joining form saved in Firebase Realtime Database');
+    updateReview();
+  }catch(e){console.error(e);toast('Firebase save failed: '+(e.message||e));}
+  finally{if(submitBtn){submitBtn.disabled=false;submitBtn.innerHTML=oldHtml;}}
+}
+function copyFormLink(){
+  const u=new URL(window.location.href);u.searchParams.set('share','employee');u.searchParams.delete('internal');u.hash='';
+  const link=u.toString();navigator.clipboard?.writeText(link).then(()=>toast('Employee form link copied')).catch(()=>prompt('Copy and share this employee link:',link));
+}
+function resetForm(){
+  document.querySelectorAll('input').forEach(i=>{if(i.type!=='file'&&i.type!=='checkbox')i.value=''; if(i.type==='checkbox')i.checked=false;});
+  document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  if($('resCountry'))$('resCountry').value='India';
+  if($('expRows'))$('expRows').innerHTML='';
+  if($('ctc'))$('ctc').value='';
+  toggleExperienceFields();loadManagerOptions();showStep(0,true);updateReview();
+}
+function validateStep(index){
+  if(index===0){
+    const required=[['empName','Employee Name'],['mobile','Mobile No.'],['department','Department'],['designation','Designation']];
+    if(!isSharedMode)required.push(['manager','Reporting Manager']);
+    for(const [id,label] of required){const el=$(id);if(!String(el?.value||'').trim()){toast('Please fill '+label);el?.focus();return false;}}
+  }
+  return true;
+}
+function showStep(index,skipValidation=true){
+  const pages=stepPages(); if(index<0||index>=pages.length)return;
+  if(!skipValidation&&index>currentStep&&!validateStep(currentStep))return;
+  currentStep=index;
+  pages.forEach((p,i)=>p.classList.toggle('active',i===index));
+  stepTabs().forEach((t,i)=>{t.classList.toggle('active',i===index);t.classList.toggle('done',i<index);});
+  const page=pages[index];
+  $('pageTitle').textContent=page.dataset.title||'Employee Joining';
+  $('pageSub').textContent=page.dataset.sub||'';
+  $('pageIcon').innerHTML=`<i class="${page.dataset.icon||'fa-solid fa-id-card'}"></i>`;
+  $('pageBadge').innerHTML=`<i class="fa-solid fa-location-crosshairs"></i> Step ${index+1} of ${pages.length}`;
+  const pct=Math.round(((index+1)/pages.length)*100);
+  $('progressText').textContent=pct+'%';$('progressFill').style.width=pct+'%';
+  $('prevBtn').style.display=index===0?'none':'inline-flex';
+  $('nextBtn').style.display=index===pages.length-1?'none':'inline-flex';
+  $('saveBtn').style.display=index===pages.length-1?'inline-flex':'none';
+  if(index===pages.length-1)updateReview();
+  try{history.replaceState(null,'','#step-'+(index+1));}catch(e){}
+  document.querySelector('.form-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function nextStep(){showStep(currentStep+1,false);}
+function prevStep(){showStep(currentStep-1,true);}
+async function updateReview(){
+  if(!$('reviewGrid'))return;
+  const emp=await buildEmpObject();
+  const checklist=emp.documentsChecklist.length?emp.documentsChecklist.join(', '):'Not selected';
+  const rows=[
+    ['Employee Name',emp.name||'Pending',emp.id||'Auto after save'],['Mobile / Email',(emp.mobile||'Pending')+' / '+(emp.email||'No email'),emp.department||'Department pending'],['Designation',emp.designation||'Pending','Manager: '+(emp.manager||'Pending')],['Joining Date',emp.joining||'Pending','Interview: '+(emp.interviewDate||'Pending')],['Salary / CTC','₹'+(emp.salary||0),'CTC: ₹'+(emp.ctc||0)],['KYC','PAN: '+(emp.panNo||'Pending'),'Aadhar: '+(emp.aadharNo||'Pending')],['Current City',emp.resCity||'Pending',(emp.resState||'')+' '+(emp.resPincode||'')],['Permanent City',emp.permCity||'Pending','Type: '+emp.permAddressType],['Bank',emp.bankName||'Pending','IFSC: '+(emp.ifscCode||'Pending')],['Emergency',emp.emergencyContactName||'Pending',emp.emergencyContactNo||'No contact'],['Experience',emp.experienceType||'Fresher',(emp.previousExperiences||[]).length+' company row(s)'],['Documents',emp.employeeDocumentsMeta||'No file selected',checklist]
+  ];
+  $('reviewGrid').innerHTML=rows.map(r=>`<div class="review-tile"><small>${escHtml(r[0])}</small><strong>${escHtml(r[1])}</strong><span>${escHtml(r[2])}</span></div>`).join('');
+}
+async function loadExistingForEdit(){
+  if(!editEmpId)return;
+  try{
+    const db=getRealtimeDb();
+    const cleanId=String(editEmpId).replace(/[.#$\[\]/]/g,'-');
+    const snap=await db.ref(`${FIREBASE_EMPLOYEE_PATH}/${cleanId}`).once('value');
+    const found=snap.val(); if(!found)return;
+    const map={empName:found.name,mobile:found.mobile,email:found.email,department:found.department,designation:found.designation,manager:found.manager,interviewDate:found.interviewDate,joiningDate:found.joining,hrName:found.hrName,salary:found.salary,ctc:found.ctc,location:found.location,aadharNo:found.aadharNo,panNo:found.panNo,education:found.education,resHouseNo:found.resHouseNo,resArea:found.resArea,resLandmark:found.resLandmark,resCity:found.resCity,resPincode:found.resPincode,resState:found.resState,resCountry:found.resCountry,permHouseNo:found.permHouseNo,permArea:found.permArea,permLandmark:found.permLandmark,permCity:found.permCity,permPincode:found.permPincode,permState:found.permState,permCountry:found.permCountry,experienceType:found.experienceType,experienceYears:found.experienceYears,experienceMonths:found.experienceMonths,accountHolderName:found.accountHolderName,bankName:found.bankName,accountNo:found.accountNo,ifscCode:found.ifscCode,branchName:found.branchName,emergencyContactName:found.emergencyContactName,emergencyContactNo:found.emergencyContactNo,emergencyRelation:found.emergencyRelation,fatherName:found.fatherName,motherName:found.motherName,fatherOccupation:found.fatherOccupation,motherOccupation:found.motherOccupation,familyMembers:found.familyMembers,empDocsMeta:found.employeeDocumentsMeta};
+    Object.entries(map).forEach(([id,val])=>{if($(id)&&val!==undefined&&val!==null)$(id).value=val});
+    if(found.permAddressType==='Same')$('sameAsRes').checked=true;
+    if(Array.isArray(found.documentsChecklist))document.querySelectorAll('#docChecklist input').forEach(c=>c.checked=found.documentsChecklist.includes(c.value));
+    toggleExperienceFields();
+    if(Array.isArray(found.previousExperiences)&&found.previousExperiences.length){$('expRows').innerHTML='';found.previousExperiences.forEach(addExperienceRow);}
+    await loadManagerOptions();if(found.manager)$('manager').value=found.manager;
+  }catch(e){console.warn('Firebase edit load failed:',e);}
+}
+function applyTheme(){document.body.classList.toggle('dark');}
+async function init(){
+  if(isSharedMode)document.body.classList.add('share-mode');
+  if($('salary'))$('salary').addEventListener('input',()=>{$('ctc').value=Number($('salary').value||0)*12;updateReview();});
+  if($('empDocsInput'))$('empDocsInput').addEventListener('change',()=>{$('empDocsMeta').value=Array.from($('empDocsInput').files||[]).map(x=>x.name).join(', ');updateReview();});
+  ['resHouseNo','resArea','resLandmark','resCity','resPincode','resState','resCountry'].forEach(id=>$(id)?.addEventListener('input',()=>{if($('sameAsRes').checked)copyAddress();}));
+  document.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',()=>{if(currentStep===9)updateReview();}));
+  $('themeBtn')?.addEventListener('click',function(e){e.preventDefault();applyTheme();});
+  await loadManagerOptions();toggleExperienceFields();await loadExistingForEdit();
+  const hash=String(location.hash||'');const m=hash.match(/step-(\d+)/);showStep(m?Math.max(0,Math.min(9,Number(m[1])-1)):0,true);updateReview();
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
+
+
+
+

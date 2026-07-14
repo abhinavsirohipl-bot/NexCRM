@@ -1,0 +1,421 @@
+<!DOCTYPE html><html lang="en"><head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="../Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="../Others Files/nexcrm-realtime-database.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>NexCRM | Portal Settings</title><link rel="icon" type="image/png" href="../Meterial/tab.png"><link rel="shortcut icon" type="image/png" href="../Meterial/tab.png"><link rel="apple-touch-icon" href="../Meterial/tab.png"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>
+:root{--font:Calibri,Arial,sans-serif;--bg:#f5f7fb;--card:rgba(255,255,255,.88);--text:#091133;--muted:#6e7a96;--line:rgba(137,151,190,.24);--blue:#4f7cff;--purple:#7c3aed;--green:#22c55e;--red:#f43f5e;--gold:#d7a839;--shadow:0 24px 70px rgba(37,55,110,.12);--soft:0 14px 34px rgba(37,55,110,.09)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
+body{min-height:100vh;color:var(--text);background:radial-gradient(circle at 8% 0%,rgba(79,124,255,.14),transparent 30%),radial-gradient(circle at 92% 4%,rgba(124,58,237,.16),transparent 30%),linear-gradient(180deg,#fff 0%,var(--bg) 62%,#eef3ff 100%);overflow-x:hidden}
+body.dark{--bg:#080b12;--card:rgba(18,24,38,.86);--text:#f8fafc;--muted:#a8b3ca;--line:rgba(255,255,255,.12);background:radial-gradient(circle at 8% 0%,rgba(79,124,255,.24),transparent 32%),radial-gradient(circle at 92% 4%,rgba(124,58,237,.26),transparent 34%),#080b12}
+button,input,select{font:inherit}button{cursor:pointer;border:0}a{text-decoration:none;color:inherit}
+.topbar{position:sticky;top:0;z-index:80;min-height:78px;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}body.dark .topbar{background:rgba(8,11,18,.86)}
+.left,.right,.brand,.crumb,.top-pill{display:flex;align-items:center}.left{gap:18px;min-width:0}.right{gap:12px;flex-wrap:wrap;justify-content:flex-end}.brand{gap:12px}.logo{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(135deg,var(--blue),var(--purple));box-shadow:0 14px 30px rgba(49,92,255,.24)}.logo img{width:100%;height:100%;object-fit:cover}.brand h1{font-size:23px;font-weight:900;line-height:1}.brand p{font-size:13px;color:var(--muted);font-weight:700;margin-top:4px}.crumb{min-height:46px;padding:0 16px;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:var(--soft);font-weight:900;color:#071a8c;gap:8px;flex-wrap:wrap}body.dark .crumb{color:#dbeafe}
+.top-pill,.theme-toggle{min-height:44px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:var(--card);box-shadow:var(--soft);font-weight:900;gap:9px;color:var(--text)}.top-pill:hover,.theme-toggle:hover{transform:translateY(-2px)}.theme-toggle{padding:0 10px}.theme-track{width:72px;height:32px;border-radius:999px;background:linear-gradient(135deg,#315cff,#7c2cff);position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 9px;color:#fff}.theme-track i{font-size:13px;z-index:2}.theme-track:after{content:"";position:absolute;width:25px;height:25px;border-radius:50%;background:#fff;left:4px;top:3.5px;transition:.25s;box-shadow:0 8px 18px rgba(0,0,0,.2)}body.dark .theme-track:after{left:43px}.logout{background:linear-gradient(135deg,#ff416c,#ef2f73);color:#fff;border:0}
+.main{max-width:1680px;margin:0 auto;padding:18px 24px 30px}
+.hero{min-height:250px;border-radius:28px;padding:34px 38px;color:#fff;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:center;background:radial-gradient(circle at 80% 40%,rgba(255,255,255,.18),transparent 26%),linear-gradient(135deg,#061653 0%,#172b97 48%,#842df6 100%);box-shadow:0 30px 90px rgba(49,92,255,.22);position:relative;overflow:hidden;margin-bottom:22px}.hero:before{content:"";position:absolute;width:340px;height:340px;border-radius:50%;left:-120px;top:-120px;background:rgba(255,255,255,.1)}.hero h2{font-size:44px;line-height:1.05;font-weight:900}.hero p{margin-top:12px;color:rgba(255,255,255,.9);font-size:18px;line-height:1.45;max-width:760px}.hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.hero-tags span{min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.11);display:inline-flex;align-items:center;gap:8px;font-weight:900}.hero-art{height:190px;position:relative}.big-icon{position:absolute;right:62px;top:8px;width:160px;height:160px;border-radius:40px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(255,255,255,.3),rgba(255,255,255,.1));border:1px solid rgba(255,255,255,.28);box-shadow:0 24px 56px rgba(0,0,0,.2)}.big-icon i{font-size:68px}
+.layout{display:grid;grid-template-columns:1fr;gap:20px}.layout.two-col{grid-template-columns:minmax(0,1.15fr) minmax(340px,.85fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.card-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.card-title{display:flex;align-items:center;gap:12px}.title-icon{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,var(--blue),var(--purple))}.card-title h3{font-size:22px;font-weight:900}.card-title p{font-size:13px;color:var(--muted);font-weight:700;margin-top:3px}
+.card-body{padding:20px 22px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:7px}.field input,.field select{width:100%;height:46px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);padding:0 13px;font-weight:800;outline:none}body.dark .field input,body.dark .field select{background:#0b1220;color:#f8fafc;border-color:rgba(255,255,255,.14)}.field.full{grid-column:1/-1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:16px}.btn{min-height:44px;padding:0 16px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:900}.btn.primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}.btn.green{background:linear-gradient(145deg,#16a34a,#15803d);color:#fff}.btn.soft{background:#fff;color:#16208c;border:1px solid var(--line)}.btn.red{background:linear-gradient(145deg,#ef4444,#991b1b);color:#fff}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{padding:18px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.72);box-shadow:var(--soft)}body.dark .stat{background:rgba(255,255,255,.04)}.stat small{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase}.stat strong{display:block;margin-top:8px;font-size:28px}
+.table-wrap{overflow:auto}table{width:100%;min-width:760px;border-collapse:collapse}th,td{padding:13px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}th{background:#f1f4ff;color:#11218f;font-size:13px;text-transform:uppercase}body.dark th{background:#172036;color:#dbeafe}.value-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.18);font-weight:900}.action-row{display:flex;gap:8px;flex-wrap:wrap}.mini-btn{min-height:36px;padding:0 12px;border-radius:11px;font-size:12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:6px}.mini-btn.edit{background:#eef2ff;color:#1d4ed8}.mini-btn.reset{background:#fff7ed;color:#c2410c}.mini-btn.delete{background:#fee2e2;color:#b91c1c}
+.hint-list{display:grid;gap:12px}.hint-row{padding:14px 15px;border-radius:16px;border:1px solid var(--line);background:rgba(79,124,255,.05);font-weight:800;color:var(--muted)}.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:14px;padding:12px 16px;font-weight:900;opacity:0;transform:translateY(12px);transition:.25s;z-index:120}.toast.show{opacity:1;transform:translateY(0)}
+@media(max-width:1200px){.layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-art{display:none}.stat-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.topbar{flex-direction:column;align-items:flex-start;padding:12px 14px}.left,.right{width:100%;flex-wrap:wrap}.main{padding:14px}.hero{padding:24px}.hero h2{font-size:34px}.form-grid,.stat-grid{grid-template-columns:1fr}.top-pill,.theme-toggle{width:100%;justify-content:center}}
+.quick-actions-panel{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:14px;margin:-6px 0 22px}.quick-action{min-height:96px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(238,242,255,.62));box-shadow:var(--soft);padding:16px;display:flex;align-items:center;gap:13px;color:var(--text);transition:.22s}.quick-action:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(37,55,110,.16)}body.dark .quick-action{background:linear-gradient(145deg,rgba(17,24,39,.9),rgba(49,92,255,.12))}.quick-action i{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,var(--blue),var(--purple));font-size:18px}.quick-action strong{display:block;font-size:17px;font-weight:900}.quick-action span{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}.dropdown-control-panel{display:grid;grid-template-columns:220px 220px minmax(220px,1fr) auto;gap:12px;align-items:end;margin-bottom:16px}.dropdown-table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #1f2937;border-radius:18px;overflow:hidden;box-shadow:0 22px 55px rgba(15,23,42,.12)}body.dark .dropdown-table{background:#0b1220}.dropdown-table th{position:sticky;top:0;z-index:3;background:#080d18;color:#fff;border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid #1f2937;padding:11px 12px;text-align:left;font-weight:900;font-size:14px}.dropdown-table th:last-child{border-right:0}.dropdown-table td{border-right:1px solid rgba(148,163,184,.35);border-bottom:1px solid rgba(148,163,184,.30);padding:0;vertical-align:top;background:#fff}body.dark .dropdown-table td{background:#0b1220}.dropdown-table tr:last-child td{border-bottom:0}.dropdown-page-row td{background:linear-gradient(135deg,#020617,#0f172a)!important;color:#fff;font-weight:900;font-size:16px;letter-spacing:.01em;padding:12px 14px;border-bottom:1px solid #334155}.dropdown-page-row td:before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:9px;box-shadow:0 0 0 5px rgba(34,197,94,.12)}.dropdown-value-list{display:grid;gap:6px}.dropdown-value{display:grid;grid-template-columns:minmax(120px,1fr) auto;align-items:center;gap:8px;min-height:38px;padding:6px 8px;font-weight:800;color:#06112f}.dropdown-table tr:nth-child(even):not(.dropdown-page-row) td{background:#f8fafc}body.dark .dropdown-value{color:#f8fafc}body.dark .dropdown-table tr:nth-child(even):not(.dropdown-page-row) td{background:#111827}.dropdown-value:hover{background:rgba(79,124,255,.08)}.dropdown-value-actions{display:inline-flex;gap:4px;align-items:center}.dropdown-value button{width:28px;height:28px;border-radius:9px;background:#eef2ff;color:#3150d4;border:1px solid rgba(49,80,212,.12);display:grid;place-items:center}.dropdown-value button:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(49,80,212,.14)}.dropdown-value button.delete{color:#b91c1c;background:#fee2e2;border-color:#fecaca}.dropdown-value button:disabled{opacity:.32;cursor:not-allowed;transform:none;box-shadow:none}.dropdown-empty{display:block;padding:10px 12px;color:var(--muted);font-size:12px;font-weight:800}.dropdown-page-note{margin-top:10px;color:var(--muted);font-size:12px;font-weight:800}.page-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:6px 10px;background:rgba(79,124,255,.1);color:#3150d4;font-weight:900;font-size:12px}@media(max-width:900px){.quick-actions-panel,.dropdown-control-panel{grid-template-columns:1fr}.dropdown-table{min-width:780px}}</style><link rel="stylesheet" href="../nexcrm-mobile-compact.css" /><script src="../nexcrm-apps-script-bridge.js"></script></head><body><header class="topbar"><div class="left"><div class="brand"><div class="logo"><img src="../Meterial/FB-logo.png" alt="Finbud Logo" onerror="this.style.display='none';this.parentElement.innerHTML='NX'"></div><div><h1>NexCRM</h1><p>Portal Credential Settings</p></div></div><div class="crumb"><span><i class="fa-solid fa-user-lock"></i> Admin Control</span><span>/</span><span>Portal Settings</span></div></div><div class="right"><button class="top-pill" type="button" onclick="location.href='Admin-Portal-Launch.html'"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="theme-toggle" id="themeBtn" type="button" title="Theme"><span class="theme-track"><i class="fa-regular fa-sun"></i><i class="fa-solid fa-moon"></i></span></button><button class="top-pill logout" type="button" onclick="logoutUser()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></div></header><main class="main"><section class="hero"><div><h2>Admin Credential Power Desk</h2><p>Add multiple employee portal credentials, reset their passwords, and change admin login details from one secure admin-only settings page.</p><div class="hero-tags"><span><i class="fa-solid fa-user-plus"></i> Multiple Employee Logins</span><span><i class="fa-solid fa-key"></i> Password Reset</span><span><i class="fa-solid fa-user-shield"></i> Admin Only Access</span></div></div><div class="hero-art"><div class="big-icon"><i class="fa-solid fa-gear"></i></div></div></section><section class="quick-actions-panel" aria-label="Quick actions"><a class="quick-action" href="#adminCredentials"><i class="fa-solid fa-user-shield"></i><div><strong>Admin Credentials</strong><span>Admin login manage karo</span></div></a><a class="quick-action" href="#employeeCredentials"><i class="fa-solid fa-users"></i><div><strong>Employee Credentials</strong><span>Employee login IDs update karo</span></div></a><a class="quick-action" href="#dropdownManager"><i class="fa-solid fa-table-list"></i><div><strong>Dropdown Manager</strong><span>All page dropdowns maintain karo</span></div></a></section><section class="layout"><div><div class="card" id="adminCredentials"><div class="card-head"><div class="card-title"><div class="title-icon"><i class="fa-solid fa-user-shield"></i></div><div><h3>Admin Credentials</h3><p>Add 2 or 3 admin logins for the same admin portal data</p></div></div></div><div class="card-body"><div class="form-grid"><div class="field"><label>Admin Employee ID</label><select id="adminEmployeePicker"><option value="">Select Employee ID</option></select></div><div class="field"><label>Admin Name</label><input id="adminDisplayName" placeholder="Admin Name"></div><div class="field"><label>User ID / Official Mail ID</label><input id="adminUsername" placeholder="Auto official mail ID" readonly></div><div class="field"><label>Admin Password</label><input id="adminPassword" placeholder="Enter admin password"></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveAdminCredentials()"><i class="fa-solid fa-user-plus"></i> Save Admin Login</button><button class="btn soft" type="button" onclick="clearAdminForm()"><i class="fa-solid fa-eraser"></i> Clear Admin Form</button><button class="btn red" type="button" onclick="resetAdminCredentials()"><i class="fa-solid fa-rotate-left"></i> Reset Admin Default</button></div><div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>#</th><th>Admin Username</th><th>Password</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminRows"></tbody></table></div></div></div><div class="card" id="employeeCredentials" style="margin-top:20px"><div class="card-head"><div class="card-title"><div class="title-icon"><i class="fa-solid fa-users"></i></div><div><h3>Employee Credentials</h3><p>Add, update and reset employee portal logins</p></div></div></div><div class="card-body"><div class="stat-grid"><div class="stat"><small>Total Employee Logins</small><strong id="totalCreds">0</strong></div><div class="stat"><small>Active Logins</small><strong id="activeCreds">0</strong></div><div class="stat"><small>Default Reset Password</small><strong>@Abhi1997</strong></div></div><div class="form-grid"><div class="field"><label>Employee Name</label><input id="empDisplayName" placeholder="Employee Name"></div><div class="field"><label>User ID</label><input id="empUsername" placeholder="Auto Employee ID" readonly></div><div class="field"><label>Employee Password</label><input id="empPassword" placeholder="Create password"></div><div class="field"><label>Status</label><input id="empStatus" value="Active" readonly></div></div><div class="actions"><button class="btn primary" type="button" onclick="saveEmployeeCredential()"><i class="fa-solid fa-user-plus"></i> Save Employee Login</button><button class="btn soft" type="button" onclick="clearEmployeeForm()"><i class="fa-solid fa-eraser"></i> Clear Form</button><button class="btn soft" type="button" onclick="syncEmployeeCredentialsFromMaster()"><i class="fa-solid fa-id-card"></i> Sync Employee IDs</button><button class="btn red" type="button" onclick="resetAllEmployeePasswords()"><i class="fa-solid fa-unlock-keyhole"></i> Reset All Employee Passwords</button></div><div class="table-wrap" style="margin-top:18px"><table><thead><tr><th>#</th><th>Employee Name</th><th>Employee ID / User ID</th><th>Password</th><th>Status</th><th>Action</th></tr></thead><tbody id="credRows"></tbody></table></div></div></div></div><div class="card" id="dropdownManager" style="margin-top:0"><div class="card-head"><div class="card-title"><div class="title-icon"><i class="fa-solid fa-table-list"></i></div><div><h3>Dropdown Manager</h3><p>Page-wise dropdown control for MIS, Leads, Obligation, Employee Joining and future modules</p></div></div><span class="page-badge"><i class="fa-solid fa-layer-group"></i> Page wise table</span></div><div class="card-body"><div class="stat-grid"><div class="stat"><small>Pages Covered</small><strong id="dropdownPageCount">0</strong></div><div class="stat"><small>Dropdown Fields</small><strong id="dropdownCategoryCount">0</strong></div><div class="stat"><small>Total Values</small><strong id="dropdownValueCount">0</strong></div></div><div class="dropdown-control-panel"><div class="field"><label>Select Page</label><select id="dropdownPage" onchange="syncDropdownCategoryOptions();renderDropdownManager()"></select></div><div class="field"><label>Select Dropdown</label><select id="dropdownCategory" onchange="renderDropdownManager()"></select></div><div class="field"><label>Add New Value</label><input id="dropdownValueInput" placeholder="Type new dropdown value"></div><button class="btn primary" type="button" onclick="addDropdownValue()"><i class="fa-solid fa-plus"></i> Add Value</button></div><div class="actions" style="justify-content:flex-start;margin-bottom:14px"><button class="btn soft" type="button" onclick="addDropdownCategory()"><i class="fa-solid fa-folder-plus"></i> Add Custom Dropdown</button><input id="dropdownCategoryInput" placeholder="Custom dropdown name" style="max-width:260px;height:42px;border:1px solid var(--line);border-radius:14px;padding:0 12px;background:var(--card);color:var(--text);font-weight:800"><button class="btn red" type="button" onclick="removeDropdownCategory()"><i class="fa-solid fa-trash"></i> Delete Selected Custom Dropdown</button></div><div class="table-wrap" style="border-radius:18px"><table class="dropdown-table"><thead id="dropdownTableHead"></thead><tbody id="dropdownManagerRows"></tbody></table></div><div class="dropdown-page-note">Dropdown values yaha page ke naam ke saath dikhte hain, isliye clearly pata chalega kis page ka dropdown update ho raha hai. Status/Product/Login Bank values old NexCRM keys me bhi sync hoti hain.</div></div></div><div><div class="card"><div class="card-head"><div class="card-title"><div class="title-icon"><i class="fa-solid fa-circle-info"></i></div><div><h3>Rules</h3><p>Current credential policy</p></div></div></div><div class="card-body"><div class="hint-list"><div class="hint-row">Admin Credentials section se admin login create, edit aur reset hoga; admin can access admin and employee portals.</div><div class="hint-row">Employee Credentials section me User ID employee code se auto banta hai, password editable hai, aur active login count yahi se track hota hai.</div><div class="hint-row">Dropdown Manager is the single control point for page dropdowns: MIS, Leads, Obligation, Employee Joining and future pages.</div><div class="hint-row">Status, Product and Login Bank dropdowns legacy NexCRM keys me bhi sync hote hain, so old MIS/reports compatible rahenge.</div><div class="hint-row">Default dropdown groups delete nahi honge; custom dropdown groups add/remove kiye ja sakte hain.</div><div class="hint-row">Sync NexCRM Data section local browser data ko export/import aur Firestore ke saath align karne ke liye hai.</div></div></div></div><div class="card" style="margin-top:20px"><div class="card-head"><div class="card-title"><div class="title-icon"><i class="fa-solid fa-database"></i></div><div><h3>Sync NexCRM Data</h3><p>Export/import full NexCRM local data so devices stay aligned.</p></div></div></div><div class="card-body"><div class="hint-list"><div class="hint-row">Local browser storage is how NexCRM saves data. Different devices can show different cases unless data is synced.</div><div class="hint-row">Firestore is now the logged-in source of truth. Use migration once from the device that has correct existing data.</div></div><div class="actions" style="flex-wrap:wrap;justify-content:flex-start;margin-top:14px"><button class="btn primary" type="button" onclick="exportNexcrmData()"><i class="fa-solid fa-file-export"></i> Export Data as JSON</button><button class="btn soft" type="button" onclick="loadExportDataToTextarea()"><i class="fa-solid fa-arrow-rotate-right"></i> Load Current Data</button><button class="btn soft" type="button" onclick="copyExportDataToClipboard()"><i class="fa-solid fa-copy"></i> Copy JSON</button></div><div class="field full" style="margin-top:16px"><label>Import / Review Data</label><textarea id="exportDataTextarea" style="width:100%;min-height:180px;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--card);color:var(--text);font-family:monospace;font-size:13px;resize:vertical"></textarea></div><div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn green" type="button" onclick="importNexcrmData()"><i class="fa-solid fa-file-import"></i> Import JSON</button><button class="btn red" type="button" onclick="clearExportTextarea()"><i class="fa-solid fa-trash"></i> Clear</button><button class="btn primary" type="button" onclick="uploadLocalDataToFirestore()"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Local Data to Firestore</button><button class="btn soft" type="button" onclick="pullFirestoreDataToLocal()"><i class="fa-solid fa-cloud-arrow-down"></i> Pull Firestore Data</button></div></div></div></div></section></main><div class="toast" id="toast">Saved</div><script>
+const LOGIN_CONFIG_KEY='nexcrm_login_config_v1';
+const MASTER_EMP_KEY='nexcrm_employee_master_final_custom';
+let editingAdminIndex=-1;
+const DEFAULT_LOGIN_CONFIG={
+  employee:{role:'Employee',title:'Employee Login',subtitle:'Enter your employee credential and password to continue.',redirect:'Launch-page.html',icon:'fa-solid fa-user-tie',hint:'Role: Employee',footer:'NexCRM Launcher • Secure Employee Access'},
+  admin:{role:'Admin',title:'Admin Login',subtitle:'Enter your admin credential and password to continue.',redirect:'Admin Portal CRM NexFund/Admin-Portal-Launch.html',icon:'fa-solid fa-user-shield',hint:'Role: Admin',footer:'NexCRM Admin Portal • Secure Admin Access',credential:'Admin',password:'Abhi1997'},
+  admins:[{username:'Admin',password:'Abhi1997',active:true}],
+  employees:[]
+};
+let editingIndex=-1;
+const $=id=>document.getElementById(id);
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}
+function readSession(){try{return JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null')}catch(e){return null}}
+function clearSession(){localStorage.removeItem('nexcrm_session');localStorage.removeItem('nexcrm_logged_in');sessionStorage.removeItem('nexcrm_session');sessionStorage.removeItem('nexcrm_logged_in')}
+function persistSession(session){const store=session&&session.persistent?localStorage:sessionStorage;store.setItem('nexcrm_session',JSON.stringify(session))}
+function logoutUser(message){clearSession();if(message)alert(message);location.href='../index.html'}
+function enforcePortalSession(expectedRole, timeoutMs){
+  const session=readSession();
+  if(!session||String(session.role||'').toLowerCase()!==String(expectedRole||'').toLowerCase()){clearSession();location.href='../index.html';return}
+  const touch=()=>{session.lastActivity=new Date().toISOString();persistSession(session)};
+  const check=()=>{const last=Date.parse(session.lastActivity||session.loginAt||0)||0;if(Date.now()-last>timeoutMs)logoutUser(expectedRole+' portal auto logout ho gaya. Please login again.')};
+  ['click','keydown','mousemove','scroll','touchstart'].forEach(evt=>window.addEventListener(evt,touch,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()});
+  window.addEventListener('focus',check);
+  setInterval(check,30000);
+  check();touch();
+}
+function normalizeConfig(raw){
+  const cfg=raw&&typeof raw==='object'?raw:{};
+  const legacyAdmin=cfg.admin||DEFAULT_LOGIN_CONFIG.admin;
+  const admins=Array.isArray(cfg.admins)&&cfg.admins.length?cfg.admins:[{username:legacyAdmin.credential||'Admin',password:legacyAdmin.password||'Abhi1997',active:true}];
+  const employees=Array.isArray(cfg.employees)&&cfg.employees.length?cfg.employees:[];
+  return {
+    employee:{...DEFAULT_LOGIN_CONFIG.employee,...(cfg.employee||{})},
+    admin:{...DEFAULT_LOGIN_CONFIG.admin,...legacyAdmin},
+    admins:admins.map((adm,i)=>({username:String(adm.username||adm.credential||('Admin'+(i+1))).trim(),password:String(adm.password||'Abhi1997'),displayName:String(adm.displayName||adm.name||'').trim(),employeeId:String(adm.employeeId||adm.id||'').trim(),active:adm.active!==false})).filter(adm=>adm.username),
+    employees:employees.map((emp,i)=>({employeeId:String(emp.employeeId||emp.id||emp.employee_id||emp.username||emp.credential||('E-'+String(i+1).padStart(3,'0'))).trim(),username:String(emp.username||emp.employeeId||emp.id||emp.employee_id||emp.credential||('E-'+String(i+1).padStart(3,'0'))).trim(),password:String(emp.password||''),name:String(emp.name||emp.employee_name||emp.username||'').trim(),email:String(emp.email||emp.officialMail||'').trim(),mobile:String(emp.mobile||emp.phone||'').trim(),active:emp.active!==false})).filter(emp=>emp.username)
+  };
+}
+function getConfig(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(LOGIN_CONFIG_KEY)||'null');
+    const cfg=normalizeConfig(parsed);
+    localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(cfg));
+    return cfg;
+  }catch(e){
+    localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(DEFAULT_LOGIN_CONFIG));
+    return normalizeConfig(DEFAULT_LOGIN_CONFIG);
+  }
+}
+function saveConfig(cfg){
+  const normalized=normalizeConfig(cfg);
+  localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(normalized));
+  return normalized;
+}
+function render(){
+  const cfg=getConfig();
+  $('adminUsername').value='';
+  $('adminPassword').value='';
+  if($('adminDisplayName'))$('adminDisplayName').value='';
+  if($('adminEmployeePicker'))$('adminEmployeePicker').value='';
+  $('totalCreds').textContent=cfg.employees.length;
+  $('activeCreds').textContent=cfg.employees.filter(emp=>emp.active!==false).length;
+  $('adminRows').innerHTML=cfg.admins.map((adm,idx)=>`<tr><td>${idx+1}</td><td><span class="value-pill">${adm.username}</span></td><td>${adm.password}</td><td>${adm.active!==false?'Active':'Inactive'}</td><td><div class="action-row"><button class="mini-btn edit" type="button" onclick="editAdminCredential(${idx})"><i class="fa-solid fa-pen"></i> Edit</button><button class="mini-btn reset" type="button" onclick="resetAdminPassword(${idx})"><i class="fa-solid fa-key"></i> Reset</button><button class="mini-btn delete" type="button" onclick="deleteAdminCredential(${idx})"><i class="fa-solid fa-trash"></i> Delete</button></div></td></tr>`).join('')||'<tr><td colspan="5" style="padding:22px;color:var(--muted)">No admin credentials found.</td></tr>';
+  $('credRows').innerHTML=cfg.employees.map((emp,idx)=>`<tr><td>${idx+1}</td><td><b>${emp.name||'-'}</b></td><td><span class="value-pill">${emp.username}</span></td><td>${emp.password}</td><td>${emp.active!==false?'Active':'Inactive'}</td><td><div class="action-row"><button class="mini-btn edit" type="button" onclick="editEmployeeCredential(${idx})"><i class="fa-solid fa-pen"></i> Edit</button><button class="mini-btn reset" type="button" onclick="resetEmployeePassword(${idx})"><i class="fa-solid fa-key"></i> Reset</button><button class="mini-btn delete" type="button" onclick="deleteEmployeeCredential(${idx})"><i class="fa-solid fa-trash"></i> Delete</button></div></td></tr>`).join('')||'<tr><td colspan="6" style="padding:22px;color:var(--muted)">No employee credentials found.</td></tr>';
+}
+function clearAdminForm(){editingAdminIndex=-1;$('adminUsername').value='';$('adminPassword').value='';if($('adminDisplayName'))$('adminDisplayName').value='';if($('adminEmployeePicker'))$('adminEmployeePicker').value=''}
+function clearEmployeeForm(){editingIndex=-1;const select=$('empSelect');if(select)select.value='';$('empDisplayName').value='';$('empUsername').value='';$('empPassword').value='';$('empStatus').value='Active'}
+function saveAdminCredentials(){
+  const cfg=getConfig();
+  const username=$('adminUsername').value.trim();
+  const password=$('adminPassword').value.trim();
+  const displayName=($('adminDisplayName')&&$('adminDisplayName').value.trim())||username;
+  if(!username||!password){toast('Enter admin username and password');return}
+  const duplicate=cfg.admins.find((adm,idx)=>idx!==editingAdminIndex&&adm.username.toLowerCase()===username.toLowerCase());
+  if(duplicate){toast('This admin username already exists');return}
+  const selectedEmployeeId=($('adminEmployeePicker')&&$('adminEmployeePicker').value.trim())||'';
+  const payload={employeeId:selectedEmployeeId,username,password,displayName,active:true};
+  if(editingAdminIndex>=0)cfg.admins[editingAdminIndex]=payload;else cfg.admins.unshift(payload);
+  cfg.admin.credential=cfg.admins[0]?.username||DEFAULT_LOGIN_CONFIG.admin.credential;
+  cfg.admin.password=cfg.admins[0]?.password||DEFAULT_LOGIN_CONFIG.admin.password;
+  saveConfig(cfg);
+  clearAdminForm();
+  render();
+  toast(editingAdminIndex>=0?'Admin credential updated':'Admin credential added');
+}
+function editAdminCredential(index){const cfg=getConfig();const adm=cfg.admins[index];if(!adm)return;editingAdminIndex=index;$('adminUsername').value=adm.username||'';$('adminPassword').value=adm.password||'';if($('adminDisplayName'))$('adminDisplayName').value=adm.displayName||'';window.scrollTo({top:0,behavior:'smooth'})}
+function resetAdminPassword(index){const cfg=getConfig();const adm=cfg.admins[index];if(!adm)return;cfg.admins[index]={...adm,password:'Abhi1997'};cfg.admin.credential=cfg.admins[0]?.username||DEFAULT_LOGIN_CONFIG.admin.credential;cfg.admin.password=cfg.admins[0]?.password||DEFAULT_LOGIN_CONFIG.admin.password;saveConfig(cfg);render();toast('Admin password reset')}
+function deleteAdminCredential(index){const cfg=getConfig();if(cfg.admins.length<=1){toast('At least one admin credential required');return}const adm=cfg.admins[index];if(!adm)return;if(!confirm(`Delete admin credential ${adm.username}?`))return;cfg.admins.splice(index,1);cfg.admin.credential=cfg.admins[0]?.username||DEFAULT_LOGIN_CONFIG.admin.credential;cfg.admin.password=cfg.admins[0]?.password||DEFAULT_LOGIN_CONFIG.admin.password;saveConfig(cfg);clearAdminForm();render();toast('Admin credential deleted')}
+function resetAdminCredentials(){const cfg=getConfig();cfg.admins=[...DEFAULT_LOGIN_CONFIG.admins];cfg.admin.credential=DEFAULT_LOGIN_CONFIG.admin.credential;cfg.admin.password=DEFAULT_LOGIN_CONFIG.admin.password;saveConfig(cfg);clearAdminForm();render();toast('Admin credentials reset')}
+function saveEmployeeCredential(){
+  const cfg=getConfig();
+  const name=$('empDisplayName').value.trim();
+  const selectedEmployeeId=($('empUsernamePicker')&&$('empUsernamePicker').value.trim())||$('empUsername').value.trim();
+  const username=nexcrmUserIdFromEmployeeId(selectedEmployeeId);
+  $('empUsername').value=username;
+  const password=$('empPassword').value.trim();
+  if(!name||!username||!password){toast('Enter employee name, User ID and password');return}
+  const duplicate=cfg.employees.find((emp,idx)=>idx!==editingIndex&&emp.username.toLowerCase()===username.toLowerCase());
+  if(duplicate){toast('This Employee ID already exists');return}
+  const payload={employeeId:selectedEmployeeId,name,username,password,active:true};
+  if(editingIndex>=0)cfg.employees[editingIndex]=payload;else cfg.employees.unshift(payload);
+  saveConfig(cfg);
+  clearEmployeeForm();
+  render();
+  toast(editingIndex>=0?'Employee credential updated':'Employee credential added');
+}
+function editEmployeeCredential(index){
+  const cfg=getConfig();
+  const emp=cfg.employees[index];
+  if(!emp)return;
+  editingIndex=index;
+  $('empDisplayName').value=emp.name||'';
+  $('empUsername').value=emp.username||'';
+  $('empPassword').value=emp.password||'';
+  $('empStatus').value=emp.active!==false?'Active':'Inactive';
+  if($('empSelect'))$('empSelect').value=emp.username||'';
+  if($('empUsernamePicker'))$('empUsernamePicker').value=emp.employeeId||emp.username||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function resetEmployeePassword(index){
+  const cfg=getConfig();
+  const emp=cfg.employees[index];
+  if(!emp)return;
+  cfg.employees[index]={...emp,password:nexcrmPasswordFromEmployee(emp)};
+  saveConfig(cfg);
+  render();
+  toast('Employee password reset as per Employee ID');
+}
+function getMasterEmployees(){
+  let master=[];
+  try{master=JSON.parse(localStorage.getItem(MASTER_EMP_KEY)||'[]')}catch(e){master=[]}
+  if(!Array.isArray(master))master=[];
+  return master.map(emp=>({
+    id:String(emp.id||emp.employee_id||emp.employeeId||emp.code||emp.empCode||'').trim(),
+    name:String(emp.name||emp.employee_name||emp.employeeName||emp.fullName||'').trim(),
+    email:String(emp.email||emp.officialMail||'').trim(),
+    mobile:String(emp.mobile||emp.phone||'').trim(),
+    officialMail:String(emp.officialMail||emp.official_mail||emp.officialEmail||emp.official_email||emp.email||emp.mail||emp.workEmail||emp.work_email||'').trim()
+  })).filter(emp=>emp.id);
+}
+function loadMasterEmployeeIds(){
+  const employees=getMasterEmployees();
+  const select=$('empSelect');
+  if(!select) return employees;
+  select.innerHTML='<option value="">Select Employee ID</option>' + employees.map(emp=>`<option value="${emp.id}">${emp.id}${emp.name?` - ${emp.name}`:''}</option>`).join('');
+  select.addEventListener('change',()=>{
+    const id=select.value.trim();
+    if(!id){clearEmployeeForm();return}
+    const record=getMasterEmployees().find(emp=>emp.id.toLowerCase()===id.toLowerCase());
+    if(!record) return;
+    document.getElementById('empUsername').value=nexcrmUserIdFromEmployeeId(record.id);
+    $('empDisplayName').value=record.name||record.id;
+    if(!$('empPassword').value.trim())$('empPassword').value=nexcrmPasswordFromEmployeeId(record.id);
+  });
+  return employees;
+}
+function syncEmployeeCredentialsFromMaster(){
+  const cfg=getConfig();
+  let master=[];
+  try{master=JSON.parse(localStorage.getItem(MASTER_EMP_KEY)||'[]')}catch(e){master=[]}
+  if(!Array.isArray(master)||!master.length){toast('No employee master data found');return}
+  let added=0;
+  master.forEach(emp=>{
+    const employeeId=String(emp.id||emp.employee_id||'').trim();
+    if(!employeeId)return;
+    const userId=nexcrmUserIdFromEmployeeId(employeeId);
+    const exists=cfg.employees.some(row=>String(row.username||'').trim().toLowerCase()===userId.toLowerCase());
+    if(!exists){cfg.employees.push({employeeId,username:userId,password:nexcrmPasswordFromEmployee(emp),name:String(emp.name||emp.employee_name||employeeId).trim(),email:String(emp.email||emp.officialMail||'').trim(),mobile:String(emp.mobile||emp.phone||'').trim(),dob:String(emp.dob||emp.date_of_birth||emp.dateOfBirth||'').trim(),active:true});added++;}
+  });
+  saveConfig(cfg);
+  clearEmployeeForm();
+  render();
+  toast(added?`${added} employee ID credentials added`:'All Employee ID credentials already exist');
+}
+function collectNexcrmLocalStorage(){
+  const prefixes=['nexcrm_','nexfund_','hrms_'];
+  const result={};
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(!key)continue;
+    if(prefixes.some(prefix=>key.startsWith(prefix))){
+      result[key]=localStorage.getItem(key);
+    }
+  }
+  return result;
+}
+function exportNexcrmData(){
+  const payload=collectNexcrmLocalStorage();
+  if(!Object.keys(payload).length){toast('No NexCRM local data found');return}
+  const fileName=`nexcrm-data-backup-${new Date().toISOString().slice(0,10)}.json`;
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  toast('NexCRM data exported');
+}
+function copyExportDataToClipboard(){
+  const payload=collectNexcrmLocalStorage();
+  if(!Object.keys(payload).length){toast('No NexCRM local data found');return}
+  const text=JSON.stringify(payload,null,2);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied NexCRM JSON to clipboard')).catch(()=>alert('Unable to copy. Use export or manual copy.'));
+  } else {
+    $('exportDataTextarea').value=text;
+    alert('Clipboard not available. JSON loaded into textarea for manual copy.');
+  }
+}
+function loadExportDataToTextarea(){
+  const payload=collectNexcrmLocalStorage();
+  $('exportDataTextarea').value=Object.keys(payload).length?JSON.stringify(payload,null,2):'';
+  toast('Current NexCRM export data loaded');
+}
+function importNexcrmData(){
+  const raw=$('exportDataTextarea').value.trim();
+  if(!raw){toast('Paste JSON to import');return}
+  let payload;
+  try{payload=JSON.parse(raw);}catch(e){alert('Invalid JSON format');return}
+  if(!payload||typeof payload!=='object' || Array.isArray(payload)){alert('Invalid NexCRM export object');return}
+  const prefixes=['nexcrm_','nexfund_','hrms_'];
+  let count=0;
+  Object.entries(payload).forEach(([key,value])=>{
+    if(typeof key==='string' && prefixes.some(prefix=>key.startsWith(prefix))){
+      localStorage.setItem(key,String(value));
+      count++;
+    }
+  });
+  toast(`${count} NexCRM keys imported`);
+}
+async function uploadLocalDataToFirestore(){
+  if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}
+  if(!confirm('Upload this browser local NexCRM data to Firestore as source data?'))return;
+  try{const count=await window.NexCRMFirebase.migrateLocalStorageToFirestore();toast(`${count} keys uploaded to Firestore`)}catch(e){alert(e.message||'Firestore migration failed')}
+}
+async function pullFirestoreDataToLocal(){
+  if(!window.NexCRMFirebase){toast('Firebase sync layer not loaded');return}
+  try{await window.NexCRMFirebase.pullFirestoreToLocal();toast('Firestore data pulled. Data updated without page refresh.');render()}catch(e){alert(e.message||'Firestore pull failed')}
+}
+function clearExportTextarea(){
+  $('exportDataTextarea').value='';
+  toast('Import textarea cleared');
+}
+function resetAllEmployeePasswords(){
+  const cfg=getConfig();
+  if(!cfg.employees.length){toast('No employee credentials found');return}
+  if(!confirm('Reset all employee passwords as per Employee ID?'))return;
+  cfg.employees=cfg.employees.map(emp=>({...emp,password:nexcrmPasswordFromEmployee(emp)}));
+  saveConfig(cfg);
+  render();
+  toast('All employee passwords reset');
+}
+function deleteEmployeeCredential(index){
+  const cfg=getConfig();
+  const emp=cfg.employees[index];
+  if(!emp)return;
+  if(!confirm(`Delete portal credential for ${emp.name||emp.username}?`))return;
+  cfg.employees.splice(index,1);
+  saveConfig(cfg);
+  clearEmployeeForm();
+  render();
+  toast('Employee credential deleted');
+}
+const STATUS_VALUES_KEY='nexcrm_status_values';
+const PRODUCT_NAMES_KEY='nexcrm_product_names';
+const BANK_NAMES_KEY='nexcrm_bank_names';
+const DROPDOWN_CONFIG_KEY='nexcrm_dropdown_manager_v1';
+const DROPDOWN_PAGE_LABELS={obligation:'Obligation',employeeJoining:'Employee Joining',mis:'MIS',leads:'Leads'};
+const DROPDOWN_CATEGORY_LABELS={leadMode:'Lead Mode',dpd:'DPD',ownership:'Ownership',remarks:'Remarks',accountType:'Account Type',bank:'Bank',segment:'Segment',department:'Department',designation:'Designation',education:'Education',fatherOccupation:'Father Occupation',motherOccupation:'Mother Occupation',experienceType:'Experience Type',status:'Status',yesNo:'Yes/No',addressType:'Address Type',product:'Product',loginBank:'Login Bank',source:'Lead Source',disposition:'Disposition'};
+const DEFAULT_PAGE_DROPDOWNS={
+  obligation:{leadMode:['Existing Lead','Create New Lead'],dpd:['Yes','No'],ownership:['Joint','Individual','Guarantor','Authorised User'],remarks:['Closed','To Be Closed','Obligate','BT','Not To Be Consider'],accountType:['Personal Loan','Credit Card','Housing Loan','Short Term Personal Loan','Consumer Loan','Two-wheeler Loan','Auto Loan Personal','Loan on Credit Card','Education Loan','Property Loan','Gold Loan','Used Car Loan','Loan Against Property','Overdraft - Un-Secured','Overdraft - Secured','Kisan Credit Card - KCC','Loan Against Security & Shares','Business Loan','Other Loan'],bank:['BAJAJ','AXIS BANK','KOTAK BANK','HDFC BANK','ICICI BANK','SBI','UNION BANK','PNB','IDFC FIRST BANK','YES BANK','TATA CAPITAL','ADITYA BIRLA','CHOLAMANDALAM','INDUSIND BANK','RBL','KARUR VYSYA','KRAZYBEE','Aditya Birla','DMI FINANCE','Axis Finance'],segment:['SUPER GREEN','GREEN','AMBER','RED','DARK RED']},
+  employeeJoining:{department:['Sales','HR','Operations','Management'],designation:['Tele Caller','Team Leader','Senior HR','HR Executive','Manager'],education:['10th (High School)','12th (Intermediate)','Diploma','Graduation','Post Graduation'],fatherOccupation:['Pvt Employee','Govt Employee','Business Man','Freelancer','Farmer','Other'],motherOccupation:['Pvt Employee','Govt Employee','Business Women','Freelancer','House Wife','Other'],experienceType:['Fresher','Experienced'],status:['Active','Inactive'],yesNo:['Yes','No'],addressType:['Same','Different']},
+  mis:{product:['Term Loan','Balance Transfer Top-Up','Overdraft Limit Fresh','Overdraft Top-Up','Business Term Loan','BL Overdraft Limit'],loginBank:['BAJAJ','TATA','Poonawalla','Piramal','ABFL','Axis Finance','Kotak Bank','HDFC Bank','ICICI Bank','Axis Bank','Bandhan Bank','IDFC','Utkarsh (USFB)','IndusInd Bank','Muthoot','L&T Finance','Chola Mandalam','SMFG','Increed Finance','Finnable','Fibe'],status:['Approved','Disbursed','CANCLE','Login Done','Login Hold','Rejected','Share for Login','ABND','Login Pending','Underwriting Stage','FCU/RCU Pending','TVR Pending','TVR Done','FI Initiated','FI Done']},
+  leads:{product:['Term Loan','Term Loan - Top-Up','Overdraft Limit','Overdraft Top-Up','Overdraft BT - Top-Up','Balance Transfer + Top-Up'],bank:['Bajaj Finance','HDFC Bank','ICICI Bank','Axis Bank','Kotak Bank','IDFC First Bank','Tata Capital','L&T Finance','Other'],source:['Own Data','Cold Data Calling','Referral','BT Data'],disposition:['Future - Follow-Up','OTP','RNR','Call Back','Invalid','Language Barrier','Connect via WhatsApp','Not Contactable','Not Interested','Not Eligible','Self Employed','OTP - Docx Follow-Up','Docx Follow-Up','Login','Login Reject','Disbursed','OTP - Duplicate','OTP - Not Eligible','OTP - Not Interested','DND','Eligible for BAJAJ','Eligible','Approved','Follow-Up','OTP - Not Responding','Not Responding','Wrong Number'],segment:['SUPER GREEN','GREEN','AMBER','RED','DARK RED']}
+};
+function uniq(values){return [...new Set((values||[]).map(v=>String(v||'').trim()).filter(Boolean))]}
+function safeArrayKey(key){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
+function normalizeDropdowns(raw){let pages=JSON.parse(JSON.stringify(DEFAULT_PAGE_DROPDOWNS));if(raw&&raw._pages){Object.entries(raw._pages).forEach(([page,cats])=>{pages[page]=pages[page]||{};Object.entries(cats||{}).forEach(([cat,vals])=>{if(Array.isArray(vals))pages[page][cat]=uniq(vals)})})}else if(raw&&typeof raw==='object'){Object.entries(raw).forEach(([cat,vals])=>{if(Array.isArray(vals)){if(cat==='status')pages.mis.status=uniq(vals);if(cat==='product')pages.mis.product=uniq(vals);if(cat==='loginBank')pages.mis.loginBank=uniq(vals);if(cat==='segment')pages.obligation.segment=uniq(vals);if(cat==='accountType')pages.obligation.accountType=uniq(vals);if(cat==='ownership')pages.obligation.ownership=uniq(vals);if(cat==='remarks')pages.obligation.remarks=uniq(vals);}})}const legacyStatus=safeArrayKey(STATUS_VALUES_KEY),legacyProduct=safeArrayKey(PRODUCT_NAMES_KEY),legacyBank=safeArrayKey(BANK_NAMES_KEY);if(legacyStatus.length)pages.mis.status=uniq([...pages.mis.status,...legacyStatus]);if(legacyProduct.length)pages.mis.product=uniq([...pages.mis.product,...legacyProduct]);if(legacyBank.length)pages.mis.loginBank=uniq([...pages.mis.loginBank,...legacyBank]);return buildDropdownPayload(pages)}
+function buildDropdownPayload(pages){const payload={_pages:pages};payload.status=uniq([...(pages.mis?.status||[]),...(pages.leads?.disposition||[]),...(pages.employeeJoining?.status||[])]);payload.product=uniq([...(pages.mis?.product||[]),...(pages.leads?.product||[])]);payload.loginBank=uniq([...(pages.mis?.loginBank||[]),...(pages.leads?.bank||[]),...(pages.obligation?.bank||[])]);payload.segment=uniq([...(pages.obligation?.segment||[]),...(pages.leads?.segment||[])]);payload.accountType=uniq(pages.obligation?.accountType||[]);payload.ownership=uniq(pages.obligation?.ownership||[]);payload.remarks=uniq(pages.obligation?.remarks||[]);return payload}
+function getDropdownConfig(){try{return normalizeDropdowns(JSON.parse(localStorage.getItem(DROPDOWN_CONFIG_KEY)||'{}'))}catch(e){return normalizeDropdowns({})}}
+function saveDropdownConfig(config){const normalized=normalizeDropdowns(config);localStorage.setItem(DROPDOWN_CONFIG_KEY,JSON.stringify(normalized));localStorage.setItem(STATUS_VALUES_KEY,JSON.stringify(normalized.status||[]));localStorage.setItem(PRODUCT_NAMES_KEY,JSON.stringify(normalized.product||[]));localStorage.setItem(BANK_NAMES_KEY,JSON.stringify(normalized.loginBank||[]));window.dispatchEvent(new CustomEvent('nexcrm:dropdowns-updated',{detail:normalized}))}
+function pageLabel(page){return DROPDOWN_PAGE_LABELS[page]||page}
+function categoryLabel(cat){return DROPDOWN_CATEGORY_LABELS[cat]||cat.replace(/([A-Z])/g,' $1').replace(/^./,m=>m.toUpperCase())}
+function currentPages(){return getDropdownConfig()._pages||{}}
+function syncDropdownPageOptions(){const select=$('dropdownPage');const current=select.value||'obligation';const pages=currentPages();select.innerHTML=Object.keys(pages).map(p=>`<option value="${p}">${pageLabel(p)}</option>`).join('');select.value=pages[current]?current:Object.keys(pages)[0]||'obligation'}
+function syncDropdownCategoryOptions(){const pages=currentPages();const page=$('dropdownPage').value||Object.keys(pages)[0];const cats=pages[page]||{};const current=$('dropdownCategory').value; $('dropdownCategory').innerHTML=Object.keys(cats).map(c=>`<option value="${c}">${categoryLabel(c)}</option>`).join('');$('dropdownCategory').value=cats[current]?current:Object.keys(cats)[0]||''}
+function dropdownValueHtml(page,cat,value,index,total){return `<div class="dropdown-value"><span>${value}</span><span class="dropdown-value-actions"><button type="button" onclick="moveDropdownValue('${page}','${cat}',${index},-1)" title="Move up" ${index===0?'disabled':''}><i class="fa-solid fa-arrow-up"></i></button><button type="button" onclick="moveDropdownValue('${page}','${cat}',${index},1)" title="Move down" ${index>=total-1?'disabled':''}><i class="fa-solid fa-arrow-down"></i></button><button class="delete" type="button" onclick="removeDropdownValue('${page}','${cat}',${index})" title="Remove"><i class="fa-solid fa-xmark"></i></button></span></div>`}function renderPageTable(page,cats){const catKeys=Object.keys(cats);const max=Math.max(1,...catKeys.map(k=>(cats[k]||[]).length));let html=`<tr class="dropdown-page-row"><td colspan="${catKeys.length}">${pageLabel(page)}</td></tr><tr>${catKeys.map(k=>`<th>${categoryLabel(k)}</th>`).join('')}</tr>`;for(let i=0;i<max;i++){html+='<tr>'+catKeys.map(k=>`<td>${(cats[k]&&cats[k][i])?dropdownValueHtml(page,k,cats[k][i],i,(cats[k]||[]).length):'<span class="dropdown-empty">-</span>'}</td>`).join('')+'</tr>'}return html}
+function renderDropdownManager(){const cfg=getDropdownConfig();const pages=cfg._pages||{};syncDropdownPageOptions();syncDropdownCategoryOptions();const pageKeys=Object.keys(pages);$('dropdownPageCount').textContent=pageKeys.length;$('dropdownCategoryCount').textContent=pageKeys.reduce((s,p)=>s+Object.keys(pages[p]||{}).length,0);$('dropdownValueCount').textContent=pageKeys.reduce((s,p)=>s+Object.values(pages[p]||{}).reduce((a,v)=>a+(v||[]).length,0),0);$('dropdownTableHead').innerHTML='';$('dropdownManagerRows').innerHTML=pageKeys.map(p=>renderPageTable(p,pages[p])).join('')}
+function addDropdownValue(){const cfg=getDropdownConfig();const page=$('dropdownPage').value;const cat=$('dropdownCategory').value;const val=$('dropdownValueInput').value.trim();if(!page||!cat)return toast('Select page and dropdown');if(!val)return toast('Enter dropdown value');cfg._pages[page][cat]=uniq([...(cfg._pages[page][cat]||[]),val]);saveDropdownConfig(cfg);$('dropdownValueInput').value='';renderDropdownManager();toast('Dropdown value added')}
+function removeDropdownValue(page,cat,index){const cfg=getDropdownConfig();if(!cfg._pages?.[page]?.[cat])return;cfg._pages[page][cat].splice(index,1);saveDropdownConfig(cfg);renderDropdownManager();toast('Dropdown value removed')}function moveDropdownValue(page,cat,index,dir){const cfg=getDropdownConfig();const list=cfg._pages?.[page]?.[cat];if(!Array.isArray(list))return;const next=index+dir;if(next<0||next>=list.length)return;const tmp=list[index];list[index]=list[next];list[next]=tmp;saveDropdownConfig(cfg);renderDropdownManager();toast('Dropdown order updated')}
+function categoryKeyFromLabel(label){return String(label||'').trim().replace(/[^a-z0-9]+(.)/gi,(_,c)=>c.toUpperCase()).replace(/[^a-z0-9]/gi,'').replace(/^./,m=>m.toLowerCase())||'custom'}
+function addDropdownCategory(){const page=$('dropdownPage').value;const label=$('dropdownCategoryInput').value.trim();if(!page)return toast('Select page');if(!label)return toast('Enter custom dropdown name');const cfg=getDropdownConfig();const key=categoryKeyFromLabel(label);cfg._pages[page]=cfg._pages[page]||{};if(cfg._pages[page][key])return toast('This dropdown already exists');cfg._pages[page][key]=[];DROPDOWN_CATEGORY_LABELS[key]=label;saveDropdownConfig(cfg);$('dropdownCategoryInput').value='';$('dropdownCategory').value=key;renderDropdownManager();toast('Custom dropdown added')}
+function removeDropdownCategory(){const page=$('dropdownPage').value;const cat=$('dropdownCategory').value;if(!page||!cat)return toast('Select page and dropdown');if(DEFAULT_PAGE_DROPDOWNS[page]&&DEFAULT_PAGE_DROPDOWNS[page][cat])return toast('Default dropdown delete nahi ho sakta');const cfg=getDropdownConfig();delete cfg._pages[page][cat];saveDropdownConfig(cfg);renderDropdownManager();toast('Custom dropdown deleted')}
+function getStatusValues(){return getDropdownConfig().status||[]}
+function getProductNames(){return getDropdownConfig().product||[]}
+function getBankNames(){return getDropdownConfig().loginBank||[]}
+function saveStatusValues(values){const c=getDropdownConfig();c._pages.mis.status=uniq(values);saveDropdownConfig(c)}
+function saveProductNames(values){const c=getDropdownConfig();c._pages.mis.product=uniq(values);saveDropdownConfig(c)}
+function saveBankNames(values){const c=getDropdownConfig();c._pages.mis.loginBank=uniq(values);saveDropdownConfig(c)}
+function renderStatusProductBank(){renderDropdownManager()}
+function addStatusValue(){const c=getDropdownConfig();$('dropdownPage').value='mis';syncDropdownCategoryOptions();$('dropdownCategory').value='status';$('dropdownValueInput').value=$('statusInput')?.value||'';addDropdownValue()}
+function addProductName(){const c=getDropdownConfig();$('dropdownPage').value='mis';syncDropdownCategoryOptions();$('dropdownCategory').value='product';$('dropdownValueInput').value=$('productInput')?.value||'';addDropdownValue()}
+function addBankName(){const c=getDropdownConfig();$('dropdownPage').value='mis';syncDropdownCategoryOptions();$('dropdownCategory').value='loginBank';$('dropdownValueInput').value=$('bankInput')?.value||'';addDropdownValue()}
+function removeStatus(index){removeDropdownValue('mis','status',index)}
+function removeProduct(index){removeDropdownValue('mis','product',index)}
+function removeBank(index){removeDropdownValue('mis','loginBank',index)}(function(){
+  const btn=$('themeBtn');
+  const apply=(mode)=>{document.body.classList.toggle('dark',mode==='dark');localStorage.setItem('nexcrmTheme',mode);localStorage.setItem('nexcrm_theme',mode)};
+  const saved=localStorage.getItem('nexcrmTheme')||localStorage.getItem('nexcrm_theme');
+  if(saved==='dark')document.body.classList.add('dark');
+  btn.addEventListener('click',()=>apply(document.body.classList.contains('dark')?'light':'dark'));
+})();
+function nexcrmUserIdFromEmployeeId(id){return String(id||'').trim().replace(/[^a-z0-9]/gi,'').toUpperCase()}
+function nexcrmPasswordFromEmployeeNameDob(name,dob,id){
+  const first=String(name||'').trim().split(/\s+/)[0]||'User';
+  const four=first.replace(/[^a-z]/gi,'').slice(0,4)||'User';
+  const word=four.charAt(0).toUpperCase()+four.slice(1).toLowerCase();
+  const rawDob=String(dob||'').trim();
+  const year=(rawDob.match(/(19|20)\d{2}/)||String(id||'').match(/(19|20)\d{2}/)||[''])[0];
+  const fallback=(String(id||'').match(/(\d+)$/)||['','001'])[1];
+  return '@'+word+(year||fallback);
+}
+function nexcrmPasswordFromEmployee(emp){return nexcrmPasswordFromEmployeeNameDob(emp&&String(emp.name||emp.employee_name||emp.employeeName||emp.fullName||'').trim(),emp&&String(emp.dob||emp.date_of_birth||emp.dateOfBirth||emp.birthDate||emp.birth_date||'').trim(),emp&&String(emp.id||emp.employeeId||emp.employee_id||emp.username||'').trim())}
+function nexcrmPasswordFromEmployeeId(id){return nexcrmPasswordFromEmployeeNameDob('', '', id)}
+function nexcrmFillCredentialFromEmployee(id, target){
+  const record=getMasterEmployees().find(emp=>String(emp.id||'').toLowerCase()===String(id||'').toLowerCase());
+  const employeeId=String(id||'').trim();
+  const pass=nexcrmPasswordFromEmployee(record||{id:employeeId,name:employeeId});
+  if(target==='admin'){
+    if($('adminDisplayName')) $('adminDisplayName').value=record?.name||'';
+    $('adminUsername').value=record?.officialMail||'';
+    $('adminPassword').value=pass;
+    if(!record?.officialMail)toast('Official Mail ID not found in employee master');
+  }else{
+    $('empDisplayName').value=record?.name||'';
+    document.getElementById('empUsername').value=nexcrmUserIdFromEmployeeId(employeeId);
+    $('empPassword').value=pass;
+  }
+}
+function setupMainCredentialPickers(){
+  const employees=getMasterEmployees();
+  const oldEmp=$('empSelect');
+  if(oldEmp&&oldEmp.closest('.field')) oldEmp.closest('.field').style.display='none';
+
+  const empUser=$('empUsername');
+  if(empUser&&!$('empUsernamePicker')){
+    const wrap=document.createElement('div');
+    wrap.className='field';
+    wrap.innerHTML='<label>Employee ID</label><select id="empUsernamePicker"><option value="">Select Employee ID</option>'+employees.map(emp=>`<option value="${emp.id}">${emp.id}${emp.name?' - '+emp.name:''}</option>`).join('')+'</select>';
+    empUser.closest('.form-grid')?.insertBefore(wrap,empUser.closest('.field'));
+    empUser.placeholder='Auto Employee ID';
+    empUser.readOnly=true;
+    $('empUsernamePicker').addEventListener('change',()=>nexcrmFillCredentialFromEmployee($('empUsernamePicker').value,'employee'));
+  }else if($('empUsernamePicker')){
+    $('empUsernamePicker').innerHTML='<option value="">Select Employee ID</option>'+employees.map(emp=>`<option value="${emp.id}">${emp.id}${emp.name?' - '+emp.name:''}</option>`).join('');
+  }
+
+  const directAdminPicker=$('adminEmployeePicker');
+  if(directAdminPicker){
+    directAdminPicker.innerHTML='<option value="">Select Employee ID</option>'+employees.map(emp=>`<option value="${emp.id}">${emp.id}${emp.name?' - '+emp.name:''}${emp.officialMail?' | '+emp.officialMail:''}</option>`).join('');
+    directAdminPicker.onchange=()=>nexcrmFillCredentialFromEmployee(directAdminPicker.value,'admin');
+  }
+  const adminUser=$('adminUsername');
+  if(adminUser){
+    adminUser.placeholder='Auto Official Mail ID';
+    adminUser.readOnly=true;
+  }
+}
+const _nexcrmClearEmployeeForm=clearEmployeeForm;
+clearEmployeeForm=function(){_nexcrmClearEmployeeForm(); if($('empUsernamePicker')) $('empUsernamePicker').value='';}
+const _nexcrmRender=render;
+render=function(){_nexcrmRender(); setupMainCredentialPickers();}
+enforcePortalSession('Admin',30*60*1000);
+render();
+loadMasterEmployeeIds();
+renderStatusProductBank();
+</script><script src="../nexcrm-form-autosave.js"></script></body></html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

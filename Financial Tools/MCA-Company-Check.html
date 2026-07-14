@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- NexCRM canonical Firebase Realtime Database stack -->
+  <script src="../Others Files/firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
+  <script src="../Others Files/nexcrm-realtime-database.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexCRM | MCA Company Check</title>
+  <link rel="icon" type="image/png" href="../Meterial/tab.png" />
+  <link rel="shortcut icon" type="image/png" href="../Meterial/tab.png" />
+  <link rel="apple-touch-icon" href="../Meterial/tab.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root{
+      --font:Calibri,Arial,sans-serif;--rail:82px;--sidebar-open:292px;--glass:blur(20px) saturate(140%);
+      --bg:#f5f7fb;--card:rgba(255,255,255,.88);--card-solid:#fff;--text:#101827;--muted:#667085;--line:#e3e8f2;--line2:#d8deea;
+      --black:#080b12;--black2:#111827;--gold:#d7a839;--gold2:#fff1b8;--gold3:#8b6418;--green:#16a34a;--red:#dc2626;--pink:#e11d48;--blue:#4f7cff;--orange:#f59e0b;--purple:#7c3aed;
+      --shadow:0 22px 60px rgba(15,23,42,.10);--soft:0 12px 28px rgba(15,23,42,.08);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:var(--font)}html{scroll-behavior:smooth}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}a{text-decoration:none;color:inherit}
+    body{min-height:100vh;color:var(--text);background:radial-gradient(circle at 6% 0%,rgba(215,168,57,.16),transparent 30%),radial-gradient(circle at 94% 6%,rgba(124,58,237,.12),transparent 32%),linear-gradient(180deg,#fff 0%,var(--bg) 100%);overflow-x:hidden}
+    body.dark{--bg:#080b12;--card:rgba(18,24,38,.88);--card-solid:#111827;--text:#f8fafc;--muted:#a8b3ca;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.18);--soft:0 16px 42px rgba(0,0,0,.28);background:radial-gradient(circle at 6% 0%,rgba(215,168,57,.18),transparent 34%),radial-gradient(circle at 94% 6%,rgba(124,58,237,.18),transparent 34%),#080b12}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(215,168,57,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(215,168,57,.06) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.58),transparent 78%)}
+    .app-layout{position:relative;z-index:1;min-height:100vh}.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail);z-index:1000;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 10px;background:rgba(255,255,255,.96);border-right:1px solid var(--line);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);box-shadow:10px 0 34px rgba(15,23,42,.06);overflow:hidden}body.dark .rail{background:rgba(5,7,13,.96)}
+    .dp-mini{width:54px;height:54px;min-width:54px;border-radius:19px;display:grid;place-items:center;overflow:hidden;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));font-weight:900;font-size:16px;box-shadow:0 16px 32px rgba(215,168,57,.22)}.dp-mini img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}.dp-mini.has-image img{display:block}.dp-mini.has-image span{display:none}
+    .rail-btn{width:48px;height:48px;min-width:48px;border-radius:17px;display:grid;place-items:center;text-align:center;color:#334155;background:rgba(15,23,42,.045);font-size:17px;transition:.22s;border:0}.rail-btn:hover,.rail-btn.active{color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));box-shadow:0 14px 24px rgba(215,168,57,.22);transform:translateY(-2px)}body.dark .rail-btn{color:#dbeafe;background:rgba(255,255,255,.07)}.rail-spacer{flex:1}.policy-logo-btn{overflow:hidden;padding:6px;background:#fff!important;border:1px solid rgba(226,232,240,.90)}.policy-bank-logo{display:block;width:100%;height:100%;object-fit:contain;background:#fff;border-radius:inherit;padding:3px}
+    .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(2,6,23,.46);z-index:900}.sidebar{position:fixed;left:var(--rail);top:0;bottom:0;width:0;overflow:hidden;z-index:999;background:rgba(255,255,255,.98);border-right:1px solid transparent;backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);box-shadow:18px 0 44px rgba(15,23,42,.08);transition:.26s cubic-bezier(.2,.8,.2,1)}body.dark .sidebar{background:rgba(5,7,13,.98)}body:not(.sidebar-collapsed) .sidebar,body.sidebar-open .sidebar{width:var(--sidebar-open);border-right-color:var(--line)}.side-inner{width:var(--sidebar-open);height:100%;padding:18px 12px;overflow:auto;scrollbar-width:none}.side-inner::-webkit-scrollbar{display:none}.side-head{display:flex;align-items:center;gap:12px;padding:4px 8px 16px;border-bottom:1px solid var(--line)}.side-head img{width:46px;height:46px;border-radius:16px;object-fit:contain;background:#fff;padding:4px}.side-head h3{font-size:22px;line-height:1}.side-head small{color:var(--gold3);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.side-close{margin-left:auto;width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:rgba(15,23,42,.06);color:var(--text);border:1px solid var(--line)}.side-label{display:block;padding:16px 10px 8px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.side-item{height:42px;border-radius:16px;display:flex;align-items:center;gap:12px;padding:0 11px;margin:4px 0;color:#334155;font-size:14px;font-weight:900;transition:.18s;border:0;background:transparent;width:100%;text-align:left;cursor:pointer}body.dark .side-item{color:#dbeafe}.side-item i{width:32px;height:32px;min-width:32px;border-radius:12px;display:grid;place-items:center;background:rgba(15,23,42,.055);font-size:15px}body.dark .side-item i{background:rgba(255,255,255,.07)}.side-item:hover,.side-item.active{background:rgba(215,168,57,.12);color:var(--text)}.side-item:hover i,.side-item.active i{background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826}.side-dashboard-row{border-top:1px dashed var(--line);padding-top:10px;margin-top:12px}.side-bank-logo{width:32px;height:32px;min-width:32px;border-radius:12px;display:grid;place-items:center;background:#fff;padding:4px;border:1px solid rgba(226,232,240,.85);box-shadow:0 8px 16px rgba(15,23,42,.06);overflow:hidden}.side-bank-logo img{width:100%;height:100%;object-fit:contain;border-radius:8px}
+    .main{margin-left:var(--rail);min-height:100vh;width:auto;padding:18px 22px 42px;transition:.26s cubic-bezier(.2,.8,.2,1)}body:not(.sidebar-collapsed) .main,body.sidebar-open .main{margin-left:calc(var(--rail) + var(--sidebar-open))}.topbar{position:sticky;top:14px;z-index:60;min-height:78px;margin:0 0 18px;padding:12px 16px;border:1px solid var(--line);border-radius:28px;background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);box-shadow:var(--soft);display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{display:flex;align-items:center;gap:13px;min-width:0}.brand-logo{width:54px;height:54px;min-width:54px;border-radius:18px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#fff,#eef4ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.brand-logo img{width:100%;height:100%;object-fit:contain;padding:4px}.brand h1{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.04em}.brand p{margin-top:4px;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.top-actions{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;justify-content:flex-end}.top-pill,.header-btn,.theme-toggle{height:50px;border-radius:18px;padding:0 15px;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);background:var(--card-solid);box-shadow:var(--soft);font-size:13px;font-weight:900;white-space:nowrap}.profile-pill{padding-left:8px;min-width:205px;justify-content:flex-start;cursor:pointer}.profile-pill .dp-mini{width:36px;height:36px;min-width:36px;border-radius:13px;font-size:12px;box-shadow:none}.profile-text small{display:block;line-height:1;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.profile-text b{display:block;margin-top:4px;line-height:1;color:var(--text)}.system-status{color:#14532d;background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.22)}body.dark .system-status{color:#bbf7d0;background:rgba(22,163,74,.12)}.dot{width:13px;height:13px;border-radius:50%;background:var(--green);box-shadow:0 0 0 6px rgba(22,163,74,.12)}.theme-toggle{padding:0 10px}.theme-track{width:70px;height:32px;border-radius:999px;background:linear-gradient(135deg,#080b12,#d7a839);position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 9px;color:#fff}.theme-track:after{content:"";position:absolute;width:25px;height:25px;border-radius:50%;background:#fff;left:4px;top:3.5px;transition:.25s;box-shadow:0 8px 18px rgba(0,0,0,.25)}body.dark .theme-track:after{left:41px}.theme-track i{font-size:13px;z-index:2}.icon-btn{width:50px;min-width:50px;padding:0}.back-dashboard{background:linear-gradient(145deg,rgba(215,168,57,.16),rgba(255,255,255,.85));color:#121826;border:1px solid rgba(215,168,57,.30)}body.dark .back-dashboard{background:linear-gradient(145deg,rgba(215,168,57,.18),rgba(17,24,39,.9));color:var(--gold2);border:1px solid rgba(215,168,57,.28)}.logout-header{background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff;border:0;box-shadow:0 14px 28px rgba(239,68,68,.20)}
+    .wrap{max-width:1780px;margin:0 auto}.hero{min-height:250px;border-radius:30px;color:#fff;padding:32px 38px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:center;background:radial-gradient(circle at 82% 22%,rgba(215,168,57,.18),transparent 26%),radial-gradient(circle at 18% 100%,rgba(79,124,255,.18),transparent 28%),linear-gradient(135deg,#070a12 0%,#121827 52%,#9a721f 125%);box-shadow:0 28px 80px rgba(0,0,0,.20);position:relative;overflow:hidden;margin-bottom:22px}.hero:before{content:"";position:absolute;width:340px;height:340px;border-radius:50%;left:-120px;top:-130px;background:rgba(215,168,57,.14)}.hero .content{position:relative;z-index:2}.kicker{display:inline-flex;align-items:center;gap:9px;min-height:38px;border-radius:999px;padding:9px 15px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);font-weight:900;margin-bottom:14px}.kicker i{color:#ffd76d}.hero h2{font-size:42px;line-height:1.05;font-weight:900;letter-spacing:-.04em}.hero p{margin-top:11px;color:rgba(255,255,255,.80);font-size:17px;font-weight:700;line-height:1.45;max-width:860px}.hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.hero-tags span{height:40px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;padding:0 14px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);font-weight:900}.hero-search-card{position:relative;z-index:2;border-radius:28px;padding:18px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 1px 18px rgba(255,255,255,.10)}.hero-search-card label{display:block;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.78);margin-bottom:8px}.hero-search{display:flex;gap:10px}.hero-search input{height:52px;min-width:0;width:100%;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.92);color:#0f172a;border-radius:17px;padding:0 14px;font-weight:900;outline:none}.hero-search button{width:56px;height:52px;border-radius:17px;background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;font-weight:900}.api-note{margin-top:12px;color:rgba(255,255,255,.76);font-size:13px;font-weight:800;line-height:1.35}
+    .panel,.card{background:var(--card);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(18px);overflow:hidden}.panel-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.title{display:flex;align-items:center;gap:12px}.title-icon{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#0a0d14,#d7a839)}.title h3{font-size:20px;font-weight:900}.title p{font-size:13px;color:var(--muted);font-weight:700;margin-top:2px}.panel-body{padding:20px 22px}.panel-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.chip,.panel-chip{padding:9px 12px;border-radius:999px;background:rgba(215,168,57,.10);border:1px solid rgba(215,168,57,.26);font-size:13px;font-weight:900;color:#8b6418;white-space:nowrap}body.dark .chip,body.dark .panel-chip{background:rgba(215,168,57,.10);color:#ffd76d;border-color:rgba(215,168,57,.25)}
+    .nx-btn,.full-btn{height:48px;border-radius:16px;background:linear-gradient(145deg,#0a0d14,#d7a839);color:#fff;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:0 16px;transition:.22s ease}.nx-btn:hover,.full-btn:hover{transform:translateY(-2px)}.nx-btn.secondary{color:#120d04;background:linear-gradient(145deg,#fff1b8,#d7a839 58%,#8b6418)}.nx-btn.light{color:var(--text);background:var(--card-solid);border:1px solid var(--line)}.full-btn{width:100%}.form-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:15px}.field label{display:block;margin-bottom:7px;font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.field input,.field select,.field textarea{width:100%;min-height:48px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--text);padding:0 13px;font-weight:800;outline:none}.field textarea{height:88px;padding:12px 13px;resize:vertical}body.dark .field input,body.dark .field select,body.dark .field textarea{background:#0b1220;border-color:rgba(255,255,255,.12);color:#f8fafc}.field input:focus,.field select:focus,.field textarea:focus{border-color:#d7a839;box-shadow:0 0 0 5px rgba(215,168,57,.13)}.search-input-wrap{position:relative}.search-input-wrap i{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}.search-input-wrap input{padding-left:46px}.quick-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.quick-chip{height:34px;border-radius:999px;padding:0 12px;background:rgba(15,23,42,.055);border:1px solid var(--line);color:var(--text);font-weight:900;font-size:12px}body.dark .quick-chip{background:rgba(255,255,255,.06)}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:22px 0}.stat{padding:20px;border-radius:22px;border:1px solid var(--line);background:var(--card);box-shadow:var(--soft)}.stat i{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#0a0d14,#d7a839);color:#fff;margin-bottom:12px}.stat small{display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:5px}.stat span{font-size:24px;font-weight:900}.green{color:var(--green)!important}.red{color:var(--red)!important}.pink{color:var(--pink)!important}.blue{color:var(--blue)!important}.gold{color:var(--gold)!important}.orange{color:var(--orange)!important}.purple{color:var(--purple)!important}
+    .result-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;margin-top:22px}.company-card{display:grid;gap:14px}.company-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.company-title-row h3{font-size:28px;line-height:1.1;font-weight:900;letter-spacing:-.03em}.company-title-row p{margin-top:7px;color:var(--muted);font-weight:800}.status-badge{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 13px;border-radius:999px;font-weight:900;border:1px solid var(--line);white-space:nowrap}.status-active{background:rgba(22,163,74,.10);border-color:rgba(22,163,74,.25);color:var(--green)}.status-inactive{background:rgba(220,38,38,.10);border-color:rgba(220,38,38,.25);color:var(--red)}.status-other{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.25);color:#b45309}.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.info-box{border:1px solid var(--line);background:rgba(255,255,255,.58);border-radius:18px;padding:14px}body.dark .info-box{background:rgba(255,255,255,.04)}.info-box small{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}.info-box span{display:block;font-size:15px;font-weight:900;line-height:1.35;word-break:break-word}.address-box{grid-column:1/-1}.money-box span{font-size:20px;color:var(--gold3)}body.dark .money-box span{color:#ffd76d}.empty-state{text-align:center;padding:36px;color:var(--muted);font-weight:900}.status-line{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.status-box{border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.58)}body.dark .status-box{background:rgba(255,255,255,.04)}.status-box small{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}.status-box span{font-weight:900;line-height:1.35}.result-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:15px}.mini-card{border:1px solid var(--line);border-radius:18px;padding:16px;background:rgba(255,255,255,.62)}body.dark .mini-card{background:rgba(255,255,255,.04)}.mini-card small{display:block;font-size:12px;color:var(--muted);font-weight:900;text-transform:uppercase;margin-bottom:6px}.mini-card strong{font-size:25px;font-weight:900}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:920px;background:rgba(255,255,255,.42)}th{background:linear-gradient(145deg,#0a0d14,#2a1f0a);color:#ffd76d;text-align:left;padding:14px 16px;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}td{padding:14px 16px;border-bottom:1px solid var(--line);font-size:15px;font-weight:800;color:var(--text);white-space:nowrap}tr:hover td{background:rgba(215,168,57,.055)}.table-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 22px;border-top:1px solid var(--line)}.pagination{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.page-btn{min-width:40px;height:40px;border:1px solid var(--line);background:var(--card);border-radius:12px;font-weight:900;color:var(--text)}.page-btn.active{background:linear-gradient(145deg,#0a0d14,#d7a839);color:#fff;border-color:transparent}.live-panel{margin-top:22px}.footer-actions{position:fixed;right:18px;bottom:18px;z-index:30;display:flex;gap:10px}.floating-btn{height:44px;border-radius:14px;padding:0 15px;background:linear-gradient(145deg,#0a0d14,#d7a839);color:#fff;display:flex;align-items:center;gap:8px;font-weight:900;box-shadow:0 14px 28px rgba(0,0,0,.18)}
+    .modal-backdrop{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.55);backdrop-filter:blur(10px)}.modal-backdrop.show{display:flex}.modal{width:min(860px,100%);border-radius:30px;border:1px solid var(--line);background:var(--card-solid);box-shadow:0 40px 110px rgba(15,23,42,.26);overflow:hidden;color:var(--text)}.modal-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;background:inherit}.modal-title{display:flex;align-items:center;gap:14px}.modal-title h3{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.03em}.modal-title p{margin-top:5px;color:var(--muted);font-weight:800;font-size:13px}.modal-close{width:42px;height:42px;border-radius:15px;border:1px solid var(--line);background:var(--card-solid);color:var(--text);display:grid;place-items:center}.modal-body{padding:22px}.profile-modal-body{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px}.profile-photo-card{border:1px solid var(--line);border-radius:24px;padding:18px;background:var(--card);text-align:center}.profile-modal-avatar{width:126px;height:126px;border-radius:32px;margin:0 auto 14px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#2563eb,#d7a839);color:#fff;font-size:34px;font-weight:900}.profile-modal-avatar img{width:100%;height:100%;object-fit:cover;display:none}.profile-modal-avatar.has-image img{display:block}.profile-modal-avatar.has-image span{display:none}.profile-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.profile-field{display:flex;flex-direction:column;gap:7px}.profile-field.full{grid-column:1/-1}.profile-field label{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.profile-field input,.profile-field textarea{border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.84);color:var(--text);padding:13px 14px;font-weight:800;outline:none}.profile-field textarea{min-height:82px;resize:vertical}body.dark .profile-field input,body.dark .profile-field textarea{background:rgba(2,6,23,.50)}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}.save-btn,.cancel-btn{height:44px;border-radius:15px;padding:0 17px;font-weight:900;border:1px solid var(--line)}.save-btn{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:0}.cancel-btn{background:var(--card-solid);color:var(--text)}.code-box{white-space:pre-wrap;border:1px solid var(--line);border-radius:18px;padding:16px;background:rgba(15,23,42,.05);color:var(--text);font-family:Consolas,monospace;font-size:13px;line-height:1.55;max-height:340px;overflow:auto}body.dark .code-box{background:rgba(255,255,255,.05)}
+    @media(max-width:1250px){.hero{grid-template-columns:1fr}.result-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.status-line{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.top-actions{flex-wrap:wrap}.system-status{display:none}}
+    @media(max-width:980px){.rail{width:70px;padding:12px 8px}.main,body:not(.sidebar-collapsed) .main,body.sidebar-open .main{margin-left:70px;padding:12px 12px 34px}.sidebar{left:70px;transform:translateX(-110%);width:var(--sidebar-open)}.sidebar-open .sidebar{transform:translateX(0)}.sidebar-open .sidebar-backdrop{display:block}.topbar{position:relative;top:auto;align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:flex-start}.profile-pill{width:100%;min-width:0}.brand h1{font-size:20px}.brand p{font-size:10px}}
+    @media(max-width:620px){.top-actions{flex-direction:column}.top-actions>*{width:100%}.logout-header,.icon-btn{width:100%}.rail{width:64px}.main,.sidebar-open .main{margin-left:64px}.sidebar{left:64px}.dp-mini{width:48px;height:48px;min-width:48px}.rail-btn{width:44px;height:44px;min-width:44px}.brand-logo{width:48px;height:48px;min-width:48px}.hero{padding:24px}.hero h2{font-size:32px}.stats,.info-grid{grid-template-columns:1fr}.company-title-row{flex-direction:column}.profile-modal-body{grid-template-columns:1fr}.profile-form-grid{grid-template-columns:1fr}.profile-field.full{grid-column:auto}.footer-actions{position:static;margin-top:18px}.floating-btn{width:100%;justify-content:center}.hero-search{flex-direction:column}.hero-search button{width:100%}}
+    @media print{.rail,.sidebar,.sidebar-backdrop,.topbar,.hero,.footer-actions,.panel-tools,.quick-chips,.modal-backdrop,.profile-modal-backdrop{display:none!important}.main{margin:0!important;padding:0!important}.panel,.card,.stat{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.stats{grid-template-columns:repeat(4,1fr)}}
+
+/* ===== OD-Calc style header/manage/profile refinements for MCA Check ===== */
+.header-action-menu{position:relative;z-index:100}.manage-btn{height:52px!important;min-height:52px!important;border-radius:18px!important;padding:0 10px 0 7px!important;min-width:238px!important;background:linear-gradient(135deg,#080b12 0%,#1f2937 58%,#d7a839 145%)!important;color:#fff!important;border:1px solid rgba(215,168,57,.34)!important;box-shadow:0 18px 34px rgba(15,23,42,.18)!important}.profile-btn-dp{width:34px;height:34px;min-width:34px;border-radius:13px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#2563eb,#7c3aed);color:#fff}.profile-btn-dp img{width:100%;height:100%;object-fit:cover;display:none}.profile-btn-dp.has-image img{display:block}.profile-btn-dp.has-image i{display:none}.manage-copy{display:flex;flex-direction:column;align-items:flex-start;line-height:1.05;min-width:0}.manage-copy b{font-size:14px;font-weight:900;color:#fff}.manage-copy small{font-size:10px;font-weight:900;color:#cbd5e1;margin-top:4px;white-space:nowrap}.manage-caret{font-size:12px;color:#fef3c7;transition:.2s}.header-action-menu.open .manage-caret{transform:rotate(180deg)}.manage-dropdown{position:absolute;right:0;top:calc(100% + 10px);width:326px;padding:10px;border:1px solid rgba(215,168,57,.22);border-radius:24px;background:rgba(255,255,255,.96);backdrop-filter:blur(20px) saturate(140%);box-shadow:0 30px 80px rgba(15,23,42,.22);opacity:0;visibility:hidden;transform:translateY(-8px) scale(.98);transition:.18s ease;display:block;overflow:hidden}body.dark .manage-dropdown{background:rgba(15,23,42,.96);border-color:rgba(255,255,255,.12)}.header-action-menu.open .manage-dropdown{opacity:1;visibility:visible;transform:none}.menu-action{position:relative;width:100%;min-height:58px;border-radius:17px;display:flex;align-items:center;gap:12px;padding:9px 11px;text-align:left;color:var(--text);background:transparent;transition:.18s}.menu-action:hover{background:linear-gradient(135deg,rgba(215,168,57,.12),rgba(79,124,255,.08));transform:translateX(2px)}.menu-action i{width:38px;height:38px;min-width:38px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--black),var(--gold));color:#fff;box-shadow:0 12px 22px rgba(215,168,57,.18)}.menu-action span{display:flex;flex-direction:column;gap:3px}.menu-action b{font-size:14px;font-weight:900;color:var(--text)}.menu-action small{font-size:11px;font-weight:800;color:var(--muted)}.logout-icon-only{width:50px!important;min-width:50px!important;padding:0!important;border:0!important;background:linear-gradient(135deg,#ef4444,#991b1b)!important;color:#fff!important;box-shadow:0 14px 28px rgba(239,68,68,.20)!important}.logout-icon-only i{color:#fff!important}.profile-modal-backdrop{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.55);backdrop-filter:blur(10px)}.profile-modal-backdrop.show{display:flex}.profile-modal{width:min(760px,100%);border-radius:30px;border:1px solid var(--line);background:var(--card-solid);box-shadow:0 40px 110px rgba(15,23,42,.26);overflow:hidden;color:var(--text)}.profile-modal-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;background:inherit}.profile-modal-title{display:flex;align-items:center;gap:14px}.profile-modal-title h3{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.03em}.profile-modal-title p{margin-top:5px;color:var(--muted);font-weight:800;font-size:13px}.profile-close{width:42px;height:42px;border-radius:15px;border:1px solid var(--line);background:var(--card-solid);color:var(--text);display:grid;place-items:center}.profile-photo-card h4{font-size:18px;margin-bottom:7px}.profile-photo-card p{color:var(--muted);font-weight:700;font-size:13px;line-height:1.45}.profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}.profile-save,.profile-cancel{height:44px;border-radius:15px;padding:0 17px;font-weight:900;border:1px solid var(--line)}.profile-save{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:0}.profile-cancel{background:var(--card-solid);color:var(--text)}.hero.live-admin-hero{grid-template-columns:minmax(0,1fr) 320px!important;background:radial-gradient(circle at 78% 40%,rgba(255,255,255,.14),transparent 26%),linear-gradient(135deg,#070a12 0%,#171717 48%,#9a721f 100%)!important}.hero-art{height:190px;position:relative}.big-icon{position:absolute;right:60px;top:10px;width:160px;height:160px;border-radius:42px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.20);display:grid;place-items:center;box-shadow:inset 0 1px 18px rgba(255,255,255,.18);animation:floatMain 4.8s ease-in-out infinite}.big-icon i{font-size:72px;color:#ffd76d}.orb{position:absolute;width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:#fff}.o1{right:230px;top:20px;animation:floatMini 4.2s ease-in-out infinite}.o2{right:18px;top:105px;animation:floatMini 5.2s ease-in-out infinite}.o3{right:235px;top:126px;animation:floatMini 4.7s ease-in-out infinite}@keyframes floatMain{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-13px) rotate(2deg)}}@keyframes floatMini{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@media(max-width:1250px){.hero.live-admin-hero{grid-template-columns:1fr!important}.hero-art{display:none}.top-actions{flex-wrap:wrap!important}.system-status{display:none!important}.manage-btn{min-width:210px!important}.manage-copy small{display:none!important}}
+@media(max-width:620px){.manage-btn{width:100%!important;min-width:0!important}.header-action-menu{width:100%}.manage-dropdown{left:0;right:auto;width:100%}}
+
+
+/* ===== MCA adjustment fix v2: proper OD shell spacing + 100% zoom fit ===== */
+html,body{width:100%;max-width:100%;}
+body.mca-admin-shell{overflow-x:hidden;}
+main.main.wrap.mca-admin-main{
+  margin:0 0 0 var(--rail)!important;
+  max-width:none!important;
+  width:auto!important;
+  min-width:0!important;
+  padding:16px 20px 40px!important;
+}
+body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,
+body.sidebar-open main.main.wrap.mca-admin-main{
+  margin-left:calc(var(--rail) + var(--sidebar-open))!important;
+}
+main.mca-admin-main > .topbar,
+main.mca-admin-main > section{
+  width:100%;
+  min-width:0;
+}
+.topbar.admin-employee-style-header{
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px!important;
+}
+.topbar .brand{
+  flex:1 1 320px;
+  min-width:240px;
+  overflow:hidden;
+}
+.topbar .brand h1,
+.topbar .brand p{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.top-actions{
+  flex:1 1 560px!important;
+  min-width:0!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+}
+.top-actions .top-pill{height:46px!important;border-radius:16px!important;}
+.profile-pill{min-width:190px!important;max-width:235px!important;}
+.manage-btn{min-width:190px!important;max-width:230px!important;height:46px!important;min-height:46px!important;}
+.manage-copy small{max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+.theme-toggle{width:86px!important;min-width:86px!important;}
+.icon-btn,.logout-icon-only{width:46px!important;min-width:46px!important;}
+.system-status{min-width:146px!important;}
+.hero.live-admin-hero.mca-hero{
+  min-height:220px!important;
+  padding:28px 30px!important;
+  gap:16px!important;
+  grid-template-columns:minmax(0,1fr) 270px!important;
+}
+.hero h2{font-size:clamp(30px,3vw,42px)!important;}
+.hero p{font-size:15.5px!important;max-width:780px!important;}
+.hero-tags{gap:8px!important;}
+.hero-tags span{height:36px!important;padding:0 12px!important;font-size:13px!important;}
+.hero-art{height:165px!important;min-width:230px!important;}
+.big-icon{width:138px!important;height:138px!important;right:48px!important;top:8px!important;border-radius:36px!important;}
+.big-icon i{font-size:62px!important;}
+.orb{width:50px!important;height:50px!important;border-radius:17px!important;}
+.o1{right:200px!important;top:18px!important}.o2{right:10px!important;top:92px!important}.o3{right:205px!important;top:110px!important}
+.panel{width:100%;min-width:0;}
+.panel-head{gap:12px;flex-wrap:wrap;}
+.panel-head .title{min-width:0;flex:1 1 280px;}
+.panel-head .title h3,.panel-head .title p{overflow:hidden;text-overflow:ellipsis;}
+.form-grid{grid-template-columns:minmax(280px,1.6fr) minmax(170px,.7fr) minmax(130px,.5fr)!important;align-items:end;}
+.search-input-wrap input{min-width:0;}
+.stats{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;gap:14px!important;margin:18px 0!important;}
+.stat{padding:17px!important;min-width:0;}
+.stat span{font-size:22px!important;word-break:break-word;}
+.result-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(430px,100%),1fr))!important;gap:18px!important;margin-top:18px!important;}
+.info-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;}
+.status-line{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;}
+.result-list{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;}
+.table-wrap{max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;}
+table{min-width:820px;}
+th,td{padding:12px 14px;font-size:14px;}
+.footer-actions{right:18px;bottom:18px;}
+.modal,.profile-modal{max-height:calc(100vh - 44px);overflow:auto;}
+@media(max-width:1250px){
+  body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,
+  body.sidebar-open main.main.wrap.mca-admin-main{margin-left:var(--rail)!important;}
+  body:not(.sidebar-collapsed) .sidebar,
+  body.sidebar-open .sidebar{box-shadow:24px 0 70px rgba(15,23,42,.22);}
+  .hero.live-admin-hero.mca-hero{grid-template-columns:1fr!important;}
+  .hero-art{display:none!important;}
+  .topbar .brand{flex-basis:100%;}
+  .top-actions{justify-content:flex-start!important;flex-basis:100%!important;}
+  .form-grid{grid-template-columns:1fr 1fr!important;}
+  .form-grid .field:first-child{grid-column:1/-1;}
+}
+@media(max-width:980px){
+  :root{--rail:70px;}
+  main.main.wrap.mca-admin-main,
+  body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,
+  body.sidebar-open main.main.wrap.mca-admin-main{
+    margin-left:70px!important;
+    padding:12px 12px 34px!important;
+  }
+  .sidebar{left:70px!important;transform:translateX(-110%);width:var(--sidebar-open)!important;}
+  body.sidebar-open .sidebar{transform:translateX(0);}
+  body.sidebar-open .sidebar-backdrop{display:block;}
+  .topbar.admin-employee-style-header{position:relative!important;top:auto!important;border-radius:22px!important;}
+  .profile-modal-body{grid-template-columns:1fr!important;}
+}
+@media(max-width:700px){
+  :root{--rail:64px;}
+  main.main.wrap.mca-admin-main,
+  body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,
+  body.sidebar-open main.main.wrap.mca-admin-main{
+    margin-left:64px!important;
+    padding:10px 10px 28px!important;
+  }
+  .sidebar{left:64px!important;}
+  .rail{width:64px!important;padding:12px 8px!important;}
+  .rail-btn{width:43px!important;height:43px!important;min-width:43px!important;border-radius:15px!important;}
+  .dp-mini{width:48px!important;height:48px!important;min-width:48px!important;}
+  .topbar .brand{min-width:0;}
+  .brand-logo{width:48px!important;height:48px!important;min-width:48px!important;}
+  .brand h1{font-size:19px!important;}
+  .brand p{font-size:10px!important;}
+  .top-actions{display:grid!important;grid-template-columns:1fr 1fr;align-items:stretch!important;}
+  .top-actions .profile-pill,.top-actions .header-action-menu{grid-column:1/-1;width:100%;max-width:none!important;}
+  .top-actions .top-pill,.manage-btn{width:100%!important;max-width:none!important;}
+  .system-status{display:none!important;}
+  .theme-toggle,.icon-btn,.logout-icon-only{min-width:0!important;width:100%!important;}
+  .hero.live-admin-hero.mca-hero{padding:22px!important;border-radius:24px!important;min-height:auto!important;}
+  .hero h2{font-size:29px!important;}
+  .hero p{font-size:14px!important;}
+  .hero-tags span{height:auto!important;min-height:34px;}
+  .form-grid,.stats,.result-grid,.info-grid,.status-line,.result-list{grid-template-columns:1fr!important;}
+  .quick-chips{gap:7px!important;}
+  .quick-chip{flex:1 1 135px;}
+  .panel-head,.panel-body{padding:16px!important;}
+  .nx-btn{width:100%;}
+  .footer-actions{position:static!important;margin-top:16px;display:grid;grid-template-columns:1fr;}
+  .floating-btn{width:100%;justify-content:center;}
+  .manage-dropdown{left:0!important;right:auto!important;width:100%!important;}
+}
+@media(max-width:420px){
+  .top-actions{grid-template-columns:1fr!important;}
+  .profile-form-grid{grid-template-columns:1fr!important;}
+  table{min-width:720px;}
+}
+
+
+  </style>
+  <link rel="stylesheet" href="nexcrm-mobile-compact.css" />
+
+  <style id="mca-adjustment-final-after-mobile">
+    /* Final override after nexcrm-mobile-compact.css so page stays fitted at 100% zoom */
+    body.mca-admin-shell{overflow-x:hidden!important;}
+    main.main.wrap.mca-admin-main{margin:0 0 0 var(--rail)!important;max-width:none!important;width:auto!important;min-width:0!important;padding:16px 20px 40px!important;}
+    body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,body.sidebar-open main.main.wrap.mca-admin-main{margin-left:calc(var(--rail) + var(--sidebar-open))!important;}
+    .topbar.admin-employee-style-header{flex-wrap:wrap!important;align-items:center!important;gap:12px!important;}
+    .topbar.admin-employee-style-header .brand{flex:1 1 320px!important;min-width:240px!important;overflow:hidden!important;}
+    .top-actions{flex:1 1 560px!important;min-width:0!important;flex-wrap:wrap!important;justify-content:flex-end!important;gap:8px!important;}
+    .top-actions .top-pill{height:46px!important;border-radius:16px!important;}
+    .profile-pill{min-width:190px!important;max-width:235px!important;}.manage-btn{min-width:190px!important;max-width:230px!important;height:46px!important;min-height:46px!important;}.theme-toggle{width:86px!important;min-width:86px!important;}.icon-btn,.logout-icon-only{width:46px!important;min-width:46px!important;}
+    .hero.live-admin-hero.mca-hero{min-height:220px!important;padding:28px 30px!important;grid-template-columns:minmax(0,1fr) 270px!important;gap:16px!important;}
+    .stats{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))!important;}.result-grid{grid-template-columns:repeat(auto-fit,minmax(min(430px,100%),1fr))!important;}.form-grid{grid-template-columns:minmax(280px,1.6fr) minmax(170px,.7fr) minmax(130px,.5fr)!important;}.info-grid,.status-line{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;}
+    .panel,.table-wrap{max-width:100%!important;min-width:0!important;}.table-wrap{overflow:auto!important;}table{min-width:820px;}
+    @media(max-width:1250px){body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,body.sidebar-open main.main.wrap.mca-admin-main{margin-left:var(--rail)!important;}.hero.live-admin-hero.mca-hero{grid-template-columns:1fr!important;}.hero-art{display:none!important;}.topbar.admin-employee-style-header .brand,.top-actions{flex-basis:100%!important;}.top-actions{justify-content:flex-start!important;}.form-grid{grid-template-columns:1fr 1fr!important;}.form-grid .field:first-child{grid-column:1/-1!important;}}
+    @media(max-width:980px){:root{--rail:70px;}main.main.wrap.mca-admin-main,body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,body.sidebar-open main.main.wrap.mca-admin-main{margin-left:70px!important;padding:12px 12px 34px!important;}.sidebar{left:70px!important;transform:translateX(-110%)!important;width:var(--sidebar-open)!important;}body.sidebar-open .sidebar{transform:translateX(0)!important;}body.sidebar-open .sidebar-backdrop{display:block!important;}.topbar.admin-employee-style-header{position:relative!important;top:auto!important;}}
+    @media(max-width:700px){:root{--rail:64px;}main.main.wrap.mca-admin-main,body:not(.sidebar-collapsed) main.main.wrap.mca-admin-main,body.sidebar-open main.main.wrap.mca-admin-main{margin-left:64px!important;padding:10px 10px 28px!important;}.sidebar{left:64px!important;}.rail{width:64px!important;}.top-actions{display:grid!important;grid-template-columns:1fr 1fr!important;}.top-actions .profile-pill,.top-actions .header-action-menu{grid-column:1/-1!important;width:100%!important;max-width:none!important;}.top-actions .top-pill,.manage-btn{width:100%!important;max-width:none!important;}.system-status{display:none!important;}.form-grid,.stats,.result-grid,.info-grid,.status-line,.result-list{grid-template-columns:1fr!important;}.footer-actions{position:static!important;margin-top:16px!important;}.floating-btn{width:100%!important;justify-content:center!important;}}
+  </style>
+</head>
+<body class="sidebar-collapsed leads-admin-shell mca-admin-shell">
+  <div class="app-layout" id="dashboardTop">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <nav aria-label="NexCRM quick rail" class="rail">
+      <button class="dp-mini profile-open-trigger" id="sidebarProfileDp" title="Open Profile" type="button"><img alt="Profile DP" id="sidebarDpImg"/><span id="sidebarDpInitials">AD</span></button>
+      <button class="rail-btn active" id="sidebarRailToggle" title="Open / Close Sidebar" type="button"><i class="fa-solid fa-bars-staggered"></i></button>
+      <button class="rail-btn" data-dashboard-back="" title="Back to Dashboard" type="button"><i class="fa-solid fa-house"></i></button>
+      <a class="rail-btn" href="../CRM Admin/leads.html" title="Lead & Customer"><i class="fa-solid fa-address-book"></i></a>
+      <a class="rail-btn active" href="MCA-Company-Check.html" title="MCA Company Check"><i class="fa-solid fa-building-shield"></i></a>
+      <a class="rail-btn policy-logo-btn" href="../Bank Policy/bajaj.html" title="Bank Policy"><img alt="Bank Policy" class="policy-bank-logo" src="../Meterial/Bank Images/Bajaj.png"/></a>
+      <div class="rail-spacer"></div>
+      <a class="rail-btn" href="../admin-dashboard.html" title="Back to Admin Dashboard"><i class="fa-solid fa-user-shield"></i></a>
+      <a class="rail-btn" href="../employee-dashboard.html" title="Back to Employee Dashboard"><i class="fa-solid fa-user-tie"></i></a>
+    </nav>
+
+    <aside aria-label="NexCRM expanded sidebar" class="sidebar" id="sidebar">
+      <div class="side-inner">
+        <div class="side-head">
+          <img alt="Finbud" onerror="this.onerror=null;this.src='../Meterial/FB-logo.png'" src="../Meterial/FB-logo.png"/>
+          <div><h3>NexCRM</h3><small>MCA Company Check</small></div>
+          <button class="side-close" id="sidebarToggleTop" title="Close sidebar" type="button"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <span class="side-label">Lead & Customer</span>
+        <a class="side-item" href="../CRM Admin/leads.html"><i class="fa-solid fa-plus"></i><span>Add New Lead</span></a>
+        <a class="side-item" href="../CRM Admin/lead-view.html"><i class="fa-solid fa-address-book"></i><span>All Lead's View</span></a>
+        <a class="side-item" href="../CRM Admin/detailsheet.html"><i class="fa-solid fa-file-circle-check"></i><span>Customer Details Sheet</span></a>
+        <a class="side-item" href="../CRM Admin/obligation.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Obligation Sheet</span></a>
+
+        <span class="side-label">Financial Tools</span>
+        <a class="side-item" href="EMI-Calc.html"><i class="fa-solid fa-calculator"></i><span>EMI Calculator</span></a>
+        <a class="side-item" href="eligibility-calc.html"><i class="fa-solid fa-circle-check"></i><span>Eligibility Calculator</span></a>
+        <a class="side-item" href="BT-Calc.html"><i class="fa-solid fa-right-left"></i><span>Balance Transfer Calculator</span></a>
+        <a class="side-item" href="Bajaj-Pf-Calc.html"><i class="fa-solid fa-percent"></i><span>BAJAJ PF Calculator</span></a>
+        <a class="side-item" href="Od-Calc.html"><i class="fa-solid fa-chart-line"></i><span>OD Limit Calculator</span></a>
+        <a class="side-item" href="Bank-Cat-checker-live.html"><i class="fa-solid fa-building-columns"></i><span>Bank Company Check</span></a>
+        <a class="side-item" href="pincode-india-live.html"><i class="fa-solid fa-map-location-dot"></i><span>Pincode Finder</span></a>
+        <a class="side-item active" href="MCA-Company-Check.html"><i class="fa-solid fa-building-shield"></i><span>MCA Company Check</span></a>
+
+        <span class="side-label">Bank Policy</span>
+        <a class="side-item" href="../Bank Policy/bajaj.html"><span class="side-bank-logo"><img src="../Meterial/Bank Images/Bajaj.png" alt="Bajaj"/></span><span>Bajaj Policy</span></a>
+        <a class="side-item" href="../Bank Policy/bandhan.html"><span class="side-bank-logo"><img src="../Meterial/Bank Images/Bandhan.png" alt="Bandhan"/></span><span>Bandhan Policy</span></a>
+
+        <div class="side-dashboard-row">
+          <button class="side-item" data-dashboard-back="" type="button"><i class="fa-solid fa-house"></i><span class="dashboard-back-text">Back to Dashboard</span></button>
+          <a class="side-item" href="../admin-dashboard.html"><i class="fa-solid fa-user-shield"></i><span>Admin Dashboard</span></a>
+          <a class="side-item" href="../employee-dashboard.html"><i class="fa-solid fa-user-tie"></i><span>Employee Dashboard</span></a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main wrap mca-admin-main" id="mcaCheckerTop">
+      <header class="topbar admin-employee-style-header admin-indi-header employee-admin-style-header">
+        <a aria-label="Back to Dashboard" class="brand" data-dashboard-back-link="" href="../admin-dashboard.html">
+          <span class="brand-logo admin-logo-frame"><img alt="Finbud" onerror="this.onerror=null;this.src='../Meterial/FB-logo.png'" src="../Meterial/FB-logo.png"/></span>
+          <div><h1>NexCRM Financial Tools</h1><p>MCA Company Registration Check</p></div>
+        </a>
+        <div class="top-actions">
+          <button class="top-pill profile-pill profile-open-trigger user-pill" id="loggedUserPill" title="Open Profile" type="button">
+            <span class="dp-mini logo-avatar" id="topProfileDp"><img alt="Profile DP" id="topDpImg"/><span id="userInitials">AD</span></span>
+            <span class="profile-text user-text"><small>Logged in as</small><b id="loggedUserName">Admin User</b></span>
+          </button>
+          <div class="top-pill system-status"><span class="dot"></span> MCA Check Active</div>
+          <div class="header-action-menu manage" id="headerActionMenu">
+            <button aria-expanded="false" aria-haspopup="true" class="top-pill manage-btn" id="manageMenuBtn" title="Manage account & actions" type="button">
+              <span class="profile-btn-dp manage-btn-dp" id="profileButtonDp"><img alt="Profile DP" id="profileBtnDpImg"/><i class="fa-solid fa-user-gear"></i></span>
+              <span class="manage-copy"><b>Manage</b><small>Profile • Dashboard • Print</small></span>
+              <i class="fa-solid fa-chevron-down manage-caret"></i>
+            </button>
+            <div aria-label="Account management menu" class="manage-dropdown manage-menu" id="manageDropdown" role="menu">
+              <button class="menu-action profile-open-trigger menu-item" role="menuitem" type="button"><i class="fa-solid fa-user-pen"></i><span><b>Profile</b><small>Open user profile popup</small></span></button>
+              <button class="menu-action menu-item" data-dashboard-back="" role="menuitem" type="button"><i class="fa-solid fa-house"></i><span><b class="dashboard-back-text">Back to Dashboard</b><small>Auto Admin / Employee dashboard</small></span></button>
+              <button class="menu-action menu-item" onclick="window.print()" role="menuitem" type="button"><i class="fa-solid fa-print"></i><span><b>Print Report</b><small>Generate MCA check report</small></span></button>
+              <button class="menu-action menu-item" onclick="openApiSettings()" role="menuitem" type="button"><i class="fa-solid fa-plug-circle-bolt"></i><span><b>Proxy Info</b><small>Secure backend endpoint details</small></span></button>
+              <button class="menu-action menu-item" onclick="location.href='../HRMS/portal-settings.html'" role="menuitem" type="button"><i class="fa-solid fa-gear"></i><span><b>Settings</b><small>Portal controls</small></span></button>
+            </div>
+          </div>
+          <button aria-label="Toggle Theme" class="top-pill theme-toggle" id="themeBtn" title="Theme" type="button"><span class="theme-track"><i class="fa-regular fa-sun"></i><i class="fa-solid fa-moon"></i></span></button>
+          <button class="top-pill icon-btn back-dashboard" data-dashboard-back="" onclick="goBackToDashboard()" title="Back to Dashboard" aria-label="Back to Dashboard" type="button"><i class="fa-solid fa-house"></i></button>
+          <button aria-label="Logout" class="top-pill logout-icon-only logout-header" id="logoutBtn" title="Logout" type="button"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </header>
+
+      <div aria-hidden="true" class="profile-modal-backdrop" id="profileModal">
+        <div aria-labelledby="profileModalTitle" aria-modal="true" class="profile-modal" role="dialog">
+          <div class="profile-modal-head">
+            <div class="profile-modal-title">
+              <span class="profile-modal-avatar" id="modalProfileDp"><img alt="Profile DP" id="modalDpImg"/><span id="modalDpInitials">AD</span></span>
+              <div><h3 id="profileModalTitle">My Profile</h3><p>Header profile preview synced from NexCRM session/local profile.</p></div>
+            </div>
+            <button aria-label="Close Profile" class="profile-close" id="profileClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="profile-modal-body">
+            <div class="profile-photo-card"><div class="profile-modal-avatar" id="profilePreviewDp"><img alt="Profile DP" id="profilePreviewImg"/><span id="profilePreviewInitials">AD</span></div><h4 id="profilePreviewName">Admin User</h4><p>Same profile name is reflected in the header and Manage popup.</p></div>
+            <div>
+              <div class="profile-form-grid">
+                <div class="profile-field"><label>Name</label><input id="profileName" placeholder="Name" type="text"/></div>
+                <div class="profile-field"><label>Employee ID</label><input id="profileEmployeeId" placeholder="Employee ID" type="text"/></div>
+                <div class="profile-field"><label>Official Email</label><input id="profileEmail" placeholder="Official Email" type="text"/></div>
+                <div class="profile-field"><label>Role</label><input id="profileRole" placeholder="Admin / Employee" type="text"/></div>
+                <div class="profile-field full"><label>About</label><textarea id="profileAbout" placeholder="Short profile note"></textarea></div>
+              </div>
+              <div class="profile-actions"><button class="profile-cancel" id="profileCancel" type="button">Cancel</button><button class="profile-save" id="profileSave" type="button">Save Preview</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="hero live-admin-hero mca-hero">
+        <div class="content">
+          <div class="kicker"><i class="fa-solid fa-shield-halved"></i> MCA Company Verification Engine</div>
+          <h2>Company Registration Check</h2>
+          <p>Search company by CIN, LLPIN or company name and show registration status, ROC, state, incorporation date, address, capital and compliance summary in a clean NexCRM interface.</p>
+          <div class="hero-tags">
+            <span><i class="fa-solid fa-id-card"></i> CIN / LLPIN</span>
+            <span><i class="fa-solid fa-building"></i> Company Name</span>
+            <span><i class="fa-solid fa-circle-check"></i> Registration Status</span>
+            <span><i class="fa-solid fa-file-export"></i> CSV Export</span>
+          </div>
+        </div>
+        <div class="hero-art">
+          <div class="big-icon"><i class="fa-solid fa-building-shield"></i></div>
+          <div class="orb o1"><i class="fa-solid fa-id-card"></i></div>
+          <div class="orb o2"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+          <div class="orb o3"><i class="fa-solid fa-clipboard-check"></i></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="title"><div class="title-icon"><i class="fa-solid fa-sliders"></i></div><div><h3>Search Filters</h3><p>Search by CIN / LLPIN / Company Name</p></div></div>
+          <div class="chip" id="apiStatus">API Not Connected</div>
+        </div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field">
+              <label>Company Name / CIN / LLPIN</label>
+              <div class="search-input-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="Type CIN, LLPIN or company name" oninput="queueSearch(); syncMainSearch()" onkeydown="if(event.key==='Enter') applySearch()" /></div>
+              <div class="quick-chips">
+                <button class="quick-chip" type="button" onclick="fillExample('U72900DL2020PTC123456')">CIN Format</button>
+                <button class="quick-chip" type="button" onclick="fillExample('AAB-1234')">LLPIN Format</button>
+                <button class="quick-chip" type="button" onclick="fillExample('FINBUD')">Company Name</button>
+                <button class="quick-chip" type="button" onclick="openApiSettings()">Proxy Info</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Search Type</label>
+              <select id="searchType" onchange="applySearch()"><option value="auto">Auto Detect</option><option value="cin">CIN</option><option value="llpin">LLPIN</option><option value="name">Company Name</option></select>
+            </div>
+            <div class="field">
+              <label>Rows</label>
+              <select id="pageSizeSelect" onchange="changePageSize()"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+            <button class="nx-btn" onclick="applySearch()" type="button"><i class="fa-solid fa-search"></i> Search Company</button>
+            <button class="nx-btn secondary" onclick="resetSearch()" type="button"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+            <button class="nx-btn light" onclick="openApiSettings()" type="button"><i class="fa-solid fa-plug-circle-bolt"></i> Proxy Info</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="MCA result stats">
+        <div class="stat"><i class="fa-solid fa-building-shield"></i><small>Companies Found</small><span id="statRecords">0</span></div>
+        <div class="stat"><i class="fa-solid fa-circle-check"></i><small>Status</small><span id="statStatus">-</span></div>
+        <div class="stat"><i class="fa-solid fa-users"></i><small>Directors</small><span id="statDirectors">0</span></div>
+        <div class="stat"><i class="fa-solid fa-file-invoice-dollar"></i><small>Charges</small><span id="statCharges">0</span></div>
+      </section>
+
+      <section class="result-grid">
+        <section class="panel company-card">
+          <div class="panel-head">
+            <div class="title"><div class="title-icon"><i class="fa-solid fa-building-circle-check"></i></div><div><h3>Company Master Data</h3><p id="masterSubText">Search company to view registration details</p></div></div>
+            <button class="nx-btn secondary" onclick="exportCSV()" type="button"><i class="fa-solid fa-download"></i> Export</button>
+          </div>
+          <div class="panel-body" id="companyDetailBody">
+            <div class="empty-state">Search CIN / LLPIN / Company Name using secure backend proxy.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div class="title"><div class="title-icon"><i class="fa-solid fa-clipboard-check"></i></div><div><h3>Compliance Snapshot</h3><p>AGM, balance sheet and capital summary</p></div></div></div>
+          <div class="panel-body" id="complianceBody">
+            <div class="status-line">
+              <div class="status-box"><small>Last AGM</small><span id="lastAgmText">-</span></div>
+              <div class="status-box"><small>Balance Sheet</small><span id="lastBsText">-</span></div>
+              <div class="status-box"><small>Listing Status</small><span id="listingText">-</span></div>
+            </div>
+            <div class="info-grid" style="margin-top:14px">
+              <div class="info-box money-box"><small>Authorized Capital</small><span id="authCapitalText">-</span></div>
+              <div class="info-box money-box"><small>Paid-up Capital</small><span id="paidCapitalText">-</span></div>
+              <div class="info-box"><small>Company Type</small><span id="companyTypeText">-</span></div>
+              <div class="info-box"><small>ROC</small><span id="rocText">-</span></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel" style="margin-top:22px">
+        <div class="panel-head">
+          <div class="title"><div class="title-icon"><i class="fa-solid fa-list-check"></i></div><div><h3>Company Search Result</h3><p id="listSubText">No search yet</p></div></div>
+          <div class="panel-tools"><button class="nx-btn light" onclick="window.print()" type="button"><i class="fa-solid fa-print"></i> Print</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:80px">#</th><th>Company Name</th><th>CIN / LLPIN</th><th>Status</th><th>ROC</th><th>State</th><th>Incorporation</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="7" class="empty-state">Search company to view results.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="panel-chip" id="showingText">Showing 0 results</div>
+          <div class="pagination"><button class="page-btn" onclick="goToFirst()" type="button">«</button><button class="page-btn" onclick="prevPage()" type="button">‹</button><button class="page-btn active" id="currentPageBtn" type="button">1</button><button class="page-btn" onclick="nextPage()" type="button">›</button><button class="page-btn" onclick="goToLast()" type="button">»</button></div>
+        </div>
+      </section>
+
+      <section class="result-grid">
+        <section class="panel" style="margin-top:22px">
+          <div class="panel-head"><div class="title"><div class="title-icon"><i class="fa-solid fa-user-tie"></i></div><div><h3>Directors / Signatories</h3><p id="directorSubText">No director data loaded</p></div></div></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>DIN / PAN</th><th>Designation</th><th>Appointment Date</th></tr></thead><tbody id="directorBody"><tr><td colspan="5" class="empty-state">No directors/signatories found.</td></tr></tbody></table></div>
+        </section>
+        <section class="panel" style="margin-top:22px">
+          <div class="panel-head"><div class="title"><div class="title-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div><div><h3>Charges / Loan Charge</h3><p id="chargeSubText">No charge data loaded</p></div></div></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Charge Holder</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="chargeBody"><tr><td colspan="5" class="empty-state">No charges found.</td></tr></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="panel live-panel" id="liveResultPanel">
+        <div class="panel-head">
+          <div class="title"><div class="title-icon"><i class="fa-solid fa-gauge-high"></i></div><div><h3>Live Result</h3><p>API summary and last search status</p></div></div>
+          <button class="nx-btn" onclick="openApiSettings()" type="button"><i class="fa-solid fa-plug-circle-bolt"></i> Proxy Info</button>
+        </div>
+        <div class="panel-body">
+          <div class="result-list">
+            <div class="mini-card"><small>API Mode</small><strong id="sideMode" class="gold">Proxy</strong></div>
+            <div class="mini-card"><small>Current Results</small><strong id="sideResults" class="green">0</strong></div>
+            <div class="mini-card"><small>Current Page</small><strong id="sidePage" class="orange">1</strong></div>
+            <div class="mini-card"><small>Selected Company</small><strong id="sideCompany" class="blue">-</strong></div>
+          </div>
+          <div class="status-line">
+            <div class="status-box"><small>Last Search</small><span id="lastSearchText">No search yet</span></div>
+            <div class="status-box"><small>API Endpoint</small><span id="sourceText">/api/mca/company</span></div>
+            <div class="status-box"><small>Security Note</small><span>Use backend/Firebase proxy. Do not put MCA API key in frontend.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-actions">
+        <button class="floating-btn" onclick="document.getElementById('searchInput').focus()" type="button"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+        <button class="floating-btn" onclick="document.getElementById('liveResultPanel').scrollIntoView({behavior:'smooth'})" type="button"><i class="fa-solid fa-gauge"></i> Live Result</button>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="apiSettingsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="apiSettingsTitle">
+      <div class="modal-head"><div class="modal-title"><div class="title-icon"><i class="fa-solid fa-plug-circle-bolt"></i></div><div><h3 id="apiSettingsTitle">Secure MCA Proxy Info</h3><p>Frontend calls only your backend endpoint. No API key/token is stored here.</p></div></div><button class="modal-close" onclick="closeApiSettings()" type="button"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-body">
+        <div class="status-line">
+          <div class="status-box"><small>Frontend Method</small><span>GET</span></div>
+          <div class="status-box"><small>Endpoint Path</small><span>/api/mca/company?q=&lt;company name or CIN&gt;</span></div>
+          <div class="status-box"><small>Security</small><span>DATA_GOV_API_KEY must stay only in backend environment variable.</span></div>
+        </div>
+        <div class="code-box" style="margin-top:16px">Backend requirement:
+GET /api/mca/company?q=&lt;company name or CIN / LLPIN&gt;
+
+Backend reads:
+DATA_GOV_API_KEY=your_key_here
+
+Frontend never stores data.gov.in key in HTML, localStorage, or JavaScript.</div>
+        <div class="modal-actions"><button class="save-btn" onclick="closeApiSettings()" type="button">Done</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MCA_API_BASE=String(window.NEXCRM_MCA_API_BASE||'').trim().replace(/\/+$/,'');
+    const MCA_API_PATH='/api/mca/company';
+    const MCA_RESULT_CACHE=new Map();
+    let filteredData=[]; let selectedCompany=null; let currentPage=1; let pageSize=10; let searchTimer=null; let activeController=null; let searchSeq=0; let lastPayload=null;
+    const $=id=>document.getElementById(id);
+    const safeText=v=>(v===undefined||v===null||v==='')?'-':String(v).trim();
+    const escapeHtml=v=>String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    const fmtNum=v=>{const n=Number(String(v||'').replace(/[^0-9.-]/g,'')); return Number.isFinite(n)&&n>0?n.toLocaleString('en-IN'):safeText(v);};
+    const money=v=>{const n=Number(String(v||'').replace(/[^0-9.-]/g,'')); return Number.isFinite(n)&&n>0?'₹ '+n.toLocaleString('en-IN'):safeText(v);};
+    function apiUrlDisplay(){return (MCA_API_BASE?MCA_API_BASE:'Same domain')+MCA_API_PATH;}
+    function updateApiDisplay(){const src=$('sourceText'); if(src)src.textContent=apiUrlDisplay(); const st=$('apiStatus'); if(st)st.textContent='Proxy Ready';}
+    function openApiSettings(){const m=$('apiSettingsModal'); if(m){m.classList.add('show'); m.setAttribute('aria-hidden','false');}}
+    function closeApiSettings(){const m=$('apiSettingsModal'); if(m){m.classList.remove('show'); m.setAttribute('aria-hidden','true');}}
+    function saveApiSettings(){closeApiSettings();}
+    function clearApiSettings(){closeApiSettings();}
+    window.openApiSettings=openApiSettings; window.closeApiSettings=closeApiSettings; window.saveApiSettings=saveApiSettings; window.clearApiSettings=clearApiSettings;
+
+    function readAny(obj,keys){if(!obj||typeof obj!=='object')return ''; for(const k of keys){if(Object.prototype.hasOwnProperty.call(obj,k)&&obj[k]!==undefined&&obj[k]!==null&&String(obj[k]).trim()!=='')return obj[k];} const norm={}; Object.keys(obj||{}).forEach(k=>norm[k.toLowerCase().replace(/[^a-z0-9]/g,'')]=obj[k]); for(const k of keys){const v=norm[String(k).toLowerCase().replace(/[^a-z0-9]/g,'')]; if(v!==undefined&&v!==null&&String(v).trim()!=='')return v;} return '';}
+    function flattenData(payload){let p=payload; if(p&&p.data!==undefined)p=p.data; if(p&&p.result!==undefined)p=p.result; if(p&&p.response!==undefined)p=p.response; if(p&&p.company_master_data!==undefined){const master=p.company_master_data; master.directors=p.directors||master.directors||[]; master.charges=p.charges||master.charges||[]; p=master;} if(p&&p.companyMasterData!==undefined){const master=p.companyMasterData; master.directors=p.directors||master.directors||[]; master.charges=p.charges||master.charges||[]; p=master;} return p;}
+    function normalizeDirector(d){return {name:safeText(readAny(d,['name','director_name','directorName','Name','DINName','signatory_name'])),din:safeText(readAny(d,['din','DIN','pan','PAN','din_pan','identifier'])),designation:safeText(readAny(d,['designation','Designation','role','position','category'])),appointmentDate:safeText(readAny(d,['appointment_date','appointmentDate','date_of_appointment','DateOfAppointment']))};}
+    function normalizeCharge(ch){return {holder:safeText(readAny(ch,['holder','charge_holder','chargeHolder','bank_name','lender','ChargeHolderName'])),amount:money(readAny(ch,['amount','charge_amount','chargeAmount','Amount','loan_amount'])),status:safeText(readAny(ch,['status','charge_status','chargeStatus','satisfaction_status'])),date:safeText(readAny(ch,['date','creation_date','created_at','charge_creation_date','dateOfCreation']))};}
+    function normalizeCompany(obj){if(!obj||typeof obj!=='object')return null; const p=flattenData(obj); if(!p||typeof p!=='object')return null; const name=safeText(readAny(p,['company_name','companyName','CompanyName','COMPANY_NAME','name','Name','legal_name','legalName'])); const cin=safeText(readAny(p,['cin','CIN','cin_no','cinNo','llpin','LLPIN','llp_id','corporate_identification_number'])); const status=safeText(readAny(p,['company_status','companyStatus','CompanyStatus','status','Status','company_status_for_efiling'])); if(name==='-'&&cin==='-')return null; const directorsRaw=readAny(p,['directors','directorDetails','signatories','signatoryDetails','current_directors'])||[]; const chargesRaw=readAny(p,['charges','chargeDetails','charge_details','openCharges'])||[]; const directors=Array.isArray(directorsRaw)?directorsRaw.map(normalizeDirector).filter(x=>x.name!=='-'):[]; const charges=Array.isArray(chargesRaw)?chargesRaw.map(normalizeCharge).filter(x=>x.holder!=='-'||x.amount!=='-'):[]; return {companyName:name,cin,companyStatus:status,roc:safeText(readAny(p,['roc','ROC','roc_code','rocCode','roc_name','rocName','registrar_of_companies'])),regNumber:safeText(readAny(p,['registration_number','registrationNumber','reg_no','company_reg_no'])),incDate:safeText(readAny(p,['date_of_incorporation','dateOfIncorporation','incorporation_date','incorporationDate','registration_date'])),companyType:safeText(readAny(p,['company_type','companyType','type','CompanyType','class','company_class','companyClass'])),category:safeText(readAny(p,['category','company_category','companyCategory','sub_category','company_sub_category','companySubCategory'])),state:safeText(readAny(p,['state','registered_state','registeredState','state_name','roc_state','State'])),address:safeText(readAny(p,['registered_office_address','registeredOfficeAddress','address','registered_address','registeredAddress','office_address'])),authCapital:money(readAny(p,['authorized_capital','authorised_capital','authorizedCapital','authorisedCapital','AuthorizedCapital'])),paidCapital:money(readAny(p,['paid_up_capital','paidUpCapital','paidup_capital','PaidUpCapital'])),lastAgm:safeText(readAny(p,['last_agm_date','lastAgmDate','date_of_last_agm','dateOfLastAGM','agm_date'])),lastBs:safeText(readAny(p,['last_balance_sheet_date','lastBalanceSheetDate','date_of_last_balance_sheet','balance_sheet_date'])),listing:safeText(readAny(p,['listing_status','listingStatus','listed','listed_status'])),email:safeText(readAny(p,['email','email_id','emailId'])),directors,charges,raw:p};}
+    function extractCompanies(payload){const flat=flattenData(payload); if(Array.isArray(flat))return flat.map(normalizeCompany).filter(Boolean); const direct=normalizeCompany(flat); if(direct)return [direct]; const arrs=[]; function walk(x,depth=0){if(depth>4||!x)return; if(Array.isArray(x)){arrs.push(x); return;} if(typeof x==='object')Object.keys(x).forEach(k=>walk(x[k],depth+1));} walk(payload); for(const a of arrs){const list=a.map(normalizeCompany).filter(Boolean); if(list.length)return list;} return [];}
+    function statusClass(status){const s=String(status||'').toLowerCase(); if(s.includes('active'))return 'status-active'; if(s.includes('strike')||s.includes('inactive')||s.includes('closed')||s.includes('dissolved'))return 'status-inactive'; return 'status-other';}
+    function detectSearchType(q){const s=String(q||'').trim().toUpperCase(); if(/^[A-Z]{1}\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/.test(s))return 'cin'; if(/^[A-Z]{3}-?\d{4}$/.test(s))return 'llpin'; return 'name';}
+    async function fetchApi(query,type){
+      if(activeController){try{activeController.abort()}catch(e){}}
+      activeController=new AbortController();
+      const timer=setTimeout(()=>activeController.abort(),20000);
+      const headers={'Accept':'application/json'};
+      const params=new URLSearchParams({q:String(query||''),query:String(query||''),type:String(type||'auto')});
+      const url=`${MCA_API_BASE}${MCA_API_PATH}?${params.toString()}`;
+      try{
+        const res=await fetch(url,{method:'GET',headers,cache:'no-store',signal:activeController.signal});
+        const txt=await res.text(); let payload=null;
+        try{payload=txt?JSON.parse(txt):{};}catch(e){payload={message:txt};}
+        if(!res.ok){const msg=readAny(payload,['message','error','detail'])||`HTTP ${res.status}`; throw new Error(String(msg));}
+        return payload;
+      }finally{clearTimeout(timer);activeController=null;}
+    }
+    function renderPrompt(msg){$('tableBody').innerHTML=`<tr><td colspan="7" class="empty-state">${escapeHtml(msg)}</td></tr>`; $('showingText').textContent='Showing 0 results'; $('currentPageBtn').textContent='1';}
+    function renderCompanyDetail(c){selectedCompany=c||null; if(!c){$('companyDetailBody').innerHTML='<div class="empty-state">Search company to view registration details.</div>'; return;} const badge=`<span class="status-badge ${statusClass(c.companyStatus)}"><i class="fa-solid fa-circle"></i>${escapeHtml(c.companyStatus)}</span>`; $('companyDetailBody').innerHTML=`<div class="company-title-row"><div><h3>${escapeHtml(c.companyName)}</h3><p>${escapeHtml(c.cin)} ${c.regNumber!=='-'?'• Reg No. '+escapeHtml(c.regNumber):''}</p></div>${badge}</div><div class="info-grid"><div class="info-box"><small>CIN / LLPIN</small><span>${escapeHtml(c.cin)}</span></div><div class="info-box"><small>ROC</small><span>${escapeHtml(c.roc)}</span></div><div class="info-box"><small>State</small><span>${escapeHtml(c.state)}</span></div><div class="info-box"><small>Incorporation Date</small><span>${escapeHtml(c.incDate)}</span></div><div class="info-box"><small>Company Type</small><span>${escapeHtml(c.companyType)}</span></div><div class="info-box"><small>Category</small><span>${escapeHtml(c.category)}</span></div><div class="info-box address-box"><small>Registered Office Address</small><span>${escapeHtml(c.address)}</span></div></div>`; $('masterSubText').textContent='Live registration details loaded'; $('lastAgmText').textContent=c.lastAgm; $('lastBsText').textContent=c.lastBs; $('listingText').textContent=c.listing; $('authCapitalText').textContent=c.authCapital; $('paidCapitalText').textContent=c.paidCapital; $('companyTypeText').textContent=c.companyType; $('rocText').textContent=c.roc;}
+    function renderDirectors(c){const list=(c&&c.directors)||[]; $('directorSubText').textContent=list.length?`${list.length} director/signatory record(s)`:'No director data loaded'; $('directorBody').innerHTML=list.length?list.map((d,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(d.name)}</td><td>${escapeHtml(d.din)}</td><td>${escapeHtml(d.designation)}</td><td>${escapeHtml(d.appointmentDate)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty-state">No directors/signatories found.</td></tr>';}
+    function renderCharges(c){const list=(c&&c.charges)||[]; $('chargeSubText').textContent=list.length?`${list.length} charge record(s)`:'No charge data loaded'; $('chargeBody').innerHTML=list.length?list.map((d,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(d.holder)}</td><td>${escapeHtml(d.amount)}</td><td>${escapeHtml(d.status)}</td><td>${escapeHtml(d.date)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty-state">No charges found.</td></tr>';}
+    function updateStats(){const c=selectedCompany; $('statRecords').textContent=fmtNum(filteredData.length); $('statStatus').textContent=c?c.companyStatus:'-'; $('statDirectors').textContent=c?fmtNum(c.directors.length):'0'; $('statCharges').textContent=c?fmtNum(c.charges.length):'0'; $('sideResults').textContent=fmtNum(filteredData.length); $('sidePage').textContent=fmtNum(currentPage); $('sideCompany').textContent=c&&c.companyName?c.companyName.slice(0,18):'-'; $('sideMode').textContent='Live Proxy';}
+    function renderTable(){const total=filteredData.length; const totalPages=Math.max(1,Math.ceil(total/pageSize)); if(currentPage>totalPages)currentPage=totalPages; if(!total){renderPrompt('No company records found.'); updateStats(); return;} const start=(currentPage-1)*pageSize; const rows=filteredData.slice(start,start+pageSize); $('tableBody').innerHTML=rows.map((c,i)=>`<tr onclick="selectCompany(${start+i})" style="cursor:pointer"><td>${start+i+1}</td><td><b>${escapeHtml(c.companyName)}</b></td><td>${escapeHtml(c.cin)}</td><td><span class="status-badge ${statusClass(c.companyStatus)}">${escapeHtml(c.companyStatus)}</span></td><td>${escapeHtml(c.roc)}</td><td>${escapeHtml(c.state)}</td><td>${escapeHtml(c.incDate)}</td></tr>`).join(''); const end=Math.min(start+pageSize,total); $('showingText').textContent=`Showing ${fmtNum(start+1)} to ${fmtNum(end)} of ${fmtNum(total)} result(s)`; $('currentPageBtn').textContent=fmtNum(currentPage); updateStats();}
+    function selectCompany(index){const c=filteredData[index]; if(!c)return; selectedCompany=c; renderCompanyDetail(c); renderDirectors(c); renderCharges(c); updateStats(); document.getElementById('companyDetailBody').scrollIntoView({behavior:'smooth',block:'center'});} window.selectCompany=selectCompany;
+    async function applySearch(){const qRaw=($('searchInput').value||$('heroSearchInput').value||'').trim(); const seq=++searchSeq; const type=$('searchType').value==='auto'?detectSearchType(qRaw):$('searchType').value; if(!qRaw){resetSearch();return;} if(qRaw.length<3){renderPrompt('Type at least 3 letters or valid CIN/LLPIN.');return;} const cacheKey=`${type}:${qRaw.toLowerCase()}`; if(MCA_RESULT_CACHE.has(cacheKey)){filteredData=MCA_RESULT_CACHE.get(cacheKey); selectedCompany=filteredData[0]||null; renderTable(); renderCompanyDetail(selectedCompany); renderDirectors(selectedCompany); renderCharges(selectedCompany); $('listSubText').textContent=`Found ${fmtNum(filteredData.length)} cached result(s) for "${qRaw}".`; $('lastSearchText').textContent=qRaw; updateStats(); return;} $('apiStatus').textContent='Searching API'; $('listSubText').textContent='Checking company registration from MCA API proxy...'; renderPrompt('Searching company records...'); try{const payload=await fetchApi(qRaw,type); if(seq!==searchSeq)return; lastPayload=payload; const list=extractCompanies(payload); filteredData=list; selectedCompany=list[0]||null; MCA_RESULT_CACHE.set(cacheKey,list); if(MCA_RESULT_CACHE.size>40){MCA_RESULT_CACHE.delete(MCA_RESULT_CACHE.keys().next().value);} currentPage=1; renderTable(); renderCompanyDetail(selectedCompany); renderDirectors(selectedCompany); renderCharges(selectedCompany); $('apiStatus').textContent=list.length?'API Ready':'No Match'; $('listSubText').textContent=list.length?`Found ${fmtNum(list.length)} result(s) for "${qRaw}".`:`No company record found for "${qRaw}".`; $('lastSearchText').textContent=qRaw; updateStats();}catch(err){if(seq!==searchSeq)return; filteredData=[]; selectedCompany=null; $('apiStatus').textContent='Proxy Error'; $('listSubText').textContent=err.message||'MCA API error'; renderPrompt(err.message||'MCA API proxy error. Check backend /api/mca/company.'); renderCompanyDetail(null); renderDirectors(null); renderCharges(null); $('lastSearchText').textContent=qRaw; updateStats();}}
+    function queueSearch(){clearTimeout(searchTimer); searchTimer=setTimeout(()=>{const q=($('searchInput').value||'').trim(); if(q.length>=5||/^\d/.test(q))applySearch();},650)} window.queueSearch=queueSearch; window.applySearch=applySearch;
+    function resetSearch(){filteredData=[]; selectedCompany=null; currentPage=1; $('searchInput').value=''; $('heroSearchInput').value=''; $('apiStatus').textContent='Proxy Ready'; $('listSubText').textContent='No search yet'; $('masterSubText').textContent='Search company to view registration details'; renderPrompt('Search company to view results.'); renderCompanyDetail(null); renderDirectors(null); renderCharges(null); $('lastAgmText').textContent='-'; $('lastBsText').textContent='-'; $('listingText').textContent='-'; $('authCapitalText').textContent='-'; $('paidCapitalText').textContent='-'; $('companyTypeText').textContent='-'; $('rocText').textContent='-'; $('lastSearchText').textContent='No search yet'; updateStats();}
+    function changePageSize(){pageSize=Number($('pageSizeSelect').value||10); currentPage=1; renderTable()} function nextPage(){const t=Math.max(1,Math.ceil(filteredData.length/pageSize)); if(currentPage<t){currentPage++;renderTable()}} function prevPage(){if(currentPage>1){currentPage--;renderTable()}} function goToFirst(){currentPage=1;renderTable()} function goToLast(){currentPage=Math.max(1,Math.ceil(filteredData.length/pageSize));renderTable()} Object.assign(window,{resetSearch,changePageSize,nextPage,prevPage,goToFirst,goToLast});
+    function exportCSV(){if(!filteredData.length){alert('No company results to export. Search first.');return;} const rows=[['Company Name','CIN/LLPIN','Status','ROC','State','Incorporation Date','Company Type','Authorized Capital','Paid-up Capital','Address']]; filteredData.forEach(c=>rows.push([c.companyName,c.cin,c.companyStatus,c.roc,c.state,c.incDate,c.companyType,c.authCapital,c.paidCapital,c.address])); const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='NexCRM-MCA-Company-Check.csv'; a.click(); URL.revokeObjectURL(url);} window.exportCSV=exportCSV;
+    function fillExample(v){$('searchInput').value=v;$('heroSearchInput').value=v;applySearch()} function syncHeroSearch(){$('searchInput').value=$('heroSearchInput').value} function syncMainSearch(){$('heroSearchInput').value=$('searchInput').value} Object.assign(window,{fillExample,syncHeroSearch,syncMainSearch});
+    function toggleTheme(){document.body.classList.toggle('dark'); const selected=document.body.classList.contains('dark')?'dark':'light'; localStorage.setItem('nexcrm_finance_theme',selected); localStorage.setItem('nexcrm_theme',selected);} window.toggleTheme=toggleTheme;
+    (function initTheme(){if((localStorage.getItem('nexcrm_finance_theme')||localStorage.getItem('nexcrm_theme'))==='dark')document.body.classList.add('dark');})();
+    updateApiDisplay(); resetSearch();
+  </script>
+
+  <script>
+    (function(){
+      const body=document.body; const $=(id)=>document.getElementById(id); const COLLAPSE_KEY='nexcrm_admin_sidebar_collapsed_v3';
+      function readJSON(key,store){try{return JSON.parse((store||localStorage).getItem(key)||'null')||null}catch(e){return null}}
+      function getSession(){return readJSON('nexcrm_session',localStorage)||readJSON('nexcrm_session',sessionStorage)||{};}
+      function isMobile(){return window.matchMedia&&matchMedia('(max-width:980px)').matches;}
+      function setSidebar(open){if(isMobile()){body.classList.toggle('sidebar-open',!!open);return;} body.classList.toggle('sidebar-collapsed',!open); try{localStorage.setItem(COLLAPSE_KEY,open?'0':'1')}catch(e){}}
+      function toggleSidebar(){if(isMobile())setSidebar(!body.classList.contains('sidebar-open'));else setSidebar(body.classList.contains('sidebar-collapsed'));}
+      ['sidebarRailToggle','sidebarToggleTop','sidebarCollapseBottom'].forEach(id=>{const el=$(id);if(el)el.addEventListener('click',toggleSidebar);}); const backdrop=$('sidebarBackdrop'); if(backdrop)backdrop.addEventListener('click',()=>setSidebar(false)); try{if(localStorage.getItem(COLLAPSE_KEY)==='0'&&!isMobile())body.classList.remove('sidebar-collapsed');}catch(e){}
+      function titleCase(s){return String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());}
+      function readableName(v){let s=String(v||'').trim(); if(!s)return ''; if(s.includes('@'))s=s.split('@')[0].replace(/[._-]+/g,' '); return titleCase(s.replace(/\s+/g,' '));}
+      function detectRole(){const session=getSession(); const raw=String(session.role||session.userRole||session.portalRole||session.type||'').toLowerCase(); const ref=String(document.referrer||'').toLowerCase(); if(raw.includes('employee')||ref.includes('employee-dashboard')){try{sessionStorage.setItem('nexcrm_last_dashboard_role','employee')}catch(e){};return 'employee';} if(raw.includes('admin')||ref.includes('admin-dashboard')){try{sessionStorage.setItem('nexcrm_last_dashboard_role','admin')}catch(e){};return 'admin';} const saved=String(sessionStorage.getItem('nexcrm_last_dashboard_role')||localStorage.getItem('nexcrm_last_dashboard_role')||'').toLowerCase(); return saved.includes('employee')?'employee':'admin';}
+      function dashboardTarget(){const role=detectRole(); return role==='employee'?{role,href:'../employee-dashboard.html',label:'Back to Employee Dashboard'}:{role,href:'../admin-dashboard.html',label:'Back to Admin Dashboard'};}
+      window.goBackToDashboard=function(){location.href=dashboardTarget().href;};
+      function applyDashboardButtons(){const t=dashboardTarget(); document.querySelectorAll('[data-dashboard-back]').forEach(el=>{el.setAttribute('title',t.label);el.setAttribute('aria-label',t.label); if(el.tagName==='A')el.setAttribute('href',t.href); if(!el.dataset.boundDashboardBack){el.addEventListener('click',e=>{if(el.tagName!=='A'){e.preventDefault();window.goBackToDashboard();}});el.dataset.boundDashboardBack='1';}}); document.querySelectorAll('[data-dashboard-back-link]').forEach(el=>{el.setAttribute('href',t.href);el.setAttribute('aria-label',t.label);}); document.querySelectorAll('.dashboard-back-text').forEach(el=>{el.textContent=t.label;}); const roleText=t.role==='employee'?'Employee Panel':'Admin Panel'; const sideSmall=document.querySelector('.side-head small'); if(sideSmall)sideSmall.textContent=roleText+' • MCA Check';}
+
+      const menu=$('headerActionMenu'), manageBtn=$('manageMenuBtn');
+      if(menu && manageBtn){
+        const close=()=>{menu.classList.remove('open');manageBtn.setAttribute('aria-expanded','false');};
+        manageBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const open=menu.classList.toggle('open');manageBtn.setAttribute('aria-expanded',open?'true':'false');});
+        document.addEventListener('click',e=>{if(!menu.contains(e.target))close();});
+        document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+        menu.querySelectorAll('.menu-action').forEach(item=>item.addEventListener('click',()=>setTimeout(close,60)));
+      }
+      const PROFILE_KEY='nexcrm_admin_profile_v1'; function getProfile(){const session=getSession(); const saved=readJSON(PROFILE_KEY,localStorage)||{}; const rawName=saved.name||session.name||session.displayName||session.employeeName||session.userName||session.fullName||session.email||''; const name=readableName(rawName)||((detectRole()==='employee')?'Employee User':'Admin User'); return {name,employeeId:saved.employeeId||session.employeeId||session.empId||session.credential||'',role:saved.designation||session.designation||session.role||detectRole(),email:saved.officialEmail||session.officialEmail||session.email||'',about:saved.about||'',dp:saved.dp||session.photoURL||session.photo||''};}
+      function initials(name){return String(name||'AD').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'AD';}
+      function avatar(box,img,text,dp,ini){if(text)text.textContent=ini;if(img)img.src=dp||'';if(box)box.classList.toggle('has-image',!!dp);} function setVal(id,v){const el=$(id);if(el)el.value=v||'';} function setTxt(id,v){const el=$(id);if(el)el.textContent=v||'';}
+      function applyProfile(){const p=getProfile(); const ini=initials(p.name); setTxt('loggedUserName',p.name); setTxt('profilePreviewName',p.name); avatar($('sidebarProfileDp'),$('sidebarDpImg'),$('sidebarDpInitials'),p.dp,ini); avatar($('topProfileDp'),$('topDpImg'),$('userInitials'),p.dp,ini); avatar($('profileButtonDp'),$('profileBtnDpImg'),null,p.dp,ini); avatar($('modalProfileDp'),$('modalDpImg'),$('modalDpInitials'),p.dp,ini); avatar($('profilePreviewDp'),$('profilePreviewImg'),$('profilePreviewInitials'),p.dp,ini); setVal('profileName',p.name); setVal('profileEmployeeId',p.employeeId); setVal('profileEmail',p.email); setVal('profileRole',readableName(p.role)); setVal('profileAbout',p.about);}
+      const modal=$('profileModal'); function openProfile(){applyProfile(); if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false');}} function closeProfile(){if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}}
+      document.querySelectorAll('.profile-open-trigger').forEach(el=>el.addEventListener('click',openProfile)); ['profileClose','profileCancel'].forEach(id=>{const el=$(id);if(el)el.addEventListener('click',closeProfile);}); if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeProfile();});
+      const save=$('profileSave'); if(save)save.addEventListener('click',()=>{const existing=readJSON(PROFILE_KEY,localStorage)||{}; const next=Object.assign({},existing,{name:$('profileName')?.value||'',employeeId:$('profileEmployeeId')?.value||'',officialEmail:$('profileEmail')?.value||'',designation:$('profileRole')?.value||'',about:$('profileAbout')?.value||''}); try{localStorage.setItem(PROFILE_KEY,JSON.stringify(next));}catch(e){} applyProfile(); closeProfile();});
+      const themeBtn=$('themeBtn'); if(themeBtn)themeBtn.addEventListener('click',()=>{if(typeof toggleTheme==='function')toggleTheme();}); const logout=$('logoutBtn'); if(logout)logout.addEventListener('click',()=>{if(typeof logoutUser==='function')logoutUser();else location.href='../index.html';});
+      applyDashboardButtons(); applyProfile();
+    })();
+  </script>
+  <script src="nexcrm-form-autosave.js"></script>
+</body>
+</html>

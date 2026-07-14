@@ -1,0 +1,14 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "portal": {
+      "settings": {
+        "loginConfig": {
+          ".read": true,
+          ".write": "auth != null"
+        }
+      }
+    }
+  }
+}

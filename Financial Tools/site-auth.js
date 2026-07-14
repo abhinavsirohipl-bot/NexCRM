@@ -1,0 +1,1 @@
+/* Legacy compatibility shim. Authentication is handled by the shared NexCRM session layer. */

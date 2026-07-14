@@ -1,0 +1,281 @@
+# Removed Files Report
+
+Generated: 2026-06-17 11:50:34
+
+Removed files/folders:
+- .firebase/logs/vsce-debug.log
+- .git/COMMIT_EDITMSG
+- .git/FETCH_HEAD
+- .git/HEAD
+- .git/ORIG_HEAD
+- .git/config
+- .git/description
+- .git/gk/config
+- .git/hooks/applypatch-msg.sample
+- .git/hooks/commit-msg.sample
+- .git/hooks/fsmonitor-watchman.sample
+- .git/hooks/post-update.sample
+- .git/hooks/pre-applypatch.sample
+- .git/hooks/pre-commit.sample
+- .git/hooks/pre-merge-commit.sample
+- .git/hooks/pre-push.sample
+- .git/hooks/pre-rebase.sample
+- .git/hooks/pre-receive.sample
+- .git/hooks/prepare-commit-msg.sample
+- .git/hooks/push-to-checkout.sample
+- .git/hooks/sendemail-validate.sample
+- .git/hooks/update.sample
+- .git/index
+- .git/info/exclude
+- .git/info/refs
+- .git/logs/HEAD
+- .git/logs/refs/heads/main
+- .git/logs/refs/remotes/origin/HEAD
+- .git/logs/refs/remotes/origin/cloudflare/workers-autoconfig
+- .git/logs/refs/remotes/origin/main
+- .git/objects/00/ea3f71fb6177a4d492cc09405f85a67abeb2ba
+- .git/objects/02/f0227b503852e39b1341c5949b11013f45771d
+- .git/objects/03/9fc9d1c037aee328e83752ed63a6c6c4b21402
+- .git/objects/04/81f2fb1fa8afb2536aae560f4656fa760acfed
+- .git/objects/06/757d0bb9eae49a8dbd90db90c2be4b7e905a5a
+- .git/objects/07/a7ad07b4464b95d664f21b2e3714d55e977676
+- .git/objects/09/5ac275a67652c82ce45a7707b4ef33868be142
+- .git/objects/09/6be344c248f46cb57fd6f96b2f7724d65db1e0
+- .git/objects/0b/2d5badd426a6446f0d065fe92c6d484f15d1dd
+- .git/objects/0b/9847885e20d6021f2f11ce538d4a3c2538d66c
+- .git/objects/0b/e34593fe5cff7023009f2fb9ab4269a4c86879
+- .git/objects/0d/db4a584bf090433a5f37cba829686bcc8db342
+- .git/objects/0e/a5758dfcbd5140475f18678b569ec4a86f18b8
+- .git/objects/0f/d92e46d4648872ecb4ee01925a1755c1ad3b2e
+- .git/objects/11/dc217c8e46faa030ebe8686cbbf30ccd972d56
+- .git/objects/12/8f1b34a8962bf7e77cba5472baf323f6b67f3b
+- .git/objects/13/a811d3128970f3a4f3837330d99a455f5a2386
+- .git/objects/15/0e810a8c443d89f297d795d29805492a773c86
+- .git/objects/15/749969d47c49c517833de70e281f61ac9fbc22
+- .git/objects/15/aa69d82c0948118e2c080f56d27ce3b73a71ca
+- .git/objects/16/82c1f1c3101c7d5f7ab740e930f47257c1852c
+- .git/objects/1b/53c0ca45d3c949cf620e51b1e9cd52344cf681
+- .git/objects/1f/631aa3af793bda783e27c93c8eb3eda7fe108f
+- .git/objects/22/bfb706b3b6d62f5ffb81c951c6e9cd7cd5e219
+- .git/objects/24/407070423c93175df24b168bffd9ec471b5cd4
+- .git/objects/26/20a1fde94823cfd1934d249db1a5b211b81dfe
+- .git/objects/27/548d42f5691ed0fbf87e5364399992b42016a6
+- .git/objects/28/2c981c0da21652ca361190eceb217283c36125
+- .git/objects/29/c5b94f81eea1db798a19140f0e4d2899fefa75
+- .git/objects/29/cbf58db82854a903bf5362f3b08ca0da0e5afa
+- .git/objects/2b/0c25d32614fd2dbeed6fa956f56d414777de7d
+- .git/objects/2d/0772a3081683f7dadb5d05207677f0e14eaee5
+- .git/objects/2e/6d44bfbcbcd7e839d087b2a35a67ea42af9df6
+- .git/objects/2e/89faad157502af68cfa0f00dee8e146ac38052
+- .git/objects/31/da5cf295acb6959f1176be75ae579d7d21db00
+- .git/objects/37/57e8da55a1b2bd306311c855516b1304eded2f
+- .git/objects/3b/701d6006430e12981ca39cc23ee48e60f05f83
+- .git/objects/3e/06a64fc5d95f9d8fc3c37186170aa655b73219
+- .git/objects/42/3d3fa747c61aa34c6a80340d62c6c025a4375e
+- .git/objects/43/59c054d005918be917468d8296e90689029355
+- .git/objects/43/703b2924f87f17437f0035b25340440dfa4dc2
+- .git/objects/44/2c90440706fc5c930cbe66ee3d0f98b5e06259
+- .git/objects/44/e058152e09f88e8bf5d085559e491588c52c7a
+- .git/objects/44/fc4cd08c7c355d4504633d0660614eb39ddd4a
+- .git/objects/45/c4491c366912ed15df2f098d7bc6e171330a0e
+- .git/objects/45/d6ef2ff16ea57147f02d956578fc2c2497cac8
+- .git/objects/45/d756f4d8775d5f4cbe80aa2217ca20394d8339
+- .git/objects/46/2a66a5c70902c3b856f416619a5e932afbc116
+- .git/objects/47/fbbcfeecaed649693b731dc1e15caee956764b
+- .git/objects/48/7a78aecac18b590439e17b1ca01ac722ce1558
+- .git/objects/4a/48cc5167c9dd55d5cca5240e8d490b40a2aea5
+- .git/objects/4d/bde1317d53b3973a22eb174165a530eccc2d1e
+- .git/objects/4d/d587396cdc1641d6b589cb66e5fdb47eca57de
+- .git/objects/51/da8072775639a6be2b85bb336ef0384cacd473
+- .git/objects/52/901f9de9a9d73e00636bc1b2840875f3e8ea8a
+- .git/objects/54/5990c515fd4b28f893ce450c9e83d1c4b61b59
+- .git/objects/55/4335405111134ea682a8d295019b28f68a0e13
+- .git/objects/55/8448e8fbee68dba58b3f5ee17d6e613359c4db
+- .git/objects/62/9bbf2cbf195929af88b156120b0c8a367111e8
+- .git/objects/63/3fc6fd835c8ab49573daa801fb11b85528c6cf
+- .git/objects/67/7825a69e850a4b6a70665197902e1a4a925fa4
+- .git/objects/67/8f0d299e10bcdc20a4f70c76a1b4e75da2dae1
+- .git/objects/6b/5c402cbca4df961db3f430d034432f61306185
+- .git/objects/6b/b25ca5f1280621e5c7feca3178f02d8fe30301
+- .git/objects/6c/a061d4bc6aed26de355ceea10cdab1724c4a18
+- .git/objects/6d/a0b73b8f387b5f091ec44344c2ccf72bd35919
+- .git/objects/6e/2ce42c1744035b07a25fee4c524eaaf83c62aa
+- .git/objects/71/0ceb48bfc8720137c9bd0199e2dfd983660f7b
+- .git/objects/71/708702001e452cc815f2dfb395a5a27046d013
+- .git/objects/71/d17366678882ee95500516f0ffea1ed47953a0
+- .git/objects/72/6c46d98deb18b4d15f36d2c6ae873431a4d529
+- .git/objects/74/776fd71d357cfb9e63170fc7f42780b69f0e8a
+- .git/objects/74/a7e9dd697e0b18bb903811f76c14f504ef20cf
+- .git/objects/77/59714158dbf6f543e76e198bdec0156695136c
+- .git/objects/78/072212f887cb16889c80188687f66e5f670bdf
+- .git/objects/78/c941f17440b1df493008f68c69488326437763
+- .git/objects/79/84032ee70fc3cd2cfb21c61df4973938726dca
+- .git/objects/79/b0afde273b2d3fd1b45f15d465a1866d69f603
+- .git/objects/7b/cb380224a648ed69efdca7f1e0d7fed8ca6c47
+- .git/objects/7d/ce115d3009a5c1f9962fb416cd5b47b8910705
+- .git/objects/7e/f90805d4028a26b1c7983af38ecc63c02b16c8
+- .git/objects/82/465f11f2d383ee9c33313518db46061095f300
+- .git/objects/82/99b0ef41ad386b9379f5bcc9cd2473f269dfd7
+- .git/objects/83/919fc213bd3c7248fcae83bb1e3676841d3f9d
+- .git/objects/85/6c23d59d310271306c7c7d2221d958c01f1c86
+- .git/objects/86/dd5e4dfd549f682f4670a571ed621acffba22c
+- .git/objects/87/319b8a6e20b4e45c5eeb99c583ff5d7dfae33c
+- .git/objects/87/5cd17f81bc43ea1893215004030505d3e0c4e0
+- .git/objects/88/8f75856fa2daa0256b0fa763689904c226f10d
+- .git/objects/88/fb222dafe17d3006592016c0a614b0a9fcd1b1
+- .git/objects/93/0949a0dbc5b42cc383dcccb717f6d9dfabc352
+- .git/objects/97/e95ec22ec699a2da04cdf454c8d1d3617fc4d4
+- .git/objects/98/8d47cda4a64c0c23919370559490cf83219625
+- .git/objects/9a/1148e1dd9af15739d4264557831f54e50efd9d
+- .git/objects/9a/9c9716e5a4cd8bc81025823c885a64242278ae
+- .git/objects/9c/5c77ec01aaa9afcdde47c6646ca06f2e89c8c8
+- .git/objects/a0/450d12dbbbd00c3812ab25799c866bddd47253
+- .git/objects/a0/c4850331aaf17ec1a7312f2bf266d1fc2f31e7
+- .git/objects/a1/473dbbec0c15c27e1910a85d5982dd17370c2d
+- .git/objects/a2/507d59b71ba47ce07e6ed24c452bb5e57c821b
+- .git/objects/a3/333223433f6518a609229f5c5d91fa35ec9314
+- .git/objects/a4/bf07995f00ff9cbde83be8c593293ab81911ed
+- .git/objects/a6/7a92296e8308c73a489f38474fb0f6541a44d0
+- .git/objects/a7/4947f75831a69a9ecdb9c479ea32111548afc8
+- .git/objects/a8/cc7b91b3c150f26be7fe5bd79d9093f209431e
+- .git/objects/a8/ceb450198d5626022ab0aa5fdfbcd347b062d3
+- .git/objects/ac/680bcf4559a851cbe2b55152538b499922149c
+- .git/objects/ad/a423af32bbfa1f37554d3dc559ca9928ffbc6b
+- .git/objects/ae/4bee7fbb553cf6fcad66ca2bffa88853163f89
+- .git/objects/b0/4c52b9214d0c7f50e8d858c9fe913c535c3867
+- .git/objects/b4/307bb1ddfa47ce6cc0c2ad0b61010955f5ae54
+- .git/objects/b4/431a775774ad5abb03ae06d95a6acdd5342d33
+- .git/objects/b7/ab7dd003e8b968f7f6849cd8ae2fb7dc8d39c3
+- .git/objects/b9/402fafcb47414fb22f9a82b7860992b3af5d22
+- .git/objects/ba/c49a0f62000a406d43682a8d88e757f8633f78
+- .git/objects/ba/d333749186a86843c1668633da955c2a83beb6
+- .git/objects/bb/34ba8006341aa795080f0fe6c9dc327c1caf3a
+- .git/objects/be/3dca800427cbf374086e36116cca4fdf16aab5
+- .git/objects/bf/9a69ef3257c739f0a6b78d70237117144d1cea
+- .git/objects/c0/2269daa34f584bb4f5925f5f6d02ed98184724
+- .git/objects/c3/b5168102f99b603ce827e92959fa99f0d62f86
+- .git/objects/c4/eb035968a017ef600bd1fcc061da31a1a85a1a
+- .git/objects/c8/e34bbe3d3fdfb200b12b4a56a93ded2fd37280
+- .git/objects/ca/cfec4f0259679c9a2a8a7307d594e5090e4cf1
+- .git/objects/cb/8652dcd434bbfaee845920db136a9aa701695d
+- .git/objects/cb/dd280dfe1e377c4e7cbac728e02c80227598a8
+- .git/objects/ce/827d899e98208bdbeb2f3e297636eba4cbcacf
+- .git/objects/ce/f2c78112d62f45b6fac0647922506a5009b1b0
+- .git/objects/d2/53bc452040952d9ff0a1459dfa2858d8831410
+- .git/objects/d2/7d85a7404d90b659ffcee350ba7b68d42dffa9
+- .git/objects/d3/5a6ac6c0f568e742335fa66fe99f3101554d16
+- .git/objects/d3/efc1d76ee9bd2105e114e9ccdd02a7b9fd023e
+- .git/objects/d4/b54634c550d7aa790ac95c8ee6a4654065da5b
+- .git/objects/d6/098190361fe7f8913107a7fa88fe90e91e4e6d
+- .git/objects/d6/becdf128d7c527c91e471b90e9b1998957d656
+- .git/objects/d6/f64f67f762353547f3deb5fc1d05f42c8d82bc
+- .git/objects/d8/a91c3f998074dc4b976f827254ab9a26306099
+- .git/objects/db/2eb634c5fe86898e59e14b6ceaa689071b41b6
+- .git/objects/db/6259e8c9cea2e2d5cd4dc23fcadca74c15b95a
+- .git/objects/db/6acf4139b4752ea1fe3fde06da5cf37aebb567
+- .git/objects/db/e497f6af22adeda271e1835eeaa6ab84fa70a5
+- .git/objects/dd/084243241077afb9185c573c954a140c94286e
+- .git/objects/dd/cb4ebbc5bd4cf8e3d5aa63bd5edf6117ffc009
+- .git/objects/de/51f69a9a074037fb0cb9084f0660b3fad4192d
+- .git/objects/df/91308a4d966a739dd30a67b05a79d568406908
+- .git/objects/df/9e2f6f75145a8ef81525e9bd6ae2b2d21b55ad
+- .git/objects/e0/c83094645320e1e31135779cc53d3dc7216eb1
+- .git/objects/e4/577751cb6288ba5089b67db145d5a79eb5ff58
+- .git/objects/e9/f826b1436f760bddae7a41f80432a3e042938b
+- .git/objects/ec/5b50d29ad137cbc17cff17d02459e5a1772dce
+- .git/objects/ef/a4f109d0880937e6e1923b801094549877918c
+- .git/objects/f1/02a1663f1b5d30bdcc97f5b155787e090c9a5a
+- .git/objects/f2/9b3f6a2bde9927ff081a957598ba17289bbbb2
+- .git/objects/f4/b9baa77385ee1fcc1029a1eba95459ca4f6b71
+- .git/objects/f6/131c2be4dc9ce4c32dcc1c6dc8e28c625b7e77
+- .git/objects/f6/ebdbeaa7e0897abc0fafbe3543a5375576046d
+- .git/objects/f8/d51153278f8561110c342612cc6e8c4359933a
+- .git/objects/f9/f18c0370e4cda4ad0ebae92cfc3358309ca3e7
+- .git/objects/fa/9f9aa93802bde64be068652f55377dffae1c39
+- .git/objects/fc/153bbd088a14835f10182707f1d77a4f710142
+- .git/objects/fc/4315354af7853a7e649c76acbe627677f7c276
+- .git/objects/fe/84704b14d316a9036b89babcb682a7362ce6c3
+- .git/objects/info/commit-graphs/commit-graph-chain
+- .git/objects/info/commit-graphs/graph-126fb5c3e9b40f79322ee2ba43c7599e2bdf58e0.graph
+- .git/objects/info/packs
+- .git/objects/pack/multi-pack-index
+- .git/objects/pack/pack-7e027898253224be49cc4f1d232592a0850d1a5e.idx
+- .git/objects/pack/pack-7e027898253224be49cc4f1d232592a0850d1a5e.pack
+- .git/objects/pack/pack-7e027898253224be49cc4f1d232592a0850d1a5e.rev
+- .git/objects/pack/pack-c81a47c6c449faef1f77a76ac95731031be814e1.idx
+- .git/objects/pack/pack-c81a47c6c449faef1f77a76ac95731031be814e1.pack
+- .git/objects/pack/pack-c81a47c6c449faef1f77a76ac95731031be814e1.rev
+- .git/objects/pack/pack-f2d15474dada7f6d2f068b95a17f0a9b5a2fd9f6.idx
+- .git/objects/pack/pack-f2d15474dada7f6d2f068b95a17f0a9b5a2fd9f6.mtimes
+- .git/objects/pack/pack-f2d15474dada7f6d2f068b95a17f0a9b5a2fd9f6.pack
+- .git/objects/pack/pack-f2d15474dada7f6d2f068b95a17f0a9b5a2fd9f6.rev
+- .git/refs/heads/main
+- .git/refs/remotes/origin/HEAD
+- .git/refs/remotes/origin/cloudflare/workers-autoconfig
+- .git/refs/remotes/origin/main
+- .gitignore
+- Admin Portal CRM NexFund/Admin-Portal-Launch.html.bak-20260610-153851
+- Admin Portal CRM NexFund/Admin-Portal-Launch.html.bak-remaining-20260610-200347
+- Admin Portal CRM NexFund/Employee-management.html.bak-20260610-153851
+- Admin Portal CRM NexFund/attendence-chart.html
+- Admin Portal CRM NexFund/employee-add.html.bak-20260610-153851
+- Admin Portal CRM NexFund/employee-add.html.bak-remaining-20260610-200347
+- Admin Portal CRM NexFund/employee-add.html.dob-password-fix.bak
+- Admin Portal CRM NexFund/employee-joining-form.html.bak-20260610-153851
+- Admin Portal CRM NexFund/employee-joining-form.html.bak-drive-docs-20260610161018
+- Admin Portal CRM NexFund/employee-joining-form.html.bak-google-sheets-20260610-211712
+- Admin Portal CRM NexFund/employee-joining-form.html.bak-public-form-20260610-200001
+- Admin Portal CRM NexFund/employee-joining-form.html.bak-remaining-20260610-200347
+- Admin Portal CRM NexFund/hrms-portal.html.bak-20260610-153851
+- Admin Portal CRM NexFund/mis.html.bak-20260610-153851
+- Admin Portal CRM NexFund/mis.html.mis-stats-month-fix.bak
+- Admin Portal CRM NexFund/payslip.html.bak-20260610-153851
+- Admin Portal CRM NexFund/payslip.html.bak-remaining-20260610-200347
+- Admin Portal CRM NexFund/portal-settings.html.bak-20260610-153851
+- Admin Portal CRM NexFund/portal-settings.html.bak-authfix-20260611-020921
+- Admin Portal CRM NexFund/portal-settings.html.bak-remaining-20260610-200347
+- Admin Portal CRM NexFund/portal-settings.html.dob-password-fix.bak
+- Admin Portal CRM NexFund/portal-settings.html.login-fix.bak
+- Admin Portal CRM NexFund/vault.html.bak-20260610-153851
+- Admin Portal CRM NexFund/vault.html.bak-drive-docs-20260610161018
+- Admin Portal CRM NexFund/vault.html.bak-remaining-20260610-200347
+- BT-Calc.html.bak-rn-20260610-195553
+- Bank Company Check Tool's/Bank-Cat-checker-live.html.bak-rn-20260610-195553
+- EMI-Calc.html.bak-rn-20260610-195553
+- FRP List/FPR-list.html.bak-rn-20260610-195553
+- Fixed/dashboard.html
+- Fixed/detailsheet.html
+- Fixed/lead-view.html
+- Fixed/leads.html
+- Fixed/mis.html
+- Fixed/obligation.html
+- Fixed/reports.html
+- Launch-page.html.admin-employee-access.bak
+- Launch-page.html.bak-20260610-153851
+- Launch-page.html.bak-remaining-20260610-200347
+- Od-Calc.html.bak-rn-20260610-195553
+- Pincode Tool's/pincode-india-live.html.bak-rn-20260610-195553
+- Pincode Tool's/pincode-india.html.bak-20260519-relevance
+- bankcat-backend/uvicorn-bankcat.err.log
+- bankcat-backend/uvicorn-bankcat.out.log
+- eligibility-calc.html.bak-rn-20260610-195553
+- index.html.bak-20260610-153851
+- index.html.bak-authfix-20260611-020921
+- index.html.bak-css-prefix-20260611-021845
+- index.html.bak-login-unblock-20260611-022854
+- index.html.bak-remaining-20260610-200347
+- index.html.dob-password-fix.bak
+- index.html.login-fix.bak
+- index.html.reset-login-fix.bak
+- nexcrm-firebase-sync-v2.js
+- nexcrm-firebase-sync-v2.js.bak-no-reload-20260610-200245
+- nexcrm-firebase-sync-v3.js
+- nexcrm-firebase-sync-v3.js.bak-authfix-20260611-020921
+- nexcrm-firebase-sync-v3.js.bak-public-joining-20260610-195825
+- nexcrm-firebase-sync-v3.js.bak-remaining-20260610-200347
+- nexcrm-firebase-sync-v3.js.header-name-fix.bak
+- nexcrm-firebase-sync.js
+- nexcrm-firebase-sync.js.bak-no-reload-20260610-200245
+- nexcrm-form-autosave.js.bak-20260610-153851
+- pincode-backend/uvicorn-pincode.log
+- .git/

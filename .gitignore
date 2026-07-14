@@ -1,0 +1,10 @@
+**/.firebase/
+**/__pycache__/
+*.py[cod]
+*.log
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db

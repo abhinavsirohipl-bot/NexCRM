@@ -1,0 +1,435 @@
+
+/**
+ * NexCRM CIBIL Google Sheet Backend Script
+ * Paste this code in Google Sheets > Extensions > Apps Script.
+ * Then reload the Google Sheet. You will see menu: NexCRM CIBIL.
+ */
+
+const SHEET_ENTRY = 'Quick_Entry';
+const SHEET_EMP = 'Employee_Master';
+const SHEET_LEAD = 'Lead_Master';
+const SHEET_BACKEND = 'Obligation_Sheet';
+
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu('NexCRM CIBIL')
+      .addItem('Generate New Lead ID', 'generateNewLeadId')
+      .addItem('Load Existing Lead', 'loadExistingLead')
+      .addSeparator()
+      .addItem('Save Quick Entry to Backend', 'saveQuickEntryToBackend')
+      .addItem('Clear Quick Entry', 'clearQuickEntry')
+      .addToUi();
+  } catch (err) {
+    console.log('NexCRM CIBIL menu is available only when this script is opened from the Google Sheet UI. Web app endpoints still work.');
+  }
+}
+
+function generateNewLeadId() {
+  const ss = SpreadsheetApp.getActive();
+  const entry = ss.getSheetByName(SHEET_ENTRY);
+  const newId = getNextLeadId_(ss);
+  entry.getRange('B5').setValue('Create New Lead');
+  entry.getRange('L5').setValue(newId);
+  entry.getRange('J5').setValue(newId);
+  SpreadsheetApp.getUi().alert('New Lead ID generated: ' + newId);
+}
+
+function saveQuickEntryToBackend() {
+  const ss = SpreadsheetApp.getActive();
+  const entry = ss.getSheetByName(SHEET_ENTRY);
+  const backend = ss.getSheetByName(SHEET_BACKEND);
+
+  const mode = String(entry.getRange('B5').getValue() || '').trim();
+  const employeeId = String(entry.getRange('D5').getValue() || '').trim();
+  let employeeName = String(entry.getRange('F5').getValue() || '').trim();
+  let leadId = String(entry.getRange('J5').getValue() || '').trim();
+
+  if (!employeeId) return SpreadsheetApp.getUi().alert('Employee ID required hai.');
+  if (!employeeName) employeeName = getEmployeeName_(ss, employeeId);
+
+  if (mode === 'Create New Lead' && !leadId) {
+    leadId = getNextLeadId_(ss);
+    entry.getRange('J5').setValue(leadId);
+    entry.getRange('L5').setValue(leadId);
+  }
+
+  const customer = {
+    leadId: leadId,
+    employeeId: employeeId,
+    employeeName: employeeName,
+    customerName: String(entry.getRange('B9').getValue() || '').trim(),
+    mobile: String(entry.getRange('B10').getValue() || '').trim(),
+    city: String(entry.getRange('B11').getValue() || '').trim(),
+    pincode: String(entry.getRange('B12').getValue() || '').trim(),
+    panNo: String(entry.getRange('B13').getValue() || '').trim().toUpperCase(),
+    dob: entry.getRange('B14').getValue(),
+    netSalary: entry.getRange('E9').getValue(),
+    companyName: String(entry.getRange('E10').getValue() || '').trim(),
+    cibilScore: entry.getRange('E11').getValue(),
+    bankName: String(entry.getRange('E12').getValue() || '').trim(),
+    plScore: entry.getRange('E13').getValue(),
+    segment: String(entry.getRange('E14').getValue() || '').trim(),
+    enquiryDetails: String(entry.getRange('E15').getValue() || '').trim()
+  };
+
+  if (!customer.leadId) return SpreadsheetApp.getUi().alert('Lead ID required hai.');
+  if (!customer.customerName) return SpreadsheetApp.getUi().alert('Customer Name required hai.');
+  if (!customer.panNo) return SpreadsheetApp.getUi().alert('PAN No required hai.');
+
+  const rows = entry.getRange('A21:M100').getValues();
+  const finalRows = [];
+  const now = new Date();
+
+  rows.forEach(function(r) {
+    const accountType = String(r[1] || '').trim();
+    if (!accountType) return;
+
+    const dpd = String(r[2] || '').trim();
+    const ownership = String(r[3] || '').trim();
+    const loanAmount = toNumber_(r[4]);
+    const balance = toNumber_(r[5]);
+    const overdue = toNumber_(r[6]);
+    const emi = toNumber_(r[7]);
+    const loanBank = String(r[8] || '').trim();
+    const startDate = r[9];
+    const remarks = String(r[10] || '').trim();
+    const obligationFlag = remarks === 'Obligate' ? 'Yes' : 'No';
+    const btFlag = remarks === 'BT' ? 'Yes' : 'No';
+
+    finalRows.push([
+      makeRecordId_(),
+      customer.leadId,
+      customer.employeeId,
+      customer.employeeName,
+      customer.customerName,
+      customer.mobile,
+      customer.city,
+      customer.pincode,
+      customer.panNo,
+      customer.dob,
+      customer.netSalary,
+      customer.companyName,
+      customer.cibilScore,
+      customer.bankName,
+      customer.plScore,
+      customer.segment,
+      customer.enquiryDetails,
+      accountType,
+      dpd,
+      ownership,
+      loanAmount,
+      balance,
+      overdue,
+      emi,
+      loanBank,
+      startDate,
+      remarks,
+      obligationFlag,
+      btFlag,
+      now,
+      now
+    ]);
+  });
+
+  if (!finalRows.length) return SpreadsheetApp.getUi().alert('At least one obligation row required hai.');
+
+  upsertLeadMaster_(ss, customer);
+  deleteBackendRowsForLead_(backend, customer.leadId);
+
+  backend.getRange(backend.getLastRow() + 1, 1, finalRows.length, finalRows[0].length).setValues(finalRows);
+  SpreadsheetApp.getUi().alert('Saved successfully: ' + customer.customerName + ' - ' + customer.leadId + '\nRows saved: ' + finalRows.length);
+}
+
+function loadExistingLead() {
+  const ss = SpreadsheetApp.getActive();
+  const entry = ss.getSheetByName(SHEET_ENTRY);
+  const backend = ss.getSheetByName(SHEET_BACKEND);
+  const lead = ss.getSheetByName(SHEET_LEAD);
+
+  let leadId = String(entry.getRange('J5').getValue() || '').trim();
+  const leadDisplay = String(entry.getRange('H5').getValue() || '').trim();
+  if (!leadId && leadDisplay.indexOf(' - ') > -1) {
+    leadId = leadDisplay.split(' - ').pop().trim();
+  }
+  if (!leadId) return SpreadsheetApp.getUi().alert('Existing Lead select karein.');
+
+  const data = backend.getDataRange().getValues();
+  const matches = data.slice(1).filter(function(r) { return String(r[1]).trim() === leadId; });
+
+  if (!matches.length) {
+    SpreadsheetApp.getUi().alert('Obligation_Sheet me is Lead ID ka data nahi mila: ' + leadId);
+    return;
+  }
+
+  const first = matches[0];
+  entry.getRange('B5').setValue('Existing Lead');
+  entry.getRange('D5').setValue(first[2]);
+  entry.getRange('F5').setValue(first[3]);
+  entry.getRange('H5').setValue(first[4] + ' - ' + first[1]);
+  entry.getRange('J5').setValue(first[1]);
+
+  // Ensure Lead Master has this lead.
+  upsertLeadMaster_(ss, {
+    leadId: first[1], employeeId: first[2], employeeName: first[3], customerName: first[4],
+    mobile: first[5], city: first[6], pincode: first[7], panNo: first[8], dob: first[9],
+    netSalary: first[10], companyName: first[11], cibilScore: first[12], bankName: first[13],
+    plScore: first[14], segment: first[15], enquiryDetails: first[16]
+  });
+
+  // Clear old rows and load obligations.
+  entry.getRange('A21:M100').clearContent();
+  const out = matches.map(function(r) {
+    return [
+      'Loaded',
+      r[17],
+      r[18],
+      r[19],
+      r[20],
+      r[21],
+      r[22],
+      r[23],
+      r[24],
+      r[25],
+      r[26],
+      r[27],
+      r[28]
+    ];
+  });
+  entry.getRange(21, 1, out.length, out[0].length).setValues(out);
+  SpreadsheetApp.getUi().alert('Loaded: ' + first[4] + ' - ' + first[1] + '\nRows loaded: ' + out.length);
+}
+
+function clearQuickEntry() {
+  const ss = SpreadsheetApp.getActive();
+  const entry = ss.getSheetByName(SHEET_ENTRY);
+
+  entry.getRange('B5').setValue('Create New Lead');
+  entry.getRange('D5').clearContent();
+  entry.getRange('H5').clearContent();
+  entry.getRange('J5').clearContent();
+  entry.getRange('L5').clearContent();
+
+  entry.getRange('C9:C15').clearContent();
+  entry.getRange('F9:F15').clearContent();
+  entry.getRange('A21:M100').clearContent();
+
+  SpreadsheetApp.getUi().alert('Quick Entry cleared. New customer details fill karein.');
+}
+
+function upsertLeadMaster_(ss, customer) {
+  const lead = ss.getSheetByName(SHEET_LEAD);
+  const lastRow = Math.max(lead.getLastRow(), 1);
+  const leadIds = lastRow > 1 ? lead.getRange(2, 1, lastRow - 1, 1).getValues().flat().map(String) : [];
+  const idx = leadIds.indexOf(String(customer.leadId));
+
+  const row = [
+    customer.leadId,
+    'Existing Lead',
+    customer.employeeId,
+    customer.employeeName,
+    customer.customerName,
+    customer.mobile,
+    customer.city,
+    customer.pincode,
+    customer.panNo,
+    customer.dob,
+    customer.netSalary,
+    customer.companyName,
+    customer.cibilScore,
+    customer.bankName,
+    customer.plScore,
+    customer.segment,
+    customer.enquiryDetails,
+    new Date(),
+    customer.customerName + ' - ' + customer.leadId
+  ];
+
+  if (idx >= 0) {
+    lead.getRange(idx + 2, 1, 1, row.length).setValues([row]);
+  } else {
+    lead.getRange(lead.getLastRow() + 1, 1, 1, row.length).setValues([row]);
+  }
+}
+
+function deleteBackendRowsForLead_(backend, leadId) {
+  const lastRow = backend.getLastRow();
+  if (lastRow <= 1) return;
+  const values = backend.getRange(2, 2, lastRow - 1, 1).getValues();
+  for (let i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][0]).trim() === String(leadId).trim()) {
+      backend.deleteRow(i + 2);
+    }
+  }
+}
+
+function getNextLeadId_(ss) {
+  const prefix = 'NXC' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyMM');
+  let maxNo = 0;
+
+  const lead = ss.getSheetByName(SHEET_LEAD);
+  const backend = ss.getSheetByName(SHEET_BACKEND);
+
+  [lead.getRange('A2:A' + Math.max(lead.getLastRow(), 2)).getValues().flat(),
+   backend.getRange('B2:B' + Math.max(backend.getLastRow(), 2)).getValues().flat()
+  ].forEach(function(arr) {
+    arr.forEach(function(v) {
+      const id = String(v || '').trim();
+      if (id.indexOf(prefix) === 0) {
+        const no = Number(id.replace(prefix, ''));
+        if (!isNaN(no)) maxNo = Math.max(maxNo, no);
+      }
+    });
+  });
+
+  return prefix + String(maxNo + 1).padStart(4, '0');
+}
+
+function getEmployeeName_(ss, employeeId) {
+  const emp = ss.getSheetByName(SHEET_EMP);
+  const rows = emp.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).trim() === String(employeeId).trim()) return rows[i][1];
+  }
+  return '';
+}
+
+function makeRecordId_() {
+  return 'REC' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMddHHmmss') + Math.floor(Math.random() * 1000);
+}
+
+function toNumber_(v) {
+  if (typeof v === 'number') return v;
+  if (!v) return 0;
+  return Number(String(v).replace(/,/g, '').replace(/[₹\s]/g, '')) || 0;
+}
+
+/** Portal web endpoint for NexCRM obligation.html and leads.html */
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActive();
+    const sheetName = String((e && e.parameter && e.parameter.sheetName) || SHEET_BACKEND).trim();
+    const sh = ss.getSheetByName(sheetName);
+    if (!sh) return webOutput_(e, { ok:false, message:'Sheet not found: ' + sheetName, data:[] });
+    return webOutput_(e, { ok:true, sheetName:sheetName, data:sheetRowsAsObjects_(sh) });
+  } catch (err) {
+    return webOutput_(e, { ok:false, message:String(err), data:[] });
+  }
+}
+
+function doPost(e) {
+  try {
+    const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    const action = String(body.action || '').trim();
+    const sheetName = String(body.sheetName || body.tab || (action === 'leadSubmit' ? SHEET_LEAD : SHEET_BACKEND)).trim();
+    const ss = SpreadsheetApp.getActive();
+    const sh = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
+    if (action === 'leadSubmit') {
+      const row = normalizeLeadPayload_(body.data || body.lead || body);
+      upsertByKey_(sh, 'Lead ID', row);
+      return jsonOutput_({ ok:true, saved:1, sheetName:sheetName });
+    }
+    const rows = Array.isArray(body.data) ? body.data : (body.data ? [body.data] : (body.rows || []));
+    if (!rows.length) return jsonOutput_({ ok:false, message:'No rows received.', saved:0 });
+    appendObjects_(sh, rows);
+    return jsonOutput_({ ok:true, saved:rows.length, sheetName:sheetName });
+  } catch (err) {
+    return jsonOutput_({ ok:false, message:String(err), saved:0 });
+  }
+}
+
+function jsonOutput_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function webOutput_(e, obj) {
+  const callback = String((e && e.parameter && e.parameter.callback) || '').trim();
+  if (callback) {
+    return ContentService.createTextOutput(callback + '(' + JSON.stringify(obj) + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return jsonOutput_(obj);
+}
+
+
+function sheetRowsAsObjects_(sh) {
+  const values = sh.getDataRange().getValues();
+  if (!values.length) return [];
+  const headers = values.shift().map(String);
+  return values.filter(function(r){ return r.some(function(v){ return v !== '' && v != null; }); }).map(function(r){
+    const obj = {};
+    headers.forEach(function(h,i){ obj[h] = r[i]; });
+    return obj;
+  });
+}
+
+function ensureHeaders_(sh, headers) {
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    return headers;
+  }
+  const lastCol = Math.max(sh.getLastColumn(), headers.length);
+  const current = sh.getRange(1,1,1,lastCol).getValues()[0].map(String);
+  headers.forEach(function(h){ if (current.indexOf(h) === -1) current.push(h); });
+  sh.getRange(1,1,1,current.length).setValues([current]);
+  return current;
+}
+
+function appendObjects_(sh, rows) {
+  const preferred = ['Record ID','Lead ID','Employee ID','Employee Name','Customer Name','Mobile','City','Pincode','PAN No','DOB','Net Salary','Company Name','CIBIL Score','Customer Bank Name','PL Score','Segment','Enquiry Details','Account Type','DPD','Ownership','Loan Amount','Balance','Overdue','EMI','Loan Bank','Start Date',"Remark's",'Obligation Flag','BT POS Flag','Created At','LAN No'];
+  const dynamic = [];
+  rows.forEach(function(row){ Object.keys(row || {}).forEach(function(k){ if (preferred.indexOf(k) === -1 && dynamic.indexOf(k) === -1) dynamic.push(k); }); });
+  const headers = ensureHeaders_(sh, preferred.concat(dynamic));
+  const output = rows.map(function(row){ return headers.map(function(h){ return valueByAliases_(row, h); }); });
+  sh.getRange(sh.getLastRow()+1,1,output.length,headers.length).setValues(output);
+}
+
+function valueByAliases_(row, header) {
+  const aliases = {
+    'Record ID':['Record ID','recordId'], 'Lead ID':['Lead ID','leadId'], 'Employee ID':['Employee ID','employeeId'], 'Employee Name':['Employee Name','employeeName'],
+    'Customer Name':['Customer Name','customerName'], 'Mobile':['Mobile','Mobile No','mobileNo'], 'PAN No':['PAN No','panNo','Pan No'],
+    'Customer Bank Name':['Customer Bank Name','Profile Bank Name','bankName'], 'Loan Bank':['Loan Bank','Bank','bank'], "Remark's":["Remark's",'Remarks','remarks'],
+    'Created At':['Created At','Updated At','Timestamp'], 'LAN No':['LAN No','lanNo','LAN']
+  };
+  const keys = aliases[header] || [header];
+  for (var i=0; i<keys.length; i++) if (row && row[keys[i]] != null) return row[keys[i]];
+  return '';
+}
+
+function normalizeLeadPayload_(lead) {
+  return {
+    'Lead ID': valueByAliases_(lead,'Lead ID'),
+    'Lead Status': lead['Lead Status'] || lead.status || lead.disposition || 'Existing Lead',
+    'Employee ID': valueByAliases_(lead,'Employee ID'),
+    'Employee Name': valueByAliases_(lead,'Employee Name'),
+    'Customer Name': valueByAliases_(lead,'Customer Name'),
+    'Mobile': valueByAliases_(lead,'Mobile'),
+    'City': lead.City || lead.city || '',
+    'Pincode': lead.Pincode || lead.pincode || '',
+    'PAN No': valueByAliases_(lead,'PAN No'),
+    'DOB': lead.DOB || lead.dob || '',
+    'Net Salary': lead['Net Salary'] || lead.salary || lead.netSalary || '',
+    'Company Name': lead['Company Name'] || lead.companyName || '',
+    'CIBIL Score': lead['CIBIL Score'] || lead.cibilScore || '',
+    'Bank Name': lead['Bank Name'] || lead.bank || lead.bankName || '',
+    'PL Score': lead['PL Score'] || lead.plScore || '',
+    'Segment': lead.Segment || lead.segment || '',
+    'Enquiry Details': lead['Enquiry Details'] || lead.enquiryDetails || '',
+    'Created At': lead['Created At'] || lead.createdAt || lead.updatedAt || new Date(),
+    'Lead Display': (valueByAliases_(lead,'Customer Name') + ' - ' + valueByAliases_(lead,'Lead ID')).trim()
+  };
+}
+
+function upsertByKey_(sh, keyHeader, row) {
+  const headers = ensureHeaders_(sh, Object.keys(row));
+  const keyIndex = headers.indexOf(keyHeader);
+  const keyValue = row[keyHeader];
+  if (keyIndex < 0 || !keyValue || sh.getLastRow() < 2) {
+    appendObjects_(sh, [row]);
+    return;
+  }
+  const keys = sh.getRange(2, keyIndex+1, sh.getLastRow()-1, 1).getValues().flat().map(String);
+  const found = keys.findIndex(function(v){ return v === String(keyValue); });
+  const output = headers.map(function(h){ return row[h] != null ? row[h] : ''; });
+  if (found >= 0) sh.getRange(found+2,1,1,headers.length).setValues([output]);
+  else sh.getRange(sh.getLastRow()+1,1,1,headers.length).setValues([output]);
+}

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- NexCRM canonical Firebase Realtime Database stack -->
+<script src="Others Files/firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script>
+<script src="Others Files/nexcrm-realtime-database.js"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NexCRM | Login</title>
+<link href="Meterial/tab.png" rel="icon" type="image/png"/>
+<link href="Meterial/tab.png" rel="shortcut icon" type="image/png"/>
+<link href="Meterial/tab.png" rel="apple-touch-icon"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<link href="nexcrm-mobile-compact.css" rel="stylesheet"/>
+<style>
+
+:root{
+  --font:Calibri,Inter,Segoe UI,Arial,sans-serif;
+  --bg:#f5f7fb;--bg2:#ffffff;--card:rgba(255,255,255,.90);--card2:rgba(255,255,255,.72);--card-solid:#ffffff;
+  --text:#101827;--muted:#667085;--line:#e3e8f2;--line2:#d8deea;
+  --black:#080b12;--black2:#111827;--gold:#d7a839;--gold2:#fff1b8;--gold3:#8b6418;
+  --blue:#4f7cff;--purple:#7c3aed;--green:#16a34a;--red:#dc2626;--cyan:#0ea5e9;
+  --shadow:0 28px 80px rgba(15,23,42,.14);--soft:0 12px 28px rgba(15,23,42,.08);--glass:blur(20px) saturate(140%);
+}
+body.dark{
+  --bg:#080b12;--bg2:#0d1322;--card:rgba(18,24,38,.88);--card2:rgba(11,18,32,.78);--card-solid:#111827;
+  --text:#f8fafc;--muted:#a8b3ca;--line:rgba(255,255,255,.12);--line2:rgba(255,255,255,.18);
+  --shadow:0 32px 90px rgba(0,0,0,.38);--soft:0 16px 42px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font)}
+html{scroll-behavior:smooth}button,input{font:inherit}button{border:0;cursor:pointer}a{text-decoration:none;color:inherit}
+body{
+  min-height:100vh;color:var(--text);overflow-x:hidden;background:
+  radial-gradient(circle at 6% 0%,rgba(215,168,57,.16),transparent 30%),
+  radial-gradient(circle at 94% 6%,rgba(124,58,237,.10),transparent 32%),
+  radial-gradient(circle at 50% 100%,rgba(79,124,255,.10),transparent 34%),
+  linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+}
+body.dark{background:
+  radial-gradient(circle at 6% 0%,rgba(215,168,57,.18),transparent 34%),
+  radial-gradient(circle at 94% 6%,rgba(124,58,237,.18),transparent 34%),
+  radial-gradient(circle at 50% 100%,rgba(14,165,233,.12),transparent 34%),#080b12;}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(215,168,57,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.08) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 80%);z-index:0}
+.login-shell{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(460px,.95fr);gap:24px;padding:22px;align-items:stretch;}
+.brand-side{position:relative;overflow:hidden;border-radius:34px;background:linear-gradient(135deg,rgba(8,11,18,.97),rgba(17,24,39,.92));color:#fff;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.12);padding:30px;display:flex;flex-direction:column;justify-content:space-between;min-height:calc(100vh - 44px)}
+.brand-side:before{content:"";position:absolute;inset:-90px auto auto -90px;width:300px;height:300px;border-radius:999px;background:radial-gradient(circle,rgba(215,168,57,.32),transparent 70%)}
+.brand-side:after{content:"";position:absolute;right:-120px;bottom:-150px;width:430px;height:430px;border-radius:999px;background:radial-gradient(circle,rgba(79,124,255,.24),transparent 70%)}
+.brand-side>*{position:relative;z-index:1}.brand-top{display:flex;align-items:center;gap:16px}.brand-logo{width:76px;height:76px;border-radius:25px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#fff,#eef4ff);box-shadow:0 24px 52px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.9)}.brand-logo img{width:100%;height:100%;object-fit:contain;padding:7px}.brand-name h1{font-size:42px;font-weight:900;line-height:1;letter-spacing:-.055em}.brand-name h1 span{background:linear-gradient(135deg,#fff,var(--gold2));-webkit-background-clip:text;background-clip:text;color:transparent}.brand-name p{margin-top:7px;color:#cbd5e1;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.05em}.hero-copy{max-width:780px;padding:34px 0 26px}.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(215,168,57,.35);background:rgba(215,168,57,.12);color:var(--gold2);padding:7px 12px;border-radius:999px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.5px}.hero-copy h2{font-size:clamp(40px,5vw,72px);line-height:.98;margin:16px 0 12px;font-weight:900;letter-spacing:-.065em}.hero-copy h2 span{color:var(--gold2)}.hero-copy p{color:#cbd5e1;font-size:17px;font-weight:700;line-height:1.6;max-width:720px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.hero-chip{min-height:42px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);color:#fff;font-weight:900;font-size:13px}.hero-visual{height:220px;position:relative;margin-top:16px}.big-icon{position:absolute;right:96px;top:24px;width:160px;height:160px;border-radius:42px;background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.20);display:grid;place-items:center;box-shadow:inset 0 1px 18px rgba(255,255,255,.18);animation:premiumHeroMove 6.4s cubic-bezier(.45,0,.25,1) infinite}.big-icon i{font-size:72px;color:var(--gold2);filter:drop-shadow(0 10px 18px rgba(0,0,0,.20))}.float{position:absolute;width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:#fff;box-shadow:0 20px 38px rgba(0,0,0,.18)}.f1{right:270px;top:26px;animation:smallOrbitOne 5.8s ease-in-out infinite}.f2{right:286px;top:142px;animation:smallOrbitTwo 6.6s ease-in-out infinite}.f3{right:24px;top:126px;animation:smallOrbitThree 6s ease-in-out infinite}
+@keyframes premiumHeroMove{0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}20%{transform:translate3d(20px,-18px,0) rotate(5deg) scale(1.035)}42%{transform:translate3d(-8px,-34px,0) rotate(-4deg) scale(1.06)}66%{transform:translate3d(-24px,4px,0) rotate(4deg) scale(1.03)}84%{transform:translate3d(10px,14px,0) rotate(-2deg) scale(1.018)}}
+@keyframes smallOrbitOne{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(18px,-20px) rotate(9deg)}}@keyframes smallOrbitTwo{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-20px,16px) rotate(-8deg)}}@keyframes smallOrbitThree{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(18px,20px) rotate(8deg)}}
+.brand-foot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric-tile{min-height:112px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);padding:16px;display:flex;align-items:center;gap:14px}.metric-tile i{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));font-size:20px}.metric-tile small{display:block;color:#cbd5e1;font-weight:900;text-transform:uppercase;font-size:11px}.metric-tile strong{display:block;font-size:24px;margin-top:5px;letter-spacing:-.04em}.login-area{position:relative;display:grid;place-items:center;min-height:calc(100vh - 44px)}.login-area:before{content:"";position:absolute;width:360px;height:360px;border-radius:999px;right:-150px;top:5%;background:radial-gradient(circle,rgba(215,168,57,.13),transparent 70%);pointer-events:none}.login-card{position:relative;overflow:hidden;width:min(560px,100%);border:1px solid var(--line);background:var(--card);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border-radius:30px;box-shadow:var(--shadow);padding:28px}.login-card:before{content:"";position:absolute;width:260px;height:260px;border-radius:999px;right:-125px;top:-135px;background:radial-gradient(circle,rgba(215,168,57,.18),transparent 70%);pointer-events:none}.login-card>*{position:relative;z-index:1}.theme-toggle{position:fixed;right:22px;top:22px;z-index:20;width:54px;height:54px;border-radius:19px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));box-shadow:0 16px 32px rgba(215,168,57,.22);border:1px solid rgba(139,100,24,.18);transition:.22s ease}.theme-toggle:hover{transform:translateY(-2px)}.small-logo{width:78px;height:78px;border-radius:25px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#eef4ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 14px 30px rgba(15,23,42,.10)}.small-logo img{width:100%;height:100%;object-fit:contain;padding:8px}.login-card h3{text-align:center;font-size:34px;line-height:1;font-weight:900;letter-spacing:-.04em;color:var(--text)}.login-card h3 span{color:var(--gold3)}body.dark .login-card h3 span{color:var(--gold2)}.login-subtitle{text-align:center;color:var(--muted);margin:12px auto 22px;font-size:15px;font-weight:800;max-width:360px;line-height:1.45}.mode-tabs{min-height:62px;background:var(--card-solid);border:1px solid var(--line);border-radius:18px;display:grid;grid-template-columns:1fr 1fr;padding:6px;gap:6px;margin-bottom:22px;box-shadow:var(--soft)}.tab{border-radius:14px;background:transparent;color:var(--text);font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:9px;transition:.22s ease}.tab:hover{transform:translateY(-1px)}.tab.active{background:linear-gradient(135deg,var(--black),var(--black2));color:#fff;box-shadow:0 16px 30px rgba(15,23,42,.18)}body.admin-mode .tab.active.admin{background:linear-gradient(135deg,var(--black),var(--black2) 58%,var(--gold) 145%)}body.employee-mode .tab.active.employee{background:linear-gradient(135deg,#111827,#374151)}.hidden-login-icon{display:none}.login-form{display:grid;gap:15px}.field label{display:block;font-weight:900;margin-bottom:8px;font-size:13px;color:var(--text)}.input-box{min-height:54px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.84);display:flex;align-items:center;overflow:hidden;transition:.18s;box-shadow:0 8px 18px rgba(15,23,42,.04)}body.dark .input-box{background:#0b1220}.input-box:focus-within{border-color:rgba(215,168,57,.75);box-shadow:0 0 0 4px rgba(215,168,57,.14)}.input-box>i{width:52px;text-align:center;color:var(--muted)}.input-box input{height:100%;width:100%;border:0;outline:0;background:transparent;font-weight:900;color:var(--text);padding-right:8px}.input-box input::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}.password-toggle{height:54px;width:52px;background:transparent;color:var(--muted);display:grid;place-items:center}.form-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.check-label,.role-hint{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:900}.check-label input{accent-color:var(--gold)}.role-hint{color:var(--green)}.login-btn{min-height:56px;border-radius:16px;background:linear-gradient(135deg,var(--black),var(--black2) 58%,var(--gold) 145%);box-shadow:0 18px 34px rgba(15,23,42,.18);color:#fff;font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;transition:.22s ease}.login-btn:hover{transform:translateY(-2px)}body.employee-mode .login-btn{background:linear-gradient(135deg,#111827,#374151)}.action-icon{width:23px;height:23px;object-fit:contain}.signin-fallback{display:none!important}.divider{display:flex;align-items:center;gap:14px;color:var(--muted);font-weight:900;font-size:12px;margin:2px 0;text-transform:uppercase;letter-spacing:.06em}.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}.auth-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.social-login-btn{min-height:52px;border-radius:16px;background:var(--card-solid);border:1px solid var(--line);color:var(--text);font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--soft);transition:.22s ease}.social-login-btn:hover{transform:translateY(-2px);border-color:rgba(215,168,57,.55)}.social-img{width:23px;height:23px;object-fit:contain}.phone-fallback{width:23px;height:23px;border-radius:8px;background:linear-gradient(145deg,var(--gold),var(--gold2));color:#121826;display:none;place-items:center;font-size:12px}.message{display:none;min-height:44px;border-radius:16px;padding:11px 13px;align-items:center;gap:9px;font-size:13px;font-weight:900}.message.show{display:flex}.message.error{background:rgba(220,38,38,.09);border:1px solid rgba(220,38,38,.22);color:#b91c1c}.message.success{background:rgba(22,163,74,.09);border:1px solid rgba(22,163,74,.22);color:#15803d}body.dark .message.error{color:#fecaca}body.dark .message.success{color:#bbf7d0}.footer-text{text-align:center;color:var(--muted);font-size:12px;font-weight:900;margin-top:16px;text-transform:uppercase;letter-spacing:.05em}.shake{animation:shake .35s ease}@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}.login-card.mode-flip-out{transform:translateY(8px) scale(.985);opacity:.45;transition:.18s ease}.login-card.mode-flip-in{animation:cleanModeIn .28s cubic-bezier(.2,.8,.2,1) both}@keyframes cleanModeIn{from{transform:translateY(8px) scale(.985);opacity:.45}to{transform:none;opacity:1}}body.switch-lock .tab,body.switch-lock .login-btn,body.switch-lock .social-login-btn{pointer-events:none!important}.copyright{margin-top:22px;color:rgba(255,255,255,.62);font-weight:800;font-size:13px}
+@media(max-width:1180px){.login-shell{grid-template-columns:1fr}.brand-side,.login-area{min-height:auto}.brand-foot{grid-template-columns:repeat(3,1fr)}.hero-visual{display:none}.login-area{padding:10px 0 24px}.theme-toggle{position:fixed}}
+@media(max-width:760px){.login-shell{padding:12px}.brand-side{padding:22px;border-radius:26px}.brand-top{align-items:flex-start}.brand-logo{width:62px;height:62px;border-radius:20px}.brand-name h1{font-size:30px}.hero-copy h2{font-size:38px}.brand-foot{grid-template-columns:1fr}.metric-tile{min-height:86px}.login-card{padding:22px;border-radius:26px}.auth-options{grid-template-columns:1fr}.theme-toggle{right:14px;top:14px;width:48px;height:48px;border-radius:16px}.form-row{align-items:flex-start;flex-direction:column}.mode-tabs{grid-template-columns:1fr;min-height:112px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+</style>
+</head>
+
+<body class="admin-mode">
+<button aria-label="Toggle Theme" class="theme-toggle" onclick="toggleTheme()" type="button"><i class="fa-solid fa-circle-half-stroke"></i></button>
+<main class="login-shell">
+  <section class="brand-side" aria-label="NexCRM login overview">
+    <div>
+      <div class="brand-top">
+        <div class="brand-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" onerror="this.style.display='none';this.parentElement.textContent='NX'"></div>
+        <div class="brand-name"><h1>Nex<span>CRM</span></h1><p>Finbud Financial Services Limited</p></div>
+      </div>
+      <div class="hero-copy">
+        <span class="eyebrow"><i class="fa-solid fa-shield-halved"></i> NexCRM Secure Login</span>
+        <h2>Admin &amp; Employee <span>Portal</span></h2>
+        <p>Premium NexCRM workspace with secured role-based access for Admin and Employee dashboards. Login screen rebuilt in the same polished Leads.html visual language.</p>
+        <div class="hero-actions">
+          <span class="hero-chip"><i class="fa-solid fa-user-shield"></i> Admin Priority</span>
+          <span class="hero-chip"><i class="fa-solid fa-id-card"></i> Employee Access</span>
+          <span class="hero-chip"><i class="fa-solid fa-database"></i> Firebase Ready</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="big-icon"><i class="fa-solid fa-lock"></i></div>
+        <div class="float f1"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="float f2"><i class="fa-solid fa-users-gear"></i></div>
+        <div class="float f3"><i class="fa-solid fa-gear"></i></div>
+      </div>
+    </div>
+    <div>
+      <div class="brand-foot">
+        <div class="metric-tile"><i class="fa-solid fa-shield-halved"></i><div><small>Security</small><strong>Protected</strong></div></div>
+        <div class="metric-tile"><i class="fa-solid fa-gauge-high"></i><div><small>Access</small><strong>Role Based</strong></div></div>
+        <div class="metric-tile"><i class="fa-solid fa-cloud"></i><div><small>System</small><strong>Live Ready</strong></div></div>
+      </div>
+      <div class="copyright">© 2026 NexCRM. All rights reserved.</div>
+    </div>
+  </section>
+  <section class="login-area" aria-label="NexCRM login form">
+    <div class="login-card" id="loginCard">
+      <div class="small-logo"><img alt="Finbud Logo" src="Meterial/FB-logo.png" onerror="this.style.display='none'"></div>
+      <h3>Welcome <span>Back!</span></h3>
+      <p class="login-subtitle" id="loginSubtitle">Enter your admin credential and password to continue.</p>
+      <div class="mode-tabs">
+        <button class="tab admin active" id="adminTab" onclick="setMode('admin')" type="button"><i class="fa-solid fa-user-shield"></i> Admin Login</button>
+        <button class="tab employee" id="employeeTab" onclick="setMode('employee')" type="button"><i class="fa-regular fa-user"></i> Employee Login</button>
+      </div>
+      <div class="hidden-login-icon"><i class="fa-solid fa-user-shield" id="loginIcon"></i></div>
+      <h3 id="loginTitle" style="display:none">Admin Login</h3>
+      <form class="login-form" onsubmit="loginUser(event)">
+        <div class="field"><label for="username" id="credentialLabel">Admin Credential</label><div class="input-box"><i class="fa-regular fa-envelope"></i><input autocomplete="username" id="username" placeholder="Enter Admin Credential" required type="text"></div></div>
+        <div class="field"><label for="password">Password</label><div class="input-box"><i class="fa-solid fa-lock"></i><input autocomplete="current-password" id="password" placeholder="Enter your password" required type="password"><button class="password-toggle" onclick="togglePassword()" type="button"><i class="fa-regular fa-eye" id="eyeIcon"></i></button></div></div>
+        <div class="form-row"><label class="check-label"><input id="rememberMe" type="checkbox"> Remember me</label><div class="role-hint"><i class="fa-solid fa-circle-check"></i><span id="roleHint">Role: Admin</span></div></div>
+        <button class="login-btn" type="submit"><img alt="Sign In" class="action-icon" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'" src="Meterial/signin.png"> <i class="fa-solid fa-right-to-bracket signin-fallback"></i> Sign In</button>
+        <div class="divider">or continue with</div>
+        <div class="auth-options">
+          <button class="social-login-btn google-login" onclick="googleUiNotice()" type="button"><img alt="Google" class="social-img" src="Meterial/google.png" onerror="this.style.display='none'"> Google</button>
+          <button class="social-login-btn phone-login" onclick="phoneUiNotice()" type="button"><img alt="Phone" class="social-img" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-grid'" src="Meterial/phone.png"><span class="phone-fallback"><i class="fa-solid fa-mobile-screen-button"></i></span> Phone</button>
+        </div>
+        <div class="message" id="loginMessage"></div>
+      </form>
+      <div class="footer-text" id="footerText">NexCRM Admin Portal • Secure Admin Access</div>
+    </div>
+  </section>
+</main>
+
+<script>
+
+const LOGIN_CONFIG_KEY='nexcrm_login_config_v1';
+const DEFAULT_LOGIN_CONFIG={
+ employee:{role:'Employee',title:'Employee Login',subtitle:'Enter your Employee Credential and Password to Continue.',redirect:'employee-dashboard.html',icon:'fa-solid fa-user-tie',hint:'Role: Employee',footer:'NexCRM Launcher • Secure Employee Access'},
+ admin:{role:'Admin',title:'Admin Login',subtitle:'Enter your Admin Credential and Password to Continue.',redirect:'admin-dashboard.html',icon:'fa-solid fa-user-shield',hint:'Role: Admin',footer:'NexCRM Admin Portal • Secure Admin Access',credential:'Admin',password:'Abhi1997'},
+ admins:[{username:'Admin',password:'Abhi1997',active:true}],
+ employees:[]
+};
+let currentMode='admin';
+function cleanLoginId(id){return String(id||'').trim().replace(/[^a-z0-9]/gi,'').toUpperCase()}
+function passwordFromEmployeeNameDob(name,dob,id){const first=String(name||'').trim().split(/\s+/)[0]||'User';const four=first.replace(/[^a-z]/gi,'').slice(0,4)||'User';const word=four.charAt(0).toUpperCase()+four.slice(1).toLowerCase();const rawDob=String(dob||'').trim();const year=(rawDob.match(/(19|20)\d{2}/)||String(id||'').match(/(19|20)\d{2}/)||[''])[0];const fallback=(String(id||'').match(/(\d+)$/)||['','001'])[1];return '@'+word+(year||fallback)}
+function passwordFromEmployee(empOrId){if(empOrId&&typeof empOrId==='object')return passwordFromEmployeeNameDob(empOrId.name||empOrId.employee_name||empOrId.employeeName||empOrId.fullName,empOrId.dob||empOrId.date_of_birth||empOrId.dateOfBirth||empOrId.birthDate||empOrId.birth_date,empOrId.id||empOrId.employeeId||empOrId.employee_id||empOrId.username);return passwordFromEmployeeNameDob('', '', empOrId)}
+function passwordFromEmployeeId(id){return passwordFromEmployee(id)}
+function masterEmployeeCredentials(){
+  try{
+    const rows=JSON.parse(localStorage.getItem('nexcrm_employee_master_final_custom')||localStorage.getItem('nexcrm_employee_master_v1')||'[]');
+    return (Array.isArray(rows)?rows:[]).map((emp,i)=>{
+      const employeeId=String(emp.employeeId||emp.id||emp.employee_id||emp.username||emp.credential||('E-'+String(i+1).padStart(3,'0'))).trim();
+      const userId=cleanLoginId(employeeId)||employeeId;
+      return {employeeId,username:userId,password:passwordFromEmployee(emp),name:String(emp.name||emp.employee_name||emp.employeeName||employeeId).trim(),email:String(emp.email||emp.officialMail||emp.mail||'').trim(),mobile:String(emp.mobile||emp.phone||emp.contact||'').trim(),dob:String(emp.dob||emp.date_of_birth||emp.dateOfBirth||'').trim(),active:emp.active!==false};
+    }).filter(emp=>emp.employeeId||emp.username);
+  }catch(e){return []}
+}
+function normalizeConfig(raw){
+  const cfg=raw&&typeof raw==='object'?raw:{};
+  const legacyAdmin={...DEFAULT_LOGIN_CONFIG.admin,...(cfg.admin||{})};
+  const admins=Array.isArray(cfg.admins)&&cfg.admins.length?cfg.admins:[{username:legacyAdmin.credential||'Admin',password:legacyAdmin.password||'Abhi1997',active:true}];
+  const employees=Array.isArray(cfg.employees)&&cfg.employees.length?cfg.employees:[];
+  const normalizedEmployees=employees.map((emp,i)=>{
+    const employeeId=String(emp.employeeId||emp.id||emp.employee_id||emp.username||emp.credential||('E-'+String(i+1).padStart(3,'0'))).trim();
+    return {employeeId,username:String(emp.username||cleanLoginId(employeeId)||employeeId).trim(),password:String(emp.password||passwordFromEmployee(emp)),name:String(emp.name||emp.employee_name||emp.username||employeeId).trim(),email:String(emp.email||emp.officialMail||'').trim(),mobile:String(emp.mobile||emp.phone||'').trim(),dob:String(emp.dob||emp.date_of_birth||emp.dateOfBirth||'').trim(),active:emp.active!==false};
+  }).filter(emp=>emp.username||emp.employeeId);
+  masterEmployeeCredentials().forEach(master=>{
+    const exists=normalizedEmployees.find(emp=>cleanLoginId(emp.employeeId||emp.username)===cleanLoginId(master.employeeId)||cleanLoginId(emp.username)===cleanLoginId(master.username));
+    if(exists){
+      exists.employeeId=exists.employeeId||master.employeeId;
+      exists.username=cleanLoginId(exists.username||master.username)||master.username;
+      exists.password=exists.password||master.password;
+      exists.name=exists.name||master.name;
+      exists.email=exists.email||master.email;
+      exists.mobile=exists.mobile||master.mobile;
+    }else normalizedEmployees.push(master);
+  });
+  return {
+    employee:{...DEFAULT_LOGIN_CONFIG.employee,...(cfg.employee||{}),redirect:'employee-dashboard.html'},
+    admin:{...legacyAdmin,redirect:'admin-dashboard.html'},
+    admins:admins.map((adm,i)=>({username:String(adm.username||adm.credential||('Admin'+(i+1))).trim(),password:String(adm.password||'Abhi1997'),displayName:String(adm.displayName||adm.name||adm.username||'').trim(),employeeId:String(adm.employeeId||adm.id||'').trim(),email:String(adm.email||'').trim(),active:adm.active!==false})).filter(adm=>adm.username),
+    employees:normalizedEmployees
+  };
+}
+function getLoginConfig(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(LOGIN_CONFIG_KEY)||'null');
+    const normalized=normalizeConfig(parsed);
+    localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(normalized));
+    return normalized;
+  }catch(e){
+    localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(DEFAULT_LOGIN_CONFIG));
+    return normalizeConfig(DEFAULT_LOGIN_CONFIG);
+  }
+}
+function firestoreSafeDocId(key){return encodeURIComponent(String(key)).replace(/\./g,'%2E')}
+let loginConfigPrefetchPromise=null;
+async function prefetchRemoteLoginConfig(){
+  if(loginConfigPrefetchPromise)return loginConfigPrefetchPromise;
+  loginConfigPrefetchPromise=(async()=>{
+    try{
+      if(window.NexCRMFirebase&&window.NexCRMFirebase.init)await window.NexCRMFirebase.init();
+      if(window.NexCRMFirebase&&window.NexCRMFirebase.loadKey){await window.NexCRMFirebase.loadKey(LOGIN_CONFIG_KEY);return true;}
+      return false;
+    }catch(err){console.warn('NexCRM login config prefetch failed',err);return false}
+  })();
+  return loginConfigPrefetchPromise;
+}
+function readSession(){try{return JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null')}catch(e){return null}}
+function clearSession(){localStorage.removeItem('nexcrm_session');localStorage.removeItem('nexcrm_logged_in');sessionStorage.removeItem('nexcrm_session');sessionStorage.removeItem('nexcrm_logged_in')}
+function roleMeta(mode){const cfg=getLoginConfig();return mode==='admin'?cfg.admin:cfg.employee}
+function findEmployeeCredential(username,password){
+  const raw=String(username||'').trim();
+  const user=raw.toLowerCase();
+  const clean=cleanLoginId(raw);
+  return getLoginConfig().employees.find(emp=>{
+    if(emp.active===false||String(emp.password||'')!==String(password||''))return false;
+    const ids=[emp.username,emp.employeeId,emp.id,emp.credential].map(v=>String(v||'').trim()).filter(Boolean);
+    return ids.some(id=>id.toLowerCase()===user||cleanLoginId(id)===clean)||String(emp.email||'').trim().toLowerCase()===user||String(emp.mobile||'').trim()===raw;
+  });
+}
+function findAdminCredential(username,password){
+  const raw=String(username||'').trim();
+  const user=raw.toLowerCase();
+  const clean=cleanLoginId(raw);
+  return getLoginConfig().admins.find(adm=>{
+    if(adm.active===false||String(adm.password||'')!==String(password||''))return false;
+    const ids=[adm.username,adm.credential,adm.employeeId,adm.email].map(v=>String(v||'').trim()).filter(Boolean);
+    return ids.some(id=>id.toLowerCase()===user||cleanLoginId(id)===clean);
+  });
+}function isAdminCredential(username,password){return !!findAdminCredential(username,password)}
+function applyModeUI(mode){const c=roleMeta(mode);document.body.classList.toggle('admin-mode',mode==='admin');document.body.classList.toggle('employee-mode',mode==='employee');document.getElementById('employeeTab').classList.toggle('active',mode==='employee');document.getElementById('adminTab').classList.toggle('active',mode==='admin');document.getElementById('loginTitle').textContent=c.title;document.getElementById('loginSubtitle').textContent=mode==='admin'?'Enter your admin credential and password to continue.':'Enter your employee ID, email or mobile and password to continue.';document.getElementById('roleHint').textContent=c.hint;document.getElementById('footerText').textContent=c.footer;document.getElementById('loginIcon').className=c.icon;document.getElementById('credentialLabel').textContent=mode==='admin'?'Admin Credential':'Employee ID / Email / Mobile';document.getElementById('username').value='';document.getElementById('password').value='';document.getElementById('username').placeholder=mode==='admin'?'Enter Admin Credential':'Enter Employee ID / Email / Mobile';clearMsg()}
+function setMode(mode){const nextMode=(mode==='admin'||mode==='employee')?mode:'employee';const card=document.getElementById('loginCard');if(!card){currentMode=nextMode;applyModeUI(nextMode);return}if(currentMode===nextMode){applyModeUI(nextMode);return}document.body.classList.add('switch-lock');card.classList.remove('mode-flip-out','mode-flip-in');void card.offsetWidth;card.classList.add('mode-flip-out');setTimeout(()=>{currentMode=nextMode;applyModeUI(nextMode);card.classList.remove('mode-flip-out');void card.offsetWidth;card.classList.add('mode-flip-in')},180);setTimeout(()=>{card.classList.remove('mode-flip-in');document.body.classList.remove('switch-lock')},460)}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('nexcrm_theme',document.body.classList.contains('dark')?'dark':'light')}
+function restoreTheme(){if(localStorage.getItem('nexcrm_theme')==='dark'||localStorage.getItem('nexcrm_finance_theme')==='dark')document.body.classList.add('dark')}
+function togglePassword(){const p=document.getElementById('password'),i=document.getElementById('eyeIcon');const show=p.type==='password';p.type=show?'text':'password';i.className=show?'fa-solid fa-eye-slash':'fa-solid fa-eye'}
+function showMsg(type,text){const m=document.getElementById('loginMessage');m.className='message show '+type;m.innerHTML=(type==='success'?'<i class="fa-solid fa-circle-check"></i>':'<i class="fa-solid fa-circle-xmark"></i>')+text}
+function clearMsg(){const m=document.getElementById('loginMessage');m.className='message';m.innerHTML=''}
+function redirectFromSession(){
+  const s=readSession();
+  if(!s||!s.role)return;
+  const target=String(s.role).toLowerCase()==='admin'?roleMeta('admin').redirect:roleMeta('employee').redirect;
+  window.location.href=target;
+}
+async function loginUser(e){
+  e.preventDefault();
+  const u=document.getElementById('username').value.trim();
+  const p=document.getElementById('password').value.trim();
+  const remember=document.getElementById('rememberMe').checked;
+  if(!u||!p){showMsg('error','Enter credential and password.');return}
+  clearMsg();
+  showMsg('success','Checking latest Portal Settings...');
+  await prefetchRemoteLoginConfig();
+  clearMsg();
+  const employeeMatch=findEmployeeCredential(u,p);
+  const adminMatch=findAdminCredential(u,p);
+  let loginMode=currentMode;
+  if(currentMode==='employee'&&adminMatch) loginMode='admin';
+  if(currentMode==='admin'&&employeeMatch&&!adminMatch){showMsg('error','Employee credential Admin Login me allowed nahi hai. Employee tab use kare.');return shakeLogin()}
+  const localMatch=loginMode==='admin'?adminMatch:employeeMatch;
+  if(!localMatch){showMsg('error','Invalid credential or password. Please check Portal Settings.');return shakeLogin()}
+  const meta=roleMeta(loginMode);
+  const session={user:localMatch.email||localMatch.username,email:localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:false};
+  clearSession();
+  (remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));
+  localStorage.setItem('nexcrm_logged_in','true');
+  showMsg('success',(loginMode==='admin'?'Admin':'Employee')+' login successful. Opening portal...');
+  setTimeout(()=>{window.location.href=meta.redirect},220);
+}
+function masterEmployees(){try{return JSON.parse(localStorage.getItem('nexcrm_employee_master_final_custom')||localStorage.getItem('nexcrm_employee_master_v1')||'[]')||[]}catch(e){return []}}
+function findGoogleUser(email,mode){const mail=String(email||'').trim().toLowerCase();const cfg=getLoginConfig();if(mode==='admin'){return cfg.admins.find(a=>a.active!==false&&(String(a.email||'').toLowerCase()===mail||String(a.username||'').toLowerCase()===mail))||null}const byCred=cfg.employees.find(emp=>emp.active!==false&&String(emp.email||'').toLowerCase()===mail);if(byCred)return byCred;const emp=masterEmployees().find(e=>String(e.email||e.officialMail||'').trim().toLowerCase()===mail);return emp?{username:emp.id||emp.employee_id||mail,employeeId:emp.id||emp.employee_id||'',name:emp.name||emp.employee_name||'',email:mail,active:true}:null}
+async function googleUiNotice(){try{showMsg('success','Opening Google Sign In...');if(!window.NexCRMFirebase||!window.NexCRMFirebase.signInWithGoogle)throw new Error('Firebase Google provider not ready');const result=await window.NexCRMFirebase.signInWithGoogle(currentMode,document.getElementById('rememberMe').checked);const match=findGoogleUser(result.email,currentMode);if(!match){showMsg('error','This Google email is not saved in Employee Add / Portal Settings.');return shakeLogin()}const mode=currentMode;const session={user:result.email,email:result.email,displayName:match.displayName||match.name||result.user.displayName||result.email,employeeId:match.employeeId||match.id||match.username||result.email,credential:match.username||match.employeeId||result.email,role:mode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:document.getElementById('rememberMe').checked,firebase:true};clearSession();(session.persistent?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));localStorage.setItem('nexcrm_logged_in','true');showMsg('success','Google login successful. Opening portal...');setTimeout(()=>{window.location.href=roleMeta(mode).redirect},250)}catch(e){showMsg('error',(e&&e.message)||'Google Sign In failed.');shakeLogin()}}
+function phoneUiNotice(){showMsg('error','Phone Sign In UI ready hai. Authentication logic original file jaisa hi unchanged rakha gaya hai.');shakeLogin()}
+function shakeLogin(){const card=document.getElementById('loginCard');card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake')}
+function resetLocalLoginIfRequested(){
+  const params=new URLSearchParams(location.search||'');
+  if(!params.has('resetLogin'))return false;
+  ['nexcrm_login_config_v1','nexcrm_session','nexcrm_logged_in'].forEach(key=>{localStorage.removeItem(key);sessionStorage.removeItem(key)});
+  try{localStorage.setItem(LOGIN_CONFIG_KEY,JSON.stringify(DEFAULT_LOGIN_CONFIG))}catch(e){}
+  showMsg('success','Local login cache reset. Please login with Admin / Abhi1997.');
+  if(history.replaceState)history.replaceState(null,'',location.pathname);
+  return true;
+}
+restoreTheme();setMode('admin');prefetchRemoteLoginConfig();resetLocalLoginIfRequested();
+
+</script>
+<script src="nexcrm-form-autosave.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.email == 'abhinav.sirohi@nexfund.in' ||
+        request.auth.token.admin == true ||
+        get(/databases/$(database)/documents/nexcrmRoles/$(request.auth.uid)).data.role == 'admin' ||
+        get(/databases/$(database)/documents/nexcrmRoles/$(request.auth.uid)).data.admin == true
+      );
+    }
+    function globalSharedReadKey() {
+      return resource.data.key in [
+        'nexcrm_login_config_v1',
+        'nexcrm_dropdown_manager_v1',
+        'nexcrm_status_values',
+        'nexcrm_product_names',
+        'nexcrm_bank_names',
+        'nexcrmTheme',
+        'nexcrm_theme',
+        'nexcrm-finance-theme',
+        'nexcrm_finance_theme',
+        'nexcrmDdrTheme',
+        'nexcrm-mis-theme',
+        'emp-cost-theme',
+        'hrms_payslip_theme'
+      ];
+    }
+
+    match /nexcrmRoles/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /nexcrmShared/localStorage/keys/{keyId} {
+      allow read: if isAdmin() || (signedIn() && globalSharedReadKey());
+      allow write: if isAdmin();
+    }
+
+    match /nexcrmUsers/{uid}/localStorage/{keyId} {
+      allow read, write: if signedIn() && (request.auth.uid == uid || isAdmin());
+    }
+  }
+}

@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- NexCRM canonical Firebase Realtime Database stack --><script src="../Others Files/firebase-config.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-database-compat.js"></script><script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore-compat.js"></script><script src="../Others Files/nexcrm-realtime-database.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NexCRM | Customer Detail Sheet</title>
+<link rel="icon" type="image/png" href="../Meterial/tab.png">
+<link rel="shortcut icon" type="image/png" href="../Meterial/tab.png">
+<link rel="apple-touch-icon" href="../Meterial/tab.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+:root{
+  --font: Calibri, Arial, sans-serif;
+
+  --bg:#f5f7fb;
+  --card:rgba(255,255,255,.90);
+  --card2:rgba(255,255,255,.72);
+  --text:#101827;
+  --muted:#667085;
+  --line:#e3e8f2;
+
+  --black:#080b12;
+  --black2:#111827;
+  --gold:#d7a839;
+  --gold2:#fff1b8;
+  --gold3:#8b6418;
+  --blue:#4f7cff;
+  --purple:#7c3aed;
+  --green:#16a34a;
+  --red:#dc2626;
+  --pink:#e11d48;
+  --cyan:#0ea5e9;
+
+  --shadow:0 22px 60px rgba(15,23,42,.10);
+  --softShadow:0 12px 28px rgba(15,23,42,.08);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:var(--font);
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  min-height:100vh;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 6% 0%,rgba(215,168,57,.16),transparent 30%),
+    radial-gradient(circle at 94% 6%,rgba(124,58,237,.10),transparent 32%),
+    radial-gradient(circle at 50% 100%,rgba(79,124,255,.10),transparent 34%),
+    linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  overflow-x:hidden;
+}
+
+body.dark{
+  --bg:#080b12;
+  --card:rgba(18,24,38,.88);
+  --card2:rgba(11,18,32,.78);
+  --text:#f8fafc;
+  --muted:#a8b3ca;
+  --line:rgba(255,255,255,.12);
+  background:
+    radial-gradient(circle at 6% 0%,rgba(215,168,57,.18),transparent 34%),
+    radial-gradient(circle at 94% 6%,rgba(124,58,237,.18),transparent 34%),
+    radial-gradient(circle at 50% 100%,rgba(14,165,233,.12),transparent 34%),
+    #080b12;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  border:0;
+}
+
+/* ================= TOPBAR ================= */
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:50;
+  min-height:78px;
+  padding:14px 26px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.84);
+  backdrop-filter:blur(20px);
+}
+
+body.dark .topbar{
+  background:rgba(8,11,18,.84);
+}
+
+.left{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  min-width:0;
+}
+
+.right{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:11px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  min-width:0;
+}
+
+.logo{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:linear-gradient(145deg,#0a0d14,#d7a839);
+  color:#fff;
+  font-weight:900;
+  font-size:22px;
+  box-shadow:0 16px 34px rgba(215,168,57,.20);
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:inherit;
+}
+
+.brand h1{
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:-.03em;
+}
+
+.brand p{
+  font-size:13px;
+  color:var(--muted);
+  font-weight:800;
+  margin-top:3px;
+}
+
+.crumb{
+  min-height:46px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--card);
+  box-shadow:var(--softShadow);
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  font-weight:900;
+  color:var(--text);
+  flex-wrap:wrap;
+}
+
+.crumb span{
+  padding:0 16px;
+}
+
+.crumb .sep{
+  color:var(--muted);
+  padding:0 6px;
+}
+
+.top-pill,
+.theme-toggle{
+  height:46px;
+  border-radius:15px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:0 16px;
+  font-size:13px;
+  font-weight:900;
+  transition:.22s ease;
+  white-space:nowrap;
+}
+
+.top-pill:hover,
+.theme-toggle:hover{
+  transform:translateY(-2px);
+}
+
+.system-pill{
+  color:#176b35;
+  background:rgba(255,255,255,.82);
+  border:1px solid var(--line);
+  box-shadow:var(--softShadow);
+}
+
+body.dark .system-pill{
+  color:#86efac;
+  background:rgba(17,24,39,.72);
+}
+
+.dot{
+  width:13px;
+  height:13px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 6px rgba(22,163,74,.12);
+}
+
+.theme-toggle{
+  padding:0 10px;
+  background:linear-gradient(145deg,rgba(215,168,57,.12),rgba(0,0,0,.05));
+  border:1px solid rgba(215,168,57,.25);
+  box-shadow:var(--softShadow);
+}
+
+.theme-track{
+  width:70px;
+  height:32px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#080b12,#d7a839);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 9px;
+  color:#fff;
+}
+
+.theme-track:after{
+  content:"";
+  position:absolute;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  background:#fff;
+  left:4px;
+  top:3.5px;
+  transition:.25s;
+  box-shadow:0 8px 18px rgba(0,0,0,.25);
+}
+
+body.dark .theme-track:after{
+  left:41px;
+}
+
+.theme-track i{
+  font-size:13px;
+  z-index:2;
+}
+
+.admin-login{
+  color:#120d04;
+  background:linear-gradient(145deg,#fff1b8,#d7a839 58%,#8b6418);
+  box-shadow:0 14px 28px rgba(215,168,57,.20);
+}
+
+.logout{
+  color:#fff;
+  background:linear-gradient(145deg,#ef4444,#991b1b);
+  box-shadow:0 14px 26px rgba(239,68,68,.18);
+}
+
+/* ================= MAIN / HERO ================= */
+
+.main{
+  max-width:1780px;
+  margin:0 auto;
+  padding:22px 26px 34px;
+}
+
+.hero{
+  min-height:250px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 78% 40%,rgba(255,255,255,.14),transparent 26%),
+    linear-gradient(135deg,#070a12 0%,#171717 48%,#9a721f 100%);
+  box-shadow:0 28px 80px rgba(0,0,0,.20);
+  color:#fff;
+  padding:32px 38px;
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:20px;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  margin-bottom:22px;
+}
+
+.hero:before{
+  content:"";
+  position:absolute;
+  width:340px;
+  height:340px;
+  border-radius:50%;
+  left:-120px;
+  top:-130px;
+  background:rgba(215,168,57,.14);
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(115deg,transparent 0%,rgba(255,255,255,.08) 42%,transparent 58%);
+  transform:translateX(-120%);
+  animation:shine 7s ease-in-out infinite;
+}
+
+@keyframes shine{
+  0%,55%{transform:translateX(-120%)}
+  75%,100%{transform:translateX(120%)}
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+}
+
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  height:38px;
+  border-radius:999px;
+  padding:0 15px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+.kicker b{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#ffd76d,#d7a839);
+}
+
+.hero h2{
+  font-size:42px;
+  line-height:1.05;
+  font-weight:900;
+  letter-spacing:-.04em;
+}
+
+.hero p{
+  margin-top:11px;
+  color:rgba(255,255,255,.80);
+  font-size:17px;
+  font-weight:700;
+  line-height:1.45;
+  max-width:850px;
+}
+
+.hero-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:20px;
+}
+
+.hero-chip{
+  height:40px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);
+  font-weight:900;
+}
+
+.hero-art{
+  height:190px;
+  position:relative;
+  overflow:visible;
+  perspective:1100px;
+  z-index:2;
+}
+
+.big-icon{
+  position:absolute;
+  right:60px;
+  top:10px;
+  width:160px;
+  height:160px;
+  border-radius:42px;
+  background:linear-gradient(145deg,rgba(255,255,255,.18),rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.20);
+  display:grid;
+  place-items:center;
+  box-shadow:inset 0 1px 18px rgba(255,255,255,.18);
+  animation:premiumHeroMove 6.4s cubic-bezier(.45,0,.25,1) infinite;
+}
+
+.big-icon:before{
+  content:"";
+  position:absolute;
+  inset:-16px;
+  border-radius:52px;
+  border:1px solid rgba(255,255,255,.20);
+  background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.16),transparent 48%);
+  animation:premiumHeroGlow 3.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.big-icon i{
+  font-size:72px;
+  color:#ffd76d;
+  position:relative;
+  z-index:2;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.20));
+  animation:premiumHeroIconPulse 3.2s ease-in-out infinite;
+}
+
+.float{
+  position:absolute;
+  width:58px;
+  height:58px;
+  border-radius:20px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  display:grid;
+  place-items:center;
+  color:#fff;
+  box-shadow:0 20px 38px rgba(0,0,0,.18);
+}
+
+.f1{
+  right:230px;
+  top:20px;
+  animation:smallOrbitOne 5.8s ease-in-out infinite;
+}
+
+.f2{
+  right:235px;
+  top:126px;
+  animation:smallOrbitTwo 6.6s ease-in-out infinite;
+}
+
+.f3{
+  right:18px;
+  top:105px;
+  animation:smallOrbitThree 6s ease-in-out infinite;
+}
+
+@keyframes premiumHeroMove{
+  0%,100%{transform:translate3d(0,0,0) rotate(0deg) scale(1)}
+  20%{transform:translate3d(20px,-18px,0) rotate(5deg) scale(1.035)}
+  42%{transform:translate3d(-8px,-34px,0) rotate(-4deg) scale(1.06)}
+  66%{transform:translate3d(-24px,4px,0) rotate(4deg) scale(1.03)}
+  84%{transform:translate3d(10px,14px,0) rotate(-2deg) scale(1.018)}
+}
+
+@keyframes premiumHeroGlow{
+  0%,100%{opacity:.45;transform:scale(.96) rotate(0deg)}
+  50%{opacity:1;transform:scale(1.10) rotate(9deg)}
+}
+
+@keyframes premiumHeroIconPulse{
+  0%,100%{transform:scale(1) rotate(0deg)}
+  50%{transform:scale(1.06) rotate(-4deg)}
+}
+
+@keyframes smallOrbitOne{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  50%{transform:translate(18px,-20px) rotate(9deg)}
+}
+
+@keyframes smallOrbitTwo{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  50%{transform:translate(-20px,16px) rotate(-8deg)}
+}
+
+@keyframes smallOrbitThree{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  50%{transform:translate(18px,20px) rotate(8deg)}
+}
+
+/* ================= FORM ================= */
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);
+  padding:18px;
+  margin-bottom:18px;
+}
+
+.toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.title-wrap{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.head-icon{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  background:linear-gradient(145deg,#0a0d14,#d7a839);
+  font-size:20px;
+  box-shadow:0 14px 28px rgba(215,168,57,.20);
+}
+
+.title-wrap h3{
+  font-size:22px;
+  font-weight:900;
+}
+
+.title-wrap p{
+  font-size:13px;
+  color:var(--muted);
+  font-weight:700;
+  margin-top:3px;
+}
+
+.quick-stats{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(150px,1fr));
+  gap:12px;
+  min-width:min(560px,100%);
+}
+
+.stat{
+  min-height:72px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--card2);
+  padding:12px 14px;
+  box-shadow:var(--softShadow);
+}
+
+.stat span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.stat b{
+  font-size:18px;
+  font-weight:900;
+}
+
+.form-card{
+  position:relative;
+  overflow:hidden;
+}
+
+.form-card:before{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  right:-120px;
+  top:-135px;
+  background:radial-gradient(circle,rgba(215,168,57,.18),transparent 70%);
+  pointer-events:none;
+}
+
+.section-title{
+  position:relative;
+  z-index:2;
+  margin:22px 0 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  color:var(--text);
+}
+
+.section-title:first-child{
+  margin-top:2px;
+}
+
+.section-title i{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  color:#120d04;
+  background:linear-gradient(145deg,#fff1b8,#d7a839 58%,#8b6418);
+}
+
+.form-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(180px,1fr));
+  gap:16px;
+}
+
+.input-group{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
+
+.input-group.full{
+  grid-column:span 2;
+}
+
+.input-group.wide{
+  grid-column:span 4;
+}
+
+.input-group label{
+  color:var(--text);
+  font-size:13px;
+  font-weight:900;
+}
+
+.req{
+  color:var(--red);
+}
+
+.input-shell{
+  position:relative;
+}
+
+.input-shell i{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:14px;
+  pointer-events:none;
+}
+
+textarea + i,
+.input-shell.textarea-shell i{
+  top:18px;
+  transform:none;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea{
+  width:100%;
+  border:1px solid var(--line);
+  outline:0;
+  border-radius:15px;
+  background:rgba(255,255,255,.82);
+  color:var(--text);
+  padding:13px 14px 13px 42px;
+  min-height:48px;
+  font-size:14px;
+  font-weight:800;
+  transition:.22s ease;
+  box-shadow:0 8px 18px rgba(15,23,42,.04);
+}
+
+body.dark .input-group input,
+body.dark .input-group select,
+body.dark .input-group textarea{
+  background:#0b1220;
+}
+
+.input-group textarea{
+  min-height:96px;
+  resize:vertical;
+  line-height:1.45;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus{
+  border-color:rgba(215,168,57,.75);
+  box-shadow:0 0 0 4px rgba(215,168,57,.14);
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder{
+  color:color-mix(in srgb,var(--muted) 72%,transparent);
+}
+
+.readonly{
+  cursor:not-allowed;
+  color:var(--muted) !important;
+  background:rgba(215,168,57,.08) !important;
+}
+
+.form-footer{
+  position:relative;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px dashed var(--line);
+}
+
+.note{
+  color:var(--muted);
+  font-weight:800;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.btn-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  min-height:46px;
+  border-radius:15px;
+  padding:0 18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  font-size:13px;
+  font-weight:900;
+  transition:.22s ease;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+.btn-reset{
+  color:var(--text);
+  border:1px solid var(--line);
+  background:var(--card2);
+  box-shadow:var(--softShadow);
+}
+
+.btn-submit{
+  color:#120d04;
+  background:linear-gradient(145deg,#fff1b8,#d7a839 58%,#8b6418);
+  box-shadow:0 14px 28px rgba(215,168,57,.20);
+}
+
+.btn-view{
+  color:#fff;
+  background:linear-gradient(145deg,#0a0d14,#1e293b);
+  box-shadow:0 14px 28px rgba(15,23,42,.16);
+}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:100;
+  min-width:280px;
+  max-width:420px;
+  display:none;
+  align-items:flex-start;
+  gap:12px;
+  padding:15px 16px;
+  border-radius:18px;
+  color:#064e3b;
+  background:#eafff2;
+  border:1px solid #b7f7cf;
+  box-shadow:0 22px 60px rgba(15,23,42,.16);
+  font-weight:900;
+}
+
+.toast.show{
+  display:flex;
+}
+
+.toast i{
+  margin-top:2px;
+}
+
+.table-wrap{
+  display:none;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:18px;
+  margin-top:18px;
+  background:var(--card2);
+}
+
+.table-wrap.show{
+  display:block;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1100px;
+}
+
+th,
+td{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+th{
+  background:rgba(215,168,57,.10);
+  font-weight:900;
+}
+
+td{
+  color:var(--muted);
+  font-weight:800;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  background:rgba(79,124,255,.10);
+  color:#1d4ed8;
+  font-weight:900;
+}
+
+body.dark .badge{
+  color:#93c5fd;
+}
+
+.floating-top{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:30;
+  height:44px;
+  border-radius:14px;
+  padding:0 15px;
+  background:linear-gradient(145deg,#0a0d14,#d7a839);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  box-shadow:0 14px 28px rgba(0,0,0,.18);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1320px){
+  .hero{
+    grid-template-columns:1fr;
+  }
+
+  .hero-art{
+    display:none;
+  }
+
+  .form-grid{
+    grid-template-columns:repeat(3,minmax(180px,1fr));
+  }
+
+  .input-group.wide{
+    grid-column:span 3;
+  }
+}
+
+@media(max-width:980px){
+  .topbar{
+    height:auto;
+    flex-direction:column;
+    align-items:flex-start;
+    padding:12px 14px;
+  }
+
+  .left,
+  .right{
+    flex-wrap:wrap;
+  }
+
+  .right{
+    width:100%;
+  }
+
+  .top-pill,
+  .theme-toggle{
+    flex:1;
+  }
+
+  .main{
+    padding:14px;
+  }
+
+  .hero{
+    padding:24px;
+  }
+
+  .hero h2{
+    font-size:32px;
+  }
+
+  .toolbar{
+    align-items:flex-start;
+  }
+
+  .quick-stats{
+    grid-template-columns:1fr;
+    min-width:100%;
+  }
+
+  .form-grid{
+    grid-template-columns:repeat(2,minmax(150px,1fr));
+  }
+
+  .input-group.full,
+  .input-group.wide{
+    grid-column:span 2;
+  }
+
+  .crumb{
+    display:none;
+  }
+}
+
+@media(max-width:560px){
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .input-group.full,
+  .input-group.wide{
+    grid-column:span 1;
+  }
+
+  .hero-actions{
+    display:none;
+  }
+
+  .brand h1{
+    font-size:19px;
+  }
+
+  .top-pill,
+  .theme-toggle,
+  .btn{
+    width:100%;
+  }
+
+  .btn-row{
+    width:100%;
+  }
+
+  .toast{
+    left:14px;
+    right:14px;
+    min-width:auto;
+  }
+}
+
+/* NexCRM lead role scope and stats cards */
+.lead-stats-grid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:14px;margin:0 0 18px}.lead-stat-card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:var(--softShadow);padding:18px;min-height:112px}.lead-stat-card:before{content:"";position:absolute;width:110px;height:110px;border-radius:999px;right:-48px;top:-50px;background:linear-gradient(135deg,rgba(79,124,255,.16),rgba(215,168,57,.14))}.lead-stat-card small{position:relative;z-index:1;display:block;color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.lead-stat-card strong{position:relative;z-index:1;display:block;margin-top:10px;font-size:30px;font-weight:900;letter-spacing:-.03em}.lead-stat-card span{position:relative;z-index:1;display:inline-flex;margin-top:8px;padding:5px 9px;border-radius:999px;background:rgba(79,124,255,.10);color:var(--blue);font-size:12px;font-weight:900}@media(max-width:1100px){.lead-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.lead-stats-grid{grid-template-columns:1fr}}
+</style>
+<style id="employee-style-sidebar-header-for-admin-v1">
+/* Employee Dashboard style rail/sidebar + compact admin header */
+:root{--rail:82px!important;--sidebar:292px!important;--sidebar-open:292px!important;--sidebar-close:82px!important;}
+.app-layout{position:relative!important;z-index:1!important;min-height:100vh!important}.rail{position:fixed!important;left:0!important;top:0!important;bottom:0!important;width:var(--rail)!important;z-index:1000!important;background:rgba(255,255,255,.96)!important;border-right:1px solid var(--line)!important;backdrop-filter:var(--glass)!important;-webkit-backdrop-filter:var(--glass)!important;box-shadow:10px 0 34px rgba(15,23,42,.06)!important;display:flex!important;flex-direction:column!important;align-items:center!important;padding:16px 10px!important;gap:12px!important;overflow:hidden!important}body.dark .rail{background:rgba(5,7,13,.96)!important}.rail .dp-mini,.topbar .dp-mini{overflow:hidden}.rail .dp-mini img,.topbar .dp-mini img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:none}.rail .dp-mini.has-image img,.topbar .dp-mini.has-image img{display:block}.rail .dp-mini.has-image span,.topbar .dp-mini.has-image span{display:none}.dp-mini{width:54px!important;height:54px!important;min-width:54px!important;border-radius:19px!important;display:grid!important;place-items:center!important;color:#121826!important;background:linear-gradient(145deg,var(--gold),var(--gold2))!important;font-weight:900!important;font-size:16px!important;box-shadow:0 16px 32px rgba(215,168,57,.22)!important}.rail-btn{width:48px!important;height:48px!important;min-width:48px!important;border-radius:17px!important;display:grid!important;place-items:center!important;color:#334155!important;background:rgba(15,23,42,.045)!important;font-size:17px!important;transition:.22s!important;border:0!important}.rail-btn:hover,.rail-btn.active{color:#121826!important;background:linear-gradient(145deg,var(--gold),var(--gold2))!important;box-shadow:0 14px 24px rgba(215,168,57,.22)!important;transform:translateY(-2px)!important}body.dark .rail-btn{color:#dbeafe!important;background:rgba(255,255,255,.07)!important}.rail-sep{width:42px!important;height:1px!important;background:var(--line)!important;margin:4px 0!important}.rail-spacer{flex:1!important}.sidebar{position:fixed!important;left:var(--rail)!important;top:0!important;bottom:0!important;width:0!important;overflow:hidden!important;z-index:999!important;background:rgba(255,255,255,.98)!important;border-right:1px solid transparent!important;backdrop-filter:var(--glass)!important;-webkit-backdrop-filter:var(--glass)!important;box-shadow:18px 0 44px rgba(15,23,42,.08)!important;transition:.26s cubic-bezier(.2,.8,.2,1)!important}body.dark .sidebar{background:rgba(5,7,13,.98)!important}body:not(.sidebar-collapsed) .sidebar{width:var(--sidebar)!important;border-right-color:var(--line)!important}body.sidebar-open .sidebar{width:var(--sidebar)!important;border-right-color:var(--line)!important}.side-inner{width:var(--sidebar)!important;height:100%!important;padding:18px 12px!important;overflow:auto!important;scrollbar-width:none!important}.side-inner::-webkit-scrollbar{display:none!important}.side-head{display:flex!important;align-items:center!important;gap:12px!important;padding:4px 8px 16px!important;border-bottom:1px solid var(--line)!important}.side-head img{width:46px!important;height:46px!important;border-radius:16px!important;object-fit:contain!important;background:#fff!important;padding:4px!important}.side-head h3{font-size:22px!important;line-height:1!important;color:var(--text)!important}.side-head small{color:var(--gold3)!important;font-weight:900!important;letter-spacing:.08em!important;text-transform:uppercase!important}.side-close{margin-left:auto!important;width:38px!important;height:38px!important;border-radius:14px!important;display:grid!important;place-items:center!important;background:rgba(15,23,42,.06)!important;color:var(--text)!important;border:1px solid var(--line)!important}.side-label{display:block!important;padding:16px 10px 8px!important;color:var(--muted)!important;font-size:11px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.08em!important}.side-item{height:42px!important;border-radius:16px!important;display:flex!important;align-items:center!important;gap:12px!important;padding:0 11px!important;margin:4px 0!important;color:#334155!important;font-size:14px!important;font-weight:900!important;transition:.18s!important;border:0!important;background:transparent!important;width:100%!important;text-align:left!important}body.dark .side-item{color:#dbeafe!important}.side-item i{width:32px!important;height:32px!important;min-width:32px!important;border-radius:12px!important;display:grid!important;place-items:center!important;background:rgba(15,23,42,.055)!important;font-size:15px!important}body.dark .side-item i{background:rgba(255,255,255,.07)!important}.side-item:hover,.side-item.active{background:rgba(215,168,57,.12)!important;color:var(--text)!important}.side-item:hover i,.side-item.active i{background:linear-gradient(145deg,var(--gold),var(--gold2))!important;color:#121826!important}.side-bottom-btn{margin-top:16px!important;color:#b45309!important}.main{margin-left:var(--rail)!important;padding:18px 22px 42px!important;transition:.26s cubic-bezier(.2,.8,.2,1)!important;min-height:100vh!important}body:not(.sidebar-collapsed) .main{margin-left:calc(var(--rail) + var(--sidebar))!important}body.sidebar-open .main{margin-left:calc(var(--rail) + var(--sidebar))!important}.topbar.admin-employee-style-header{position:sticky!important;top:14px!important;z-index:60!important;min-height:78px!important;margin-bottom:18px!important;padding:12px 16px!important;border:1px solid var(--line)!important;border-radius:28px!important;background:var(--card)!important;backdrop-filter:var(--glass)!important;-webkit-backdrop-filter:var(--glass)!important;box-shadow:var(--soft)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important}.brand{display:flex!important;align-items:center!important;gap:13px!important;min-width:0!important}.brand-logo{width:54px!important;height:54px!important;min-width:54px!important;border-radius:18px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:linear-gradient(145deg,#fff,#eef4ff)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important}.brand-logo img{width:100%!important;height:100%!important;object-fit:contain!important;padding:4px!important}.brand h1{font-size:24px!important;line-height:1!important;font-weight:900!important;letter-spacing:-.04em!important}.brand p{margin-top:4px!important;color:var(--muted)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.04em!important}.top-actions{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:nowrap!important;justify-content:flex-end!important}.top-pill{height:48px!important;border-radius:17px!important;padding:0 15px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:1px solid var(--line)!important;background:var(--card-solid)!important;box-shadow:var(--soft)!important;font-size:13px!important;font-weight:900!important;white-space:nowrap!important}.profile-pill{padding-left:8px!important;min-width:205px!important;justify-content:flex-start!important;cursor:pointer!important}.profile-pill .dp-mini{width:36px!important;height:36px!important;min-width:36px!important;border-radius:13px!important;font-size:12px!important;box-shadow:none!important}.profile-text small{display:block!important;line-height:1!important;color:var(--muted)!important;font-size:10px!important;text-transform:uppercase!important;letter-spacing:.08em!important}.profile-text b{display:block!important;margin-top:4px!important;line-height:1!important;color:var(--text)!important}.system-status{color:#14532d!important;background:rgba(22,163,74,.08)!important;border-color:rgba(22,163,74,.22)!important}body.dark .system-status{color:#bbf7d0!important;background:rgba(22,163,74,.12)!important}.header-action-menu{position:relative!important;z-index:100!important}.manage-btn{height:52px!important;min-height:52px!important;border-radius:18px!important;padding:0 10px 0 7px!important;min-width:238px!important;background:linear-gradient(135deg,#080b12 0%,#1f2937 58%,#d7a839 145%)!important;color:#fff!important;border:1px solid rgba(215,168,57,.34)!important;box-shadow:0 18px 34px rgba(15,23,42,.18)!important}.manage-btn:hover{transform:translateY(-2px)!important}.profile-btn-dp{width:34px!important;height:34px!important;min-width:34px!important;border-radius:13px!important;display:grid!important;place-items:center!important;overflow:hidden!important;background:linear-gradient(145deg,#2563eb,#7c3aed)!important;color:#fff!important}.profile-btn-dp img{width:100%;height:100%;object-fit:cover;display:none}.profile-btn-dp.has-image img{display:block}.profile-btn-dp.has-image i{display:none}.manage-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;line-height:1.05!important;min-width:0!important}.manage-copy b{font-size:14px!important;font-weight:900!important;color:#fff!important}.manage-copy small{font-size:10px!important;font-weight:900!important;color:#cbd5e1!important;margin-top:4px!important;white-space:nowrap!important}.manage-caret{font-size:12px!important;color:#fef3c7!important;transition:.2s!important}.header-action-menu.open .manage-caret{transform:rotate(180deg)!important}.manage-dropdown{position:absolute!important;right:0!important;top:calc(100% + 10px)!important;width:326px!important;padding:10px!important;border:1px solid rgba(215,168,57,.22)!important;border-radius:24px!important;background:rgba(255,255,255,.96)!important;backdrop-filter:blur(20px) saturate(140%)!important;box-shadow:0 30px 80px rgba(15,23,42,.22)!important;opacity:0!important;visibility:hidden!important;transform:translateY(-8px) scale(.98)!important;transition:.18s ease!important;display:block!important;overflow:hidden!important}body.dark .manage-dropdown{background:rgba(15,23,42,.96)!important;border-color:rgba(255,255,255,.12)!important}.header-action-menu.open .manage-dropdown{opacity:1!important;visibility:visible!important;transform:none!important}.menu-action{position:relative!important;width:100%!important;min-height:58px!important;border-radius:17px!important;display:flex!important;align-items:center!important;gap:12px!important;padding:9px 11px!important;text-align:left!important;color:var(--text)!important;background:transparent!important;transition:.18s!important}.menu-action:hover{background:linear-gradient(135deg,rgba(215,168,57,.12),rgba(79,124,255,.08))!important;transform:translateX(2px)!important}.menu-action i{width:38px!important;height:38px!important;min-width:38px!important;border-radius:14px!important;display:grid!important;place-items:center!important;background:linear-gradient(145deg,var(--black),var(--gold))!important;color:#fff!important;box-shadow:0 12px 22px rgba(215,168,57,.18)!important}.menu-action span{display:flex!important;flex-direction:column!important;gap:3px!important}.menu-action b{font-size:14px!important;font-weight:900!important;color:var(--text)!important}.menu-action small{font-size:11px!important;font-weight:800!important;color:var(--muted)!important}.logout-icon-only{width:50px!important;min-width:50px!important;padding:0!important;border:0!important;background:linear-gradient(135deg,#ef4444,#991b1b)!important;color:#fff!important;box-shadow:0 14px 28px rgba(239,68,68,.20)!important}.logout-icon-only:hover{transform:translateY(-2px)!important}.sidebar-backdrop{display:none;position:fixed!important;inset:0!important;background:rgba(2,6,23,.46)!important;z-index:900!important}.hamburger-main,.firebase-sidebar,.dashboard-topbar{display:none!important}@media(max-width:1200px){.top-actions{flex-wrap:wrap!important}.system-status{display:none!important}.manage-btn{min-width:210px!important}.manage-copy small{display:none!important}}@media(max-width:980px){.rail{width:70px!important;padding:12px 8px!important}.main,body:not(.sidebar-collapsed) .main,body.sidebar-open .main{margin-left:70px!important;padding:12px 12px 34px!important}.sidebar{left:70px!important;transform:translateX(-110%)!important;width:var(--sidebar)!important}.sidebar-open .sidebar{transform:translateX(0)!important}.sidebar-open .sidebar-backdrop{display:block!important}.topbar.admin-employee-style-header{position:relative!important;top:auto!important;align-items:flex-start!important;flex-direction:column!important}.top-actions{width:100%!important;justify-content:flex-start!important}.profile-pill,.header-action-menu,.manage-btn{width:100%!important;min-width:0!important}.manage-dropdown{left:0!important;right:auto!important;width:min(100%,360px)!important}.brand h1{font-size:20px!important}.brand p{font-size:10px!important}}@media(max-width:620px){.top-actions{flex-direction:column!important}.top-actions>*{width:100%!important}.logout-icon-only{width:100%!important}.rail{width:64px!important}.main,.sidebar-open .main{margin-left:64px!important}.sidebar{left:64px!important}.dp-mini{width:48px!important;height:48px!important;min-width:48px!important}.rail-btn{width:44px!important;height:44px!important;min-width:44px!important}.brand-logo{width:48px!important;height:48px!important;min-width:48px!important}}
+</style>
+<style id="final-request-fixes-v1">
+/* Final requested fixes: no visible sidebar comment, fixed red logout in all themes */
+.logout-icon-only,
+body.dark .logout-icon-only,
+.logout,
+body.dark .logout{
+  background:linear-gradient(135deg,#ef4444 0%,#b91c1c 100%)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  box-shadow:0 14px 28px rgba(239,68,68,.24)!important;
+}
+.logout-icon-only i,body.dark .logout-icon-only i,.logout i,body.dark .logout i{color:#fff!important}
+.employee-portal-btn{
+  background:linear-gradient(135deg,#080b12 0%,#1f2937 58%,#d7a839 145%)!important;
+  color:#fff!important;
+  border:1px solid rgba(215,168,57,.34)!important;
+  box-shadow:0 14px 28px rgba(15,23,42,.18)!important;
+}
+.employee-portal-btn i{color:#d7a839!important}
+.employee-portal-btn:hover{transform:translateY(-2px)!important}
+.employee-menu-link i,.menu-action[href*="employee-dashboard.html"] i{background:linear-gradient(145deg,#0f172a,#d7a839)!important}
+@media(max-width:1200px){.employee-portal-btn span{display:none!important}.employee-portal-btn{width:50px!important;min-width:50px!important;padding:0!important}}
+@media(max-width:620px){.employee-portal-btn{width:100%!important}.employee-portal-btn span{display:inline!important}}
+</style>
+<style id="policy-bank-logo-icon-fix-v1">
+/* Bank policy logo icons */
+.policy-bank-logo{display:block;width:100%;height:100%;object-fit:contain;background:#fff;border-radius:inherit;padding:4px;}
+.rail-btn.policy-logo-btn{overflow:hidden;padding:6px!important;background:#fff!important;border:1px solid rgba(226,232,240,.90)!important;}
+.rail-btn.policy-logo-btn:hover,.rail-btn.policy-logo-btn.active{background:#fff!important;box-shadow:0 14px 24px rgba(15,23,42,.14)!important;}
+.rail-btn.policy-logo-btn .policy-bank-logo{padding:3px;border-radius:13px;}
+.side-bank-logo{width:32px!important;height:32px!important;min-width:32px!important;border-radius:12px!important;display:grid!important;place-items:center!important;background:#fff!important;padding:4px!important;border:1px solid rgba(226,232,240,.85)!important;box-shadow:0 8px 16px rgba(15,23,42,.06)!important;overflow:hidden!important;}
+.side-bank-logo img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important;border-radius:8px!important;}
+.side-item:hover .side-bank-logo,.side-item.active .side-bank-logo{background:#fff!important;transform:translateY(-1px);box-shadow:0 10px 18px rgba(15,23,42,.10)!important;}
+.finance-icon-glyph.bank-logo-glyph{background:#fff!important;overflow:hidden!important;color:transparent!important;padding:7px!important;}
+.finance-icon-glyph.bank-logo-glyph img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important;border-radius:13px!important;}
+.finance-icon-mini.bank-logo-mini{background:#fff!important;overflow:hidden!important;padding:4px!important;}
+.finance-icon-mini.bank-logo-mini img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important;border-radius:7px!important;}
+</style>
+<style id="policy-bank-logo-path-fix-v2">
+/* Bank policy logo fix: real image logo as button icon */
+.policy-bank-logo.js-policy-logo{
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  display:block!important;
+  border-radius:inherit!important;
+  background:#fff!important;
+  padding:3px!important;
+}
+.finance-icon-glyph.bank-logo-glyph{
+  background:#fff!important;
+  padding:8px!important;
+  color:transparent!important;
+  overflow:hidden!important;
+}
+.finance-icon-mini.bank-logo-mini{
+  background:#fff!important;
+  padding:4px!important;
+  overflow:hidden!important;
+}
+.rail-btn.policy-logo-btn{
+  background:#fff!important;
+  color:transparent!important;
+  overflow:hidden!important;
+}
+.side-bank-logo{
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.policy-logo-missing{
+  outline:2px dashed rgba(239,68,68,.35)!important;
+}
+</style>
+<style id="leads-admin-dashboard-overrides-v1">
+/* Leads page aligned with admin-dashboard.html rail/sidebar/header/hero */
+:root{
+  --bg2:#ffffff;
+  --card-solid:#ffffff;
+  --soft:0 12px 28px rgba(15,23,42,.08);
+  --glass:blur(20px) saturate(140%);
+  --line2:#d8deea;
+}
+body.dark{
+  --bg2:#0d1322;
+  --card-solid:#111827;
+  --soft:0 16px 42px rgba(0,0,0,.28);
+  --line2:rgba(255,255,255,.18);
+}
+body.leads-admin-shell{overflow-x:hidden;}
+body.leads-admin-shell:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:linear-gradient(rgba(215,168,57,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.08) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 80%);
+  z-index:0;
+}
+body.leads-admin-shell .app-layout{position:relative;z-index:1;min-height:100vh;}
+body.leads-admin-shell .main{max-width:none!important;width:auto!important;margin-right:0!important;}
+body.leads-admin-shell .lead-admin-wrap{width:min(1560px,100%);margin:0 auto;}
+body.leads-admin-shell .topbar .brand{color:inherit!important;text-decoration:none!important;}
+body.leads-admin-shell .employee-portal-btn{background:linear-gradient(145deg,#111827,#374151)!important;color:#fff!important;border-color:rgba(255,255,255,.12)!important;}
+body.leads-admin-shell .employee-portal-btn i{color:#d7a839!important;}
+body.leads-admin-shell .live-admin-hero{
+  display:block!important;
+  grid-template-columns:none!important;
+  min-height:0!important;
+  border:1px solid var(--line)!important;
+  border-radius:30px!important;
+  background:linear-gradient(135deg,rgba(8,11,18,.97),rgba(17,24,39,.92))!important;
+  color:#fff!important;
+  box-shadow:var(--shadow)!important;
+  padding:28px!important;
+  margin:0 0 18px!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+body.leads-admin-shell .live-admin-hero:before{content:"";position:absolute;inset:-80px auto auto -80px;width:260px;height:260px;border-radius:999px;background:radial-gradient(circle,rgba(215,168,57,.32),transparent 70%);}
+body.leads-admin-shell .live-admin-hero:after{content:"";position:absolute;right:-70px;bottom:-100px;width:320px;height:320px;border-radius:999px;background:radial-gradient(circle,rgba(79,124,255,.24),transparent 70%);animation:none!important;transform:none!important;}
+body.leads-admin-shell .live-admin-hero>*{position:relative;z-index:1;}
+body.leads-admin-shell .hero-grid{display:grid;grid-template-columns:1.18fr .82fr;gap:24px;align-items:center;}
+body.leads-admin-shell .eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(215,168,57,.35);background:rgba(215,168,57,.12);color:var(--gold2);padding:7px 12px;border-radius:999px;font-weight:900;font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+body.leads-admin-shell .live-admin-hero h2{font-size:42px!important;line-height:1.03!important;margin:14px 0 10px!important;letter-spacing:-1.3px!important;font-weight:900!important;}
+body.leads-admin-shell .live-admin-hero p{color:#cbd5e1!important;font-size:15px!important;max-width:780px!important;line-height:1.6!important;margin-top:0!important;}
+body.leads-admin-shell .hero-actions{display:flex!important;gap:10px!important;flex-wrap:wrap!important;margin-top:18px!important;}
+body.leads-admin-shell .hero-chip{min-height:42px!important;padding:0 14px!important;border-radius:999px!important;display:inline-flex!important;align-items:center!important;gap:8px!important;background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.13)!important;color:#fff!important;font-weight:900!important;font-size:13px!important;}
+body.leads-admin-shell .hero-chip:hover{border-color:rgba(215,168,57,.55)!important;transform:translateY(-2px)!important;}
+body.leads-admin-shell .hero-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+body.leads-admin-shell .hero-tile{min-height:112px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);padding:16px;display:flex;align-items:center;gap:14px;}
+body.leads-admin-shell .hero-tile i{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));font-size:20px;}
+body.leads-admin-shell .hero-tile small{display:block;color:#cbd5e1;font-weight:900;text-transform:uppercase;font-size:11px;}
+body.leads-admin-shell .hero-tile strong{display:block;font-size:26px;margin-top:5px;letter-spacing:-.04em;}
+body.leads-admin-shell .lead-stats-grid{margin:0 0 18px!important;}
+body.leads-admin-shell .lead-stat-card{background:var(--card)!important;backdrop-filter:var(--glass)!important;box-shadow:var(--soft)!important;}
+body.leads-admin-shell .form-card,.leads-admin-shell .panel{box-shadow:var(--soft)!important;}
+body.leads-admin-shell .floating-top{right:22px;bottom:22px;z-index:70;}
+/* Compact profile modal for header actions */
+.profile-modal-backdrop{position:fixed;inset:0;z-index:5000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.55);backdrop-filter:blur(10px)}
+.profile-modal-backdrop.show{display:flex;}
+.profile-modal{width:min(760px,100%);border-radius:30px;border:1px solid var(--line);background:var(--card-solid);box-shadow:0 40px 110px rgba(15,23,42,.26);overflow:hidden;color:var(--text)}
+.profile-modal-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;background:inherit;}
+.profile-modal-title{display:flex;align-items:center;gap:14px;}.profile-modal-title h3{font-size:24px;line-height:1;font-weight:900;letter-spacing:-.03em}.profile-modal-title p{margin-top:5px;color:var(--muted);font-weight:800;font-size:13px}.profile-close{width:42px;height:42px;border-radius:15px;border:1px solid var(--line);background:var(--card-solid);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.profile-modal-body{padding:22px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px}.profile-photo-card{border:1px solid var(--line);border-radius:24px;padding:18px;background:var(--card);text-align:center}.profile-modal-avatar{width:126px;height:126px;border-radius:32px;margin:0 auto 14px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#2563eb,#d7a839);color:#fff;font-size:34px;font-weight:900}.profile-modal-avatar img{width:100%;height:100%;object-fit:cover;display:none}.profile-modal-avatar.has-image img{display:block}.profile-modal-avatar.has-image span{display:none}.profile-photo-card h4{font-size:18px;margin-bottom:7px}.profile-photo-card p{color:var(--muted);font-weight:700;font-size:13px;line-height:1.45}.profile-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.profile-field{display:flex;flex-direction:column;gap:7px}.profile-field.full{grid-column:1/-1}.profile-field label{color:var(--muted);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.profile-field input,.profile-field textarea{border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.84);color:var(--text);padding:13px 14px;font-weight:800;outline:none}.profile-field textarea{min-height:82px;resize:vertical}body.dark .profile-field input,body.dark .profile-field textarea{background:rgba(2,6,23,.50)}.profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}.profile-save,.profile-cancel{height:44px;border-radius:15px;padding:0 17px;font-weight:900;border:1px solid var(--line);cursor:pointer}.profile-save{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:0}.profile-cancel{background:var(--card-solid);color:var(--text)}
+@media(max-width:1300px){body.leads-admin-shell .hero-grid{grid-template-columns:1fr;}body.leads-admin-shell .hero-card-grid{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(max-width:920px){body.leads-admin-shell .hero-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.profile-modal-body{grid-template-columns:1fr}.profile-form-grid{grid-template-columns:1fr}.profile-field.full{grid-column:auto;}}
+@media(max-width:620px){body.leads-admin-shell .live-admin-hero h2{font-size:31px!important;}body.leads-admin-shell .hero-card-grid{grid-template-columns:1fr;}body.leads-admin-shell .hero-actions{display:none!important;}}
+</style>
+<style id="leads-dashboard-header-dp-fix-v2">
+/* Child page header locked to dashboard style: employee portal shortcut removed */
+body.leads-admin-shell .employee-portal-btn,
+body.leads-admin-shell .employee-menu-link{display:none!important;}
+body.leads-admin-shell .topbar.admin-employee-style-header{
+  min-height:78px!important;
+  padding:12px 16px!important;
+  border-radius:28px!important;
+  background:var(--card)!important;
+  border:1px solid var(--line)!important;
+  box-shadow:var(--soft)!important;
+}
+body.leads-admin-shell .top-actions{gap:10px!important;flex-wrap:nowrap!important;}
+body.leads-admin-shell .theme-toggle{
+  width:74px!important;
+  min-width:74px!important;
+  padding:0 8px!important;
+  justify-content:center!important;
+  background:var(--card-solid)!important;
+}
+body.leads-admin-shell .theme-track{
+  width:58px!important;
+  height:30px!important;
+  border-radius:999px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  padding:0 8px!important;
+  color:#fff!important;
+  position:relative!important;
+  background:linear-gradient(135deg,#080b12,#d7a839)!important;
+}
+body.leads-admin-shell .theme-track:after{
+  content:""!important;
+  position:absolute!important;
+  left:4px!important;
+  top:4px!important;
+  width:22px!important;
+  height:22px!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  transition:.22s!important;
+  box-shadow:0 8px 18px rgba(0,0,0,.22)!important;
+}
+body.dark.leads-admin-shell .theme-track:after{left:32px!important;}
+body.leads-admin-shell .theme-track i{display:none!important;}
+body.leads-admin-shell .icon-btn.back-dashboard,
+body.leads-admin-shell .logout-header{
+  width:50px!important;
+  min-width:50px!important;
+  max-width:50px!important;
+  height:50px!important;
+  min-height:50px!important;
+  border-radius:18px!important;
+  padding:0!important;
+  flex:0 0 50px!important;
+  display:inline-grid!important;
+  place-items:center!important;
+}
+body.leads-admin-shell .icon-btn.back-dashboard{
+  background:linear-gradient(145deg,rgba(215,168,57,.16),rgba(255,255,255,.85))!important;
+  color:#121826!important;
+  border:1px solid rgba(215,168,57,.30)!important;
+}
+body.dark.leads-admin-shell .icon-btn.back-dashboard{
+  background:linear-gradient(145deg,rgba(215,168,57,.18),rgba(17,24,39,.9))!important;
+  color:var(--gold2)!important;
+}
+body.leads-admin-shell .logout-header{
+  background:linear-gradient(135deg,#ef4444,#991b1b)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 16px 32px rgba(239,68,68,.22)!important;
+}
+body.leads-admin-shell .logout-header i{color:#fff!important;font-size:17px!important;}
+body.leads-admin-shell .manage-btn{min-width:220px!important;}
+body.leads-admin-shell .lead-hero-profile-card{
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:30px!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06))!important;
+  padding:22px!important;
+  display:grid!important;
+  grid-template-columns:108px 1fr!important;
+  gap:16px!important;
+  align-items:center!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 28px 70px rgba(0,0,0,.15)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+}
+body.leads-admin-shell .hero-card-logo{
+  width:108px!important;
+  height:108px!important;
+  border-radius:32px!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  position:relative!important;
+  border:1px solid rgba(255,255,255,.72)!important;
+  background:linear-gradient(145deg,#ffffff,#eef4ff)!important;
+  box-shadow:0 0 0 7px rgba(255,255,255,.12),0 20px 46px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.96)!important;
+  color:#0f172a!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+body.leads-admin-shell .hero-card-logo img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  display:none!important;
+}
+body.leads-admin-shell .hero-card-logo.has-image img{display:block!important;}
+body.leads-admin-shell .hero-card-logo.has-image .hero-card-dp-fallback{display:none!important;}
+body.leads-admin-shell .hero-card-dp-fallback{font-size:34px!important;font-weight:900!important;color:#0f172a!important;letter-spacing:-.03em!important;}
+body.leads-admin-shell .hero-card-copy small{
+  display:block!important;
+  color:#cbd5e1!important;
+  font-weight:900!important;
+  text-transform:uppercase!important;
+  font-size:11px!important;
+  letter-spacing:.08em!important;
+}
+body.leads-admin-shell .hero-card-copy strong{
+  display:block!important;
+  font-size:34px!important;
+  margin-top:6px!important;
+  line-height:1!important;
+  letter-spacing:-.04em!important;
+  color:#fff!important;
+}
+body.leads-admin-shell .hero-card-tags{margin-top:10px!important;display:flex!important;gap:7px!important;flex-wrap:wrap!important;}
+body.leads-admin-shell .hero-card-tags span{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  margin:0!important;
+  border-radius:999px!important;
+  padding:7px 10px!important;
+  background:rgba(255,255,255,.12)!important;
+  border:1px solid rgba(255,255,255,.18)!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  color:#fff!important;
+}
+body.leads-admin-shell .hero-card-tags b{font:inherit!important;color:#fff!important;}
+@media(max-width:1300px){
+  body.leads-admin-shell .hero-grid{grid-template-columns:1fr!important;}
+}
+@media(max-width:760px){
+  body.leads-admin-shell .top-actions{width:100%!important;flex-wrap:wrap!important;justify-content:flex-start!important;}
+  body.leads-admin-shell .profile-pill,
+  body.leads-admin-shell .header-action-menu,
+  body.leads-admin-shell .manage-btn{width:100%!important;min-width:0!important;}
+  body.leads-admin-shell .lead-hero-profile-card{grid-template-columns:1fr!important;text-align:center!important;justify-items:center!important;}
+}
+</style>
+
+<style id="detailsheet-master-child-layout-v1">
+body.detailsheet-shell .employee-portal-btn,body.detailsheet-shell .employee-menu-link{display:none!important;}
+body.detailsheet-shell .detail-admin-wrap{width:min(1560px,100%);margin:0 auto;}
+body.detailsheet-shell .main{padding-left:28px!important;padding-right:24px!important;}
+body.detailsheet-shell .live-admin-hero{margin-bottom:18px!important;}
+body.detailsheet-shell .detail-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 18px;}
+body.detailsheet-shell .detail-summary-card{position:relative;overflow:hidden;min-height:118px;border:1px solid var(--line);border-radius:24px;background:var(--card);box-shadow:var(--soft);padding:18px;display:flex;align-items:center;gap:14px;backdrop-filter:var(--glass);}
+body.detailsheet-shell .detail-summary-card:after{content:"";position:absolute;right:-38px;top:-42px;width:116px;height:116px;border-radius:999px;background:linear-gradient(135deg,rgba(215,168,57,.18),rgba(79,124,255,.12));}
+body.detailsheet-shell .detail-summary-card i{position:relative;z-index:1;width:58px;height:58px;min-width:58px;border-radius:20px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));font-size:21px;box-shadow:0 15px 30px rgba(215,168,57,.18);}
+body.detailsheet-shell .detail-summary-card small{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+body.detailsheet-shell .detail-summary-card strong{display:block;margin-top:6px;font-size:25px;font-weight:900;letter-spacing:-.04em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+body.detailsheet-shell .detail-summary-card span{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:800;}
+body.detailsheet-shell .detail-pulse-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 18px;}
+body.detailsheet-shell .detail-pulse-card{position:relative;min-height:98px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,var(--card),rgba(255,255,255,.72));box-shadow:var(--soft);padding:16px 18px;overflow:hidden;}
+body.dark.detailsheet-shell .detail-pulse-card{background:linear-gradient(145deg,rgba(15,23,42,.84),rgba(17,24,39,.76));}
+body.detailsheet-shell .detail-pulse-card b{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:14px;background:linear-gradient(145deg,var(--black),var(--gold));color:#fff;font-size:12px;box-shadow:0 12px 24px rgba(15,23,42,.12);}
+body.detailsheet-shell .detail-pulse-card span{display:block;margin-top:12px;font-size:16px;font-weight:900;}
+body.detailsheet-shell .detail-pulse-card small{display:block;margin-top:5px;color:var(--muted);font-weight:800;line-height:1.35;}
+body.detailsheet-shell .form-card{border:1px solid var(--line)!important;background:var(--card)!important;backdrop-filter:var(--glass)!important;border-radius:26px!important;box-shadow:var(--soft)!important;overflow:hidden;margin:0 0 18px!important;}
+body.detailsheet-shell .form-head{padding:20px 22px!important;border-bottom:1px solid var(--line)!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;}
+body.detailsheet-shell .form-head h3{font-size:20px!important;display:flex!important;gap:10px!important;align-items:center!important;margin:0!important;letter-spacing:-.02em!important;}
+body.detailsheet-shell .form-head h3 i{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;color:#121826;background:linear-gradient(145deg,var(--gold),var(--gold2));box-shadow:0 12px 24px rgba(215,168,57,.16);}
+body.detailsheet-shell .form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:20px 22px!important;}
+body.detailsheet-shell .field{min-width:0;}
+body.detailsheet-shell .field label{display:flex;align-items:center;gap:7px;color:var(--muted)!important;font-size:12px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.04em!important;margin-bottom:8px!important;}
+body.detailsheet-shell .field.full{grid-column:1/-1!important;}
+body.detailsheet-shell .field.two{grid-column:span 2!important;}
+body.detailsheet-shell .input-wrap{position:relative;}
+body.detailsheet-shell .input-wrap i{position:absolute;left:14px;top:15px;color:var(--gold3);z-index:1;}
+body.detailsheet-shell .input-wrap input,body.detailsheet-shell .input-wrap select,body.detailsheet-shell .input-wrap textarea{padding-left:42px!important;}
+body.detailsheet-shell input,body.detailsheet-shell select,body.detailsheet-shell textarea{width:100%;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.84);color:var(--text);padding:13px 14px;font-weight:800;outline:none;transition:.18s ease;box-shadow:0 8px 18px rgba(15,23,42,.035);}
+body.dark.detailsheet-shell input,body.dark.detailsheet-shell select,body.dark.detailsheet-shell textarea{background:rgba(2,6,23,.58);}
+body.detailsheet-shell textarea{min-height:98px;resize:vertical;line-height:1.45;}
+body.detailsheet-shell input:focus,body.detailsheet-shell select:focus,body.detailsheet-shell textarea:focus{border-color:rgba(215,168,57,.75)!important;box-shadow:0 0 0 4px rgba(215,168,57,.14)!important;}
+body.detailsheet-shell .radio-group{display:flex;gap:10px;flex-wrap:wrap;}
+body.detailsheet-shell .radio-group label{text-transform:none!important;letter-spacing:0!important;color:var(--text)!important;font-size:13px!important;border:1px solid var(--line2);border-radius:999px;padding:11px 13px;background:rgba(255,255,255,.65);cursor:pointer;font-weight:900!important;margin:0!important;}
+body.dark.detailsheet-shell .radio-group label{background:rgba(2,6,23,.55);}
+body.detailsheet-shell .stepper{display:grid;grid-template-columns:repeat(8,minmax(120px,1fr));gap:10px;overflow:auto;padding:16px 18px 20px;}
+body.detailsheet-shell .step{border:1px solid var(--line);background:var(--card-solid);border-radius:18px;padding:12px 13px;font-weight:900;color:var(--muted);display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 8px 18px rgba(15,23,42,.04);}
+body.detailsheet-shell .step.active{color:#121826;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:rgba(139,100,24,.35);}
+body.detailsheet-shell .review-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 22px;}
+body.detailsheet-shell .review-item{border:1px solid var(--line);border-radius:20px;padding:16px;background:linear-gradient(145deg,rgba(215,168,57,.08),rgba(79,124,255,.06));}
+body.detailsheet-shell .review-item small{display:block;color:var(--muted);font-weight:900;text-transform:uppercase;font-size:11px;letter-spacing:.06em;}
+body.detailsheet-shell .review-item strong{display:block;margin-top:7px;font-size:18px;}
+body.detailsheet-shell .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+body.detailsheet-shell .btn{min-height:46px;border-radius:16px;padding:0 16px;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--card-solid);color:var(--text);box-shadow:var(--soft);font-weight:900;transition:.2s ease;}
+body.detailsheet-shell .btn:hover{transform:translateY(-2px);}
+body.detailsheet-shell .btn.gold{background:linear-gradient(145deg,#fff1b8,#d7a839 58%,#8b6418)!important;color:#120d04!important;border-color:rgba(139,100,24,.35)!important;}
+body.detailsheet-shell .badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;background:var(--card-solid);}
+body.detailsheet-shell .badge.green{color:var(--green);border-color:rgba(22,163,74,.25);}
+body.detailsheet-shell .badge.gold{color:var(--gold3);border-color:rgba(215,168,57,.30);}
+body.dark.detailsheet-shell .badge.gold{color:var(--gold2);}
+body.detailsheet-shell .toast{position:fixed;right:22px;bottom:22px;z-index:5100;border-radius:18px;background:linear-gradient(135deg,var(--black),var(--black2));color:#fff;border:1px solid rgba(215,168,57,.45);padding:14px 16px;box-shadow:var(--shadow);display:none;font-weight:900;}
+body.detailsheet-shell .toast.show{display:block;animation:pop .25s ease;}
+@keyframes pop{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
+@media(max-width:1320px){body.detailsheet-shell .detail-summary-grid,body.detailsheet-shell .detail-pulse-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body.detailsheet-shell .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body.detailsheet-shell .stepper{grid-template-columns:repeat(4,minmax(120px,1fr));}}
+@media(max-width:760px){body.detailsheet-shell .main{padding-left:12px!important;padding-right:12px!important;}body.detailsheet-shell .detail-summary-grid,body.detailsheet-shell .detail-pulse-grid,body.detailsheet-shell .form-grid,body.detailsheet-shell .review-strip{grid-template-columns:1fr;}body.detailsheet-shell .field.two{grid-column:auto!important;}body.detailsheet-shell .stepper{grid-template-columns:1fr 1fr;}body.detailsheet-shell .btn{width:100%;}}
+@media print{body.detailsheet-shell .rail,body.detailsheet-shell .sidebar,body.detailsheet-shell .sidebar-backdrop,body.detailsheet-shell .topbar,body.detailsheet-shell .hero-actions,body.detailsheet-shell .detail-pulse-grid{display:none!important;}body.detailsheet-shell .main{margin-left:0!important;padding:0!important;}body.detailsheet-shell .form-card,body.detailsheet-shell .detail-summary-card{box-shadow:none!important;break-inside:avoid;}}
+</style>
+
+<script src="../nexcrm-apps-script-bridge.js"></script>
+<link rel="stylesheet" href="../nexcrm-mobile-compact.css" />
+</head>
+<body class="sidebar-collapsed leads-admin-shell detailsheet-shell">
+
+<div class="app-layout" id="dashboardTop">
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<nav class="rail" aria-label="NexCRM quick rail">
+  <button class="dp-mini profile-open-trigger" id="sidebarProfileDp" title="Open Profile" type="button"><img alt="Profile DP" id="sidebarDpImg"/><span id="sidebarDpInitials">AD</span></button>
+  <button class="rail-btn active" id="sidebarRailToggle" title="Open / Close Sidebar" type="button"><i class="fa-solid fa-bars-staggered"></i></button>
+  <a class="rail-btn" href="../admin-dashboard.html" title="Dashboard"><i class="fa-solid fa-house"></i></a>
+  <a class="rail-btn" href="leads.html" title="New Lead"><i class="fa-solid fa-plus"></i></a>
+  <a class="rail-btn" href="lead-view.html" title="All Lead's View"><i class="fa-solid fa-address-book"></i></a>
+  <a class="rail-btn active" href="detailsheet.html" title="Customer Details Sheet"><i class="fa-solid fa-file-circle-check"></i></a>
+  <div class="rail-sep"></div>
+  <a class="rail-btn policy-logo-btn" href="../Bank Policy/bajaj.html" title="Bajaj Policy"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/Bajaj.png" alt="Bajaj Policy Logo" loading="eager" data-logo-file="Bajaj.png"></a>
+  <a class="rail-btn policy-logo-btn" href="../Bank Policy/bandhan.html" title="Bandhan Policy"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/Bandhan.jpg" alt="Bandhan Policy Logo" loading="eager" data-logo-file="Bandhan.jpg"></a>
+  <div class="rail-spacer"></div>
+  <a class="rail-btn" href="../HRMS/portal-settings.html" title="Settings"><i class="fa-solid fa-gear"></i></a>
+</nav>
+<aside class="sidebar" id="sidebar" aria-label="NexCRM expanded sidebar">
+  <div class="side-inner">
+    <div class="side-head">
+      <img alt="Finbud" onerror="this.onerror=null;this.src='../Meterial/FB-logo.png'" src="../Meterial/FB-logo.png"/>
+      <div><h3>NexCRM</h3><small>Admin Panel</small></div>
+      <button class="side-close" id="sidebarToggleTop" title="Close sidebar" type="button"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <span class="side-label">Dashboard</span>
+    <a class="side-item" href="../admin-dashboard.html"><i class="fa-solid fa-house"></i><span>Project Overview</span></a>
+    <a class="side-item" href="../admin-dashboard.html#reports"><i class="fa-solid fa-chart-line"></i><span>Dashboard Reports</span></a>
+    <a class="side-item" href="../admin-dashboard.html#moduleGrid"><i class="fa-solid fa-grip"></i><span>All Website Buttons</span></a>
+    <span class="side-label">Lead & Customer</span>
+    <a class="side-item" href="leads.html"><i class="fa-solid fa-plus"></i><span>Add New Lead</span></a>
+    <a class="side-item" href="lead-view.html"><i class="fa-solid fa-address-book"></i><span>All Lead's View</span></a>
+    <a class="side-item active" href="detailsheet.html"><i class="fa-solid fa-file-circle-check"></i><span>Customer Details Sheet</span></a>
+    <a class="side-item" href="MIS.html"><i class="fa-solid fa-database"></i><span>MIS Dashboard</span></a>
+    <a class="side-item" href="dashboard.html"><i class="fa-solid fa-gauge-high"></i><span>Customer Dashboard</span></a>
+    <a class="side-item" href="employee-costing-chart.html"><i class="fa-solid fa-chart-pie"></i><span>Costing</span></a>
+    <a class="side-item" href="vault.html"><i class="fa-solid fa-vault"></i><span>Vault</span></a>
+    <a class="side-item" href="obligation.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>Obligation Sheet</span></a>
+    <span class="side-label">Financial Tools</span>
+    <a class="side-item" href="../Financial Tools/EMI-Calc.html"><i class="fa-solid fa-calculator"></i><span>EMI Calculator</span></a>
+    <a class="side-item" href="../Financial Tools/eligibility-calc.html"><i class="fa-solid fa-user-check"></i><span>Eligibility Calculator</span></a>
+    <a class="side-item" href="../Financial Tools/BT-Calc.html"><i class="fa-solid fa-right-left"></i><span>BT Calculator</span></a>
+    <a class="side-item" href="../Financial Tools/Bajaj-Pf-Calc.html"><i class="fa-solid fa-file-invoice-dollar"></i><span>BAJAJ PF Calculator</span></a>
+    <a class="side-item" href="../Financial Tools/Od-Calc.html"><i class="fa-solid fa-chart-line"></i><span>OD Limit Calculator</span></a>
+    <a class="side-item" href="../Financial Tools/Bank Company Check Tool's/Bank-Cat-checker-live.html"><i class="fa-solid fa-landmark"></i><span>Bank Company Check</span></a>
+    <a class="side-item" href="../Financial Tools/Pincode Tool's/pincode-india-live.html"><i class="fa-solid fa-map-location-dot"></i><span>Pincode Finder</span></a>
+    <a class="side-item" href="../Financial Tools/FPR-list.html"><i class="fa-solid fa-location-dot"></i><span>FPR Location Check</span></a>
+    <span class="side-label">Policy Modules</span>
+    <a class="side-item" href="../Bank Policy/bajaj.html"><span class="side-bank-logo"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/Bajaj.png" alt="Bajaj Policy Logo" loading="eager" data-logo-file="Bajaj.png"></span><span>Bajaj Policy</span></a>
+    <a class="side-item" href="../Bank Policy/chola.html"><span class="side-bank-logo"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/Chola.png" alt="Chola Policy Logo" loading="eager" data-logo-file="Chola.png"></span><span>Chola Policy</span></a>
+    <a class="side-item" href="../Bank Policy/bandhan.html"><span class="side-bank-logo"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/Bandhan.jpg" alt="Bandhan Policy Logo" loading="eager" data-logo-file="Bandhan.jpg"></span><span>Bandhan Policy</span></a>
+    <a class="side-item" href="../Bank Policy/usfb.html"><span class="side-bank-logo"><img class="policy-bank-logo js-policy-logo" src="../Meterial/Bank Images/utkarsh.jpg" alt="USFB Policy Logo" loading="eager" data-logo-file="utkarsh.jpg"></span><span>USFB Policy</span></a>
+    <span class="side-label">HR & Employee</span>
+    <a class="side-item" href="../HRMS/hrms-portal.html"><i class="fa-solid fa-users-gear"></i><span>HRMS Portal</span></a>
+    <a class="side-item" href="../HRMS/employee-add.html"><i class="fa-solid fa-user-plus"></i><span>Employee Management</span></a>
+    <a class="side-item" href="../HRMS/attendance-chart.html"><i class="fa-solid fa-calendar-days"></i><span>Attendance Sheet</span></a>
+    <a class="side-item" href="../HRMS/employee-joining-form.html"><i class="fa-solid fa-file-circle-plus"></i><span>Joining Form</span></a>
+    <span class="side-label">Documents & System</span>
+    <a class="side-item" href="../HRMS/payslip.html"><i class="fa-solid fa-file-arrow-down"></i><span>Pay Slip Download</span></a>
+    <a class="side-item" href="../HRMS/offer-latter.html"><i class="fa-solid fa-file-contract"></i><span>Offer Letter Generator</span></a>
+    <a class="side-item" href="../HRMS/portal-settings.html"><i class="fa-solid fa-gear"></i><span>Portal Settings</span></a>
+    <button class="side-item side-bottom-btn" id="sidebarCollapseBottom" type="button"><i class="fa-solid fa-chevron-left"></i><span>Close Sidebar</span></button>
+  </div>
+</aside>
+<main class="main lead-admin-main detail-admin-main">
+<header class="topbar admin-employee-style-header admin-indi-header employee-admin-style-header">
+  <a class="brand" href="../admin-dashboard.html" aria-label="Admin Dashboard">
+    <span class="brand-logo admin-logo-frame"><img alt="Finbud" onerror="this.onerror=null;this.src='../Meterial/FB-logo.png'" src="../Meterial/FB-logo.png"/></span>
+    <div><h1>NexCRM Admin Dashboard</h1><p>Customer detail sheet control center</p></div>
+  </a>
+  <div class="top-actions">
+    <button class="top-pill profile-pill profile-open-trigger user-pill" id="loggedUserPill" title="Open Profile" type="button">
+      <span class="dp-mini logo-avatar" id="topProfileDp"><img alt="Profile DP" id="topDpImg"/><span id="userInitials">AD</span></span>
+      <span class="profile-text user-text"><small>Logged in as</small><b id="loggedUserName">Admin User</b></span>
+    </button>
+    <div class="top-pill system-status"><span class="dot"></span> Detailsheet Active</div>
+    <div class="header-action-menu manage" id="headerActionMenu">
+      <button aria-expanded="false" aria-haspopup="true" class="top-pill manage-btn" id="manageMenuBtn" title="Manage account & actions" type="button">
+        <span class="profile-btn-dp manage-btn-dp" id="profileButtonDp"><img alt="Profile DP" id="profileBtnDpImg"/><i class="fa-solid fa-user-gear"></i></span>
+        <span class="manage-copy"><b>Manage</b><small>Profile • Print • Sync</small></span>
+        <i class="fa-solid fa-chevron-down manage-caret"></i>
+      </button>
+      <div aria-label="Account management menu" class="manage-dropdown manage-menu" id="manageDropdown" role="menu">
+        <button class="menu-action profile-open-trigger menu-item" role="menuitem" type="button"><i class="fa-solid fa-user-pen"></i><span><b>Profile</b><small>Upload DP & personal details</small></span></button>
+        <button class="menu-action menu-item" onclick="window.print()" role="menuitem" type="button"><i class="fa-solid fa-print"></i><span><b>Print Detailsheet</b><small>Print current capture form</small></span></button>
+        <button class="menu-action menu-item" onclick="renderMiniStats();syncDetailHeroStats();" role="menuitem" type="button"><i class="fa-solid fa-rotate"></i><span><b>Sync Detailsheet</b><small>Refresh counters and reference</small></span></button>
+        <button class="menu-action menu-item" onclick="location.href='../HRMS/portal-settings.html'" role="menuitem" type="button"><i class="fa-solid fa-gear"></i><span><b>Settings</b><small>Portal controls</small></span></button>
+      </div>
+    </div>
+    <button class="top-pill theme-toggle" id="themeBtn" title="Theme" aria-label="Toggle Theme" type="button"><span class="theme-track"><i class="fa-regular fa-sun"></i><i class="fa-solid fa-moon"></i></span></button>
+    <button class="top-pill icon-btn back-dashboard" onclick="location.href='../admin-dashboard.html'" title="Back to Dashboard" aria-label="Back to Dashboard" type="button"><i class="fa-solid fa-house"></i></button>
+    <button class="top-pill logout-icon-only logout-header" id="logoutBtn" title="Logout" aria-label="Logout" type="button"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+</header>
+<div aria-hidden="true" class="profile-modal-backdrop" id="profileModal">
+  <div aria-labelledby="profileModalTitle" aria-modal="true" class="profile-modal" role="dialog">
+    <div class="profile-modal-head">
+      <div class="profile-modal-title">
+        <span class="profile-modal-avatar" id="modalProfileDp"><img alt="Profile DP" id="modalDpImg"/><span id="modalDpInitials">AD</span></span>
+        <div><h3 id="profileModalTitle">My Profile</h3><p>Header profile preview synced from NexCRM session/local profile.</p></div>
+      </div>
+      <button aria-label="Close Profile" class="profile-close" id="profileClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="profile-modal-body">
+      <div class="profile-photo-card"><div class="profile-modal-avatar" id="profilePreviewDp"><img alt="Profile DP" id="profilePreviewImg"/><span id="profilePreviewInitials">AD</span></div><h4 id="profilePreviewName">Admin User</h4><p>Use the same profile data used in admin dashboard.</p></div>
+      <div>
+        <div class="profile-form-grid">
+          <div class="profile-field"><label>Name</label><input id="profileName" type="text" placeholder="Admin Name"></div>
+          <div class="profile-field"><label>Employee ID</label><input id="profileEmployeeId" type="text" placeholder="Admin ID"></div>
+          <div class="profile-field"><label>Official Email</label><input id="profileEmail" type="text" placeholder="Official Email"></div>
+          <div class="profile-field"><label>Role</label><input id="profileRole" type="text" placeholder="Admin"></div>
+          <div class="profile-field full"><label>About</label><textarea id="profileAbout" placeholder="Short profile note"></textarea></div>
+        </div>
+        <div class="profile-actions"><button class="profile-cancel" id="profileCancel" type="button">Cancel</button><button class="profile-save" id="profileSave" type="button">Save Preview</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="lead-admin-wrap detail-admin-wrap">
+
+
+<section class="hero live-admin-hero detailsheet-hero">
+  <div class="hero-grid">
+    <div class="hero-content">
+      <div class="eyebrow"><i class="fa-solid fa-shield-halved"></i> Secure Customer Detailsheet</div>
+      <h2>Customer Detail Sheet Control Center</h2>
+      <p>Lead-style admin header, MIS-style data cards and a clean multi-section capture flow for personal, residence, family, professional, bank, reference and loan details.</p>
+      <div class="hero-actions">
+        <a class="hero-chip" href="#detailSheetForm"><i class="fa-solid fa-pen-to-square"></i> Start Capture</a>
+        <button class="hero-chip" type="button" onclick="clearForm()"><i class="fa-solid fa-rotate-left"></i> Reset Form</button>
+        <button class="hero-chip" type="button" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Detailsheet</button>
+        <a class="hero-chip" href="leads.html"><i class="fa-solid fa-plus"></i> New Lead</a>
+      </div>
+    </div>
+    <div class="hero-card lead-hero-profile-card" aria-label="Detailsheet profile overview">
+      <button class="hero-card-logo profile-open-trigger" id="heroCardDp" title="Open Profile" type="button">
+        <img alt="Admin Profile DP" id="heroCardDpImg"/>
+        <span class="hero-card-dp-fallback" id="heroCardDpInitials">AD</span>
+      </button>
+      <div class="hero-card-copy">
+        <small>Detailsheet Production Control</small>
+        <strong><span id="heroDetailCount">0</span> Sheet's</strong>
+        <div class="hero-card-tags">
+          <span><i class="fa-solid fa-barcode"></i> Ref <b id="heroLatestRef">Auto</b></span>
+          <span><i class="fa-solid fa-database"></i> RTDB Ready</span>
+          <span><i class="fa-solid fa-circle-check"></i> Validation Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="detail-summary-grid" aria-label="Detailsheet overview">
+  <div class="detail-summary-card"><i class="fa-solid fa-file-circle-check"></i><div><small>Total Detail Sheets</small><strong id="detailCount">0</strong><span>Saved customer records</span></div></div>
+  <div class="detail-summary-card"><i class="fa-solid fa-barcode"></i><div><small>Latest Reference</small><strong id="latestRef">-</strong><span>Auto generated ID</span></div></div>
+  <div class="detail-summary-card"><i class="fa-solid fa-cloud-arrow-up"></i><div><small>Storage Mode</small><strong>RTDB</strong><span>Firebase fallback ready</span></div></div>
+  <div class="detail-summary-card"><i class="fa-solid fa-shield-halved"></i><div><small>Page Status</small><strong>Active</strong><span>Production-ready capture</span></div></div>
+</section>
+<section class="detail-pulse-grid">
+  <div class="detail-pulse-card"><b>01</b><span>Personal KYC</span><small>PAN, Aadhaar, DOB and contact validation</small></div>
+  <div class="detail-pulse-card"><b>02</b><span>Residence & Family</span><small>Address, marital and family details</small></div>
+  <div class="detail-pulse-card"><b>03</b><span>Professional & Bank</span><small>Income, office and repayment data</small></div>
+  <div class="detail-pulse-card"><b>04</b><span>References & Loan</span><small>Reference checks and loan requirement</small></div>
+</section>
+
+<section class="form-card detail-flow-card"><div class="form-head"><h3><i class="fa-solid fa-route"></i> Capture Flow</h3><span class="badge gold">8 Step Detailsheet Journey</span></div><div class="stepper">
+  <div class="step active"><i class="fa-solid fa-user-shield"></i> Personal</div><div class="step"><i class="fa-solid fa-house-lock"></i> Residence</div><div class="step"><i class="fa-solid fa-people-roof"></i> Family</div><div class="step"><i class="fa-solid fa-briefcase"></i> Profession</div><div class="step"><i class="fa-solid fa-building-columns"></i> Bank</div><div class="step"><i class="fa-solid fa-address-book"></i> Reference</div><div class="step"><i class="fa-solid fa-sack-dollar"></i> Loan</div><div class="step"><i class="fa-solid fa-circle-check"></i> Submit</div>
+</div></section>
+<form id="detailSheetForm" onsubmit="event.preventDefault();submitDetailSheet();">
+<section class="form-card">
+  <div class="form-head"><h3><i class="fa-solid fa-user-shield"></i> Personal Details</h3><span class="badge gold">Reference: <span id="referenceDisplay">Auto</span></span></div>
+  <div class="form-grid">
+    <div class="field"><label>Reference Number</label><div class="input-wrap"><i class="fa-solid fa-barcode"></i><input id="referenceNo" readonly></div></div>
+    <div class="field"><label>Name as Per PAN Card *</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="customerName" type="text" required placeholder="Customer full name"></div></div>
+    <div class="field"><label>Contact Number *</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="contactNumber" type="tel" maxlength="10" required placeholder="10 digit mobile"></div></div>
+    <div class="field"><label>Gender *</label><div class="radio-group"><label><input type="radio" name="gender" value="Male" required> Male</label><label><input type="radio" name="gender" value="Female"> Female</label><label><input type="radio" name="gender" value="Prefer not to say"> Prefer not to say</label></div></div>
+    <div class="field"><label>PAN Card Number *</label><div class="input-wrap"><i class="fa-solid fa-id-card"></i><input id="panNumber" type="text" required placeholder="ABCDE1234F" style="text-transform:uppercase"></div></div>
+    <div class="field"><label>Date of Birth *</label><div class="input-wrap"><i class="fa-solid fa-calendar"></i><input id="dob" type="date" required></div></div>
+    <div class="field"><label>Aadhaar Number *</label><div class="input-wrap"><i class="fa-solid fa-fingerprint"></i><input id="aadhaarNumber" type="text" required placeholder="Aadhaar number"></div></div>
+    <div class="field"><label>Personal Mail ID</label><div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="personalEmail" type="email" placeholder="customer@email.com"></div></div>
+    <div class="field"><label>Education *</label><div class="input-wrap"><i class="fa-solid fa-graduation-cap"></i><select id="education" required><option value="">Select</option><option>High School</option><option>Intermediate</option><option>Undergraduate</option><option>Graduate</option><option>Post Graduate</option><option>Other</option></select></div></div>
+    <div class="field hidden" id="educationOtherWrap"><label>Education Specify</label><div class="input-wrap"><i class="fa-solid fa-pen"></i><input id="educationSpecify" type="text" placeholder="Specify education"></div></div>
+  </div>
+</section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-house-lock"></i> Residence Details</h3></div><div class="form-grid">
+  <div class="field"><label>Residence Type *</label><div class="input-wrap"><i class="fa-solid fa-house"></i><select id="residenceType" required><option value="">Select</option><option>Owned</option><option>Rented</option><option>Company Provided</option><option>Parents Owned</option><option>Other</option></select></div></div>
+  <div class="field hidden" id="residenceOtherWrap"><label>Residence Type Specify</label><div class="input-wrap"><i class="fa-solid fa-pen"></i><input id="residenceOther" type="text"></div></div>
+  <div class="field"><label>Current Residence Duration</label><div class="input-wrap"><i class="fa-solid fa-clock"></i><input id="residenceDuration" type="text" placeholder="Example: 3 Years"></div></div>
+  <div class="field full"><label>Current Residence Address *</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><textarea id="currentAddress" required placeholder="House no, street, city, state, pincode"></textarea></div></div>
+  <div class="field"><label>Permanent Address</label><div class="radio-group"><label><input type="radio" name="permanentAddress" value="Same as Current" checked> Same as Current</label><label><input type="radio" name="permanentAddress" value="Different"> Different</label></div></div>
+  <div class="field two"><label>Permanent Address Details</label><div class="input-wrap"><i class="fa-solid fa-map-location-dot"></i><textarea id="permanentAddressText" placeholder="Fill only if different"></textarea></div></div>
+</div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-people-roof"></i> Family Details</h3></div><div class="form-grid">
+  <div class="field"><label>Father Name *</label><div class="input-wrap"><i class="fa-solid fa-user-tie"></i><input id="fatherName" required></div></div><div class="field"><label>Mother Name *</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="motherName" required></div></div><div class="field"><label>Marital Status *</label><div class="input-wrap"><i class="fa-solid fa-ring"></i><select id="maritalStatus" required><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option><option>Other</option></select></div></div>
+  <div class="field hidden" id="maritalOtherWrap"><label>Specify Marital Status</label><div class="input-wrap"><i class="fa-solid fa-pen"></i><input id="maritalOther"></div></div><div class="field"><label>Spouse Name</label><div class="input-wrap"><i class="fa-solid fa-user-heart"></i><input id="spouseName"></div></div><div class="field"><label>Spouse Date of Birth</label><div class="input-wrap"><i class="fa-solid fa-calendar-days"></i><input id="spouseDob" type="date"></div></div>
+</div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-briefcase"></i> Professional Details</h3></div><div class="form-grid">
+  <div class="field"><label>Occupation Type *</label><div class="input-wrap"><i class="fa-solid fa-briefcase"></i><select id="occupationType" required><option value="">Select</option><option>Salaried</option><option>Self Employed</option><option>Business Owner</option><option>Professional</option></select></div></div><div class="field"><label>Company Name</label><div class="input-wrap"><i class="fa-solid fa-building"></i><input id="companyName"></div></div><div class="field"><label>Official Email</label><div class="input-wrap"><i class="fa-solid fa-envelope-circle-check"></i><input id="officialEmail" type="email"></div></div>
+  <div class="field full"><label>Office Address</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><textarea id="officeAddress"></textarea></div></div><div class="field"><label>Net Salary</label><div class="input-wrap"><i class="fa-solid fa-indian-rupee-sign"></i><input id="netSalary" type="number"></div></div><div class="field"><label>Current Company DOJ</label><div class="input-wrap"><i class="fa-solid fa-calendar-check"></i><input id="companyDoj" type="date"></div></div><div class="field"><label>Department</label><div class="input-wrap"><i class="fa-solid fa-sitemap"></i><input id="department"></div></div><div class="field"><label>Designation</label><div class="input-wrap"><i class="fa-solid fa-id-badge"></i><input id="designation"></div></div><div class="field"><label>Previous Organization</label><div class="input-wrap"><i class="fa-solid fa-clock-rotate-left"></i><input id="previousOrganization"></div></div>
+</div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-building-columns"></i> Bank & Obligation Details</h3></div><div class="form-grid"><div class="field"><label>Account Holder Name *</label><div class="input-wrap"><i class="fa-solid fa-user-check"></i><input id="accountHolder" required></div></div><div class="field"><label>Bank Name *</label><div class="input-wrap"><i class="fa-solid fa-building-columns"></i><input id="bankName" required></div></div><div class="field"><label>Bank Account Number *</label><div class="input-wrap"><i class="fa-solid fa-hashtag"></i><input id="accountNumber" required></div></div><div class="field"><label>Branch Name / IFSC Code *</label><div class="input-wrap"><i class="fa-solid fa-code-branch"></i><input id="ifsc" required style="text-transform:uppercase"></div></div><div class="field"><label>Overall EMI Paying *</label><div class="input-wrap"><i class="fa-solid fa-indian-rupee-sign"></i><input id="overallEmi" type="number" required></div></div></div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-address-book"></i> References</h3><span class="badge green">Reference 1 Mandatory</span></div><div class="form-grid"><div class="field"><label>Reference 1 Name *</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="ref1Name" required></div></div><div class="field"><label>Reference 1 Mobile *</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="ref1Mobile" maxlength="10" required></div></div><div class="field"><label>Reference 1 Relation *</label><div class="input-wrap"><i class="fa-solid fa-users"></i><select id="ref1Relation" required><option value="">Select</option><option>Relative</option><option>Colleague</option><option>Friend</option><option>Neighbor</option></select></div></div><div class="field full"><label>Reference 1 Address *</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><textarea id="ref1Address" required></textarea></div></div><div class="field"><label>Reference 2 Name</label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="ref2Name"></div></div><div class="field"><label>Reference 2 Mobile</label><div class="input-wrap"><i class="fa-solid fa-phone"></i><input id="ref2Mobile" maxlength="10"></div></div><div class="field"><label>Reference 2 Relation</label><div class="input-wrap"><i class="fa-solid fa-users"></i><select id="ref2Relation"><option value="">Select</option><option>Relative</option><option>Colleague</option><option>Friend</option><option>Neighbor</option></select></div></div><div class="field full"><label>Reference 2 Address</label><div class="input-wrap"><i class="fa-solid fa-location-dot"></i><textarea id="ref2Address"></textarea></div></div></div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-sack-dollar"></i> Loan Requirement</h3></div><div class="form-grid"><div class="field"><label>Type of Loan Required *</label><div class="input-wrap"><i class="fa-solid fa-hand-holding-dollar"></i><select id="loanType" required><option value="">Select Loan Type</option><option>Personal Loan</option><option>Balance Transfer</option><option>Fresh Overdraft Limit</option><option>Term Loan Top-Up</option><option>Overdraft BT Top-Up</option></select></div></div><div class="field"><label>Required Loan Amount *</label><div class="input-wrap"><i class="fa-solid fa-indian-rupee-sign"></i><input id="loanAmount" type="number" required></div></div><div class="field"><label>Tenure *</label><div class="input-wrap"><i class="fa-solid fa-calendar-days"></i><select id="loanTenure" required><option value="">Select Tenure</option><option>2 Years</option><option>3 Years</option><option>4 Years</option><option>5 Years</option><option>6 Years</option><option>7 Years</option><option>8 Years</option><option>9 Years</option></select></div></div></div></section>
+<section class="form-card"><div class="form-head"><h3><i class="fa-solid fa-circle-check"></i> Review & Submit</h3><div class="toolbar"><button type="button" class="btn" onclick="clearForm()"><i class="fa-solid fa-rotate-left"></i> Reset</button><button type="submit" class="btn gold"><i class="fa-solid fa-paper-plane"></i> Submit Detail Sheet</button></div></div><div class="review-strip"><div class="review-item"><small>Data Save Key</small><strong>nexcrmDetailsheets</strong></div><div class="review-item"><small>Firebase Path</small><strong>detailsheets</strong></div><div class="review-item"><small>Page Status</small><strong>Production UI</strong></div></div></section>
+</form>
+</div>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+function formValue(id){const el=document.getElementById(id);return el?String(el.value||'').trim():''}
+function checkedValue(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:''}
+function setVisible(id,show){const el=document.getElementById(id);if(el)el.classList.toggle('hidden',!show)}
+function cleanMobile(id){const el=document.getElementById(id);if(!el)return;el.value=el.value.replace(/\D/g,'').slice(0,10)}
+function cleanAccount(){const el=document.getElementById('accountNumber');if(el)el.value=el.value.replace(/\D/g,'')}
+function makeReference(){const now=new Date();return 'DS-'+String(now.getFullYear()).slice(2)+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
+function collectDetailSheet(){return {
+  referenceNo:formValue('referenceNo')||makeReference(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),
+  customerName:formValue('customerName'),contactNumber:formValue('contactNumber'),gender:checkedValue('gender'),panNumber:formValue('panNumber'),dob:formValue('dob'),aadhaarNumber:formValue('aadhaarNumber'),personalEmail:formValue('personalEmail'),education:formValue('education'),educationSpecify:formValue('educationSpecify'),
+  residenceType:formValue('residenceType'),residenceOther:formValue('residenceOther'),currentAddress:formValue('currentAddress'),residenceDuration:formValue('residenceDuration'),permanentAddressType:checkedValue('permanentAddress'),permanentAddress:formValue('permanentAddressText'),
+  fatherName:formValue('fatherName'),motherName:formValue('motherName'),maritalStatus:formValue('maritalStatus'),maritalOther:formValue('maritalOther'),spouseName:formValue('spouseName'),spouseDob:formValue('spouseDob'),
+  occupationType:formValue('occupationType'),companyName:formValue('companyName'),officeAddress:formValue('officeAddress'),officialEmail:formValue('officialEmail'),netSalary:formValue('netSalary'),companyDoj:formValue('companyDoj'),department:formValue('department'),designation:formValue('designation'),previousOrganization:formValue('previousOrganization'),
+  accountHolder:formValue('accountHolder'),bankName:formValue('bankName'),accountNumber:formValue('accountNumber'),ifsc:formValue('ifsc'),overallEmi:formValue('overallEmi'),
+  ref1Name:formValue('ref1Name'),ref1Mobile:formValue('ref1Mobile'),ref1Address:formValue('ref1Address'),ref1Relation:formValue('ref1Relation'),ref2Name:formValue('ref2Name'),ref2Mobile:formValue('ref2Mobile'),ref2Address:formValue('ref2Address'),ref2Relation:formValue('ref2Relation'),
+  loanType:formValue('loanType'),loanAmount:formValue('loanAmount'),loanTenure:formValue('loanTenure'),status:'Submitted'
+}}
+function validateDetailSheet(data){const req=['customerName','contactNumber','panNumber','dob','aadhaarNumber','residenceType','currentAddress','fatherName','motherName','occupationType','accountHolder','bankName','accountNumber','ifsc','overallEmi','ref1Name','ref1Mobile','ref1Address','ref1Relation','loanType','loanAmount','loanTenure'];const missing=req.filter(k=>!data[k]);if(missing.length){toast('Please fill all required fields. Missing: '+missing.slice(0,4).join(', '));return false}if(data.contactNumber.length!==10||data.ref1Mobile.length!==10){toast('Mobile numbers must be 10 digits.');return false}return true}
+function readArray(key){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveArray(key,rows){localStorage.setItem(key,JSON.stringify(rows))}
+function activity(message,type){const rows=readArray('nexcrm_activity_logs');rows.push({module:'Detailsheet',type:type||'create',message,createdAt:new Date().toISOString()});saveArray('nexcrm_activity_logs',rows.slice(-300))}
+async function submitDetailSheet(){const data=collectDetailSheet();if(!validateDetailSheet(data))return;document.getElementById('referenceNo').value=data.referenceNo;const rows=readArray('nexcrmDetailsheets');const idx=rows.findIndex(r=>r.referenceNo===data.referenceNo);if(idx>=0){rows[idx]={...rows[idx],...data,updatedAt:new Date().toISOString()}}else{rows.push(data)}saveArray('nexcrmDetailsheets',rows);saveArray('nexcrm_detailsheets',rows);activity('Customer detail sheet submitted: '+data.referenceNo,'submit');if(window.NexCRMFirebase&&NexCRMFirebase.migrateLocalStorageToRealtime){try{await NexCRMFirebase.migrateLocalStorageToRealtime()}catch(e){console.warn(e)}}toast('Detail Sheet saved successfully: '+data.referenceNo);renderMiniStats();}
+function clearForm(){document.getElementById('detailSheetForm').reset();document.getElementById('referenceNo').value=makeReference();renderMiniStats();toast('Form reset completed.');}
+function renderMiniStats(){const rows=readArray('nexcrmDetailsheets');document.getElementById('detailCount').textContent=rows.length;document.getElementById('latestRef').textContent=rows.length?(rows[rows.length-1].referenceNo||'-'):'-'}
+function fillSessionUser(){try{const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'{}');document.getElementById('loggedUser').textContent=s.displayName||s.name||s.employeeName||'Abhinav Sirohi'}catch(e){}}
+function toggleTheme(){document.body.classList.toggle('dark');localStorage.setItem('nexcrmTheme',document.body.classList.contains('dark')?'dark':'light')}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.classList.remove('show'),3200)}
+document.addEventListener('input',e=>{if(['contactNumber','ref1Mobile','ref2Mobile'].includes(e.target.id))cleanMobile(e.target.id);if(e.target.id==='accountNumber')cleanAccount();});
+document.addEventListener('change',e=>{if(e.target.id==='education')setVisible('educationOtherWrap',e.target.value==='Other');if(e.target.id==='residenceType')setVisible('residenceOtherWrap',e.target.value==='Other');if(e.target.id==='maritalStatus')setVisible('maritalOtherWrap',e.target.value==='Other');});
+if((localStorage.getItem('nexcrmTheme')||'')==='dark')document.body.classList.add('dark');
+document.getElementById('referenceNo').value=makeReference();fillSessionUser();renderMiniStats();
+window.addEventListener('nexcrm:data-updated',renderMiniStats);
+</script>
+
+<script id="detailsheet-admin-shell-controls-v1">
+(function(){
+  const body=document.body;
+  const $=(id)=>document.getElementById(id);
+  const COLLAPSE_KEY='nexcrm_admin_sidebar_collapsed_v3';
+  function isMobile(){return matchMedia('(max-width:980px)').matches;}
+  function setSidebar(open){
+    if(isMobile()){body.classList.toggle('sidebar-open',!!open);return;}
+    body.classList.toggle('sidebar-collapsed',!open);
+    try{localStorage.setItem(COLLAPSE_KEY,open?'0':'1')}catch(e){}
+  }
+  function toggleSidebar(){ if(isMobile()) setSidebar(!body.classList.contains('sidebar-open')); else setSidebar(body.classList.contains('sidebar-collapsed')); }
+  ['sidebarRailToggle','sidebarToggleTop','sidebarCollapseBottom'].forEach(id=>{const el=$(id);if(el)el.addEventListener('click',toggleSidebar);});
+  const backdrop=$('sidebarBackdrop'); if(backdrop)backdrop.addEventListener('click',()=>setSidebar(false));
+  try{if(localStorage.getItem(COLLAPSE_KEY)==='0'&&!isMobile()) body.classList.remove('sidebar-collapsed');}catch(e){}
+
+  const menu=$('headerActionMenu'), manageBtn=$('manageMenuBtn');
+  if(menu&&manageBtn){
+    const close=()=>{menu.classList.remove('open');manageBtn.setAttribute('aria-expanded','false');};
+    manageBtn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const open=menu.classList.toggle('open');manageBtn.setAttribute('aria-expanded',open?'true':'false');});
+    document.addEventListener('click',e=>{if(!menu.contains(e.target))close();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+    menu.querySelectorAll('.menu-action').forEach(item=>item.addEventListener('click',()=>setTimeout(close,60)));
+  }
+
+  const PROFILE_KEY='nexcrm_admin_profile_v1';
+  function readJSON(key,store){try{return JSON.parse((store||localStorage).getItem(key)||'null')||null}catch(e){return null}}
+  function getSession(){return readJSON('nexcrm_session',localStorage)||readJSON('nexcrm_session',sessionStorage)||{};}
+  function getProfile(){
+    const session=getSession(); const saved=readJSON(PROFILE_KEY,localStorage)||{};
+    const name=saved.name||session.name||session.displayName||session.employeeName||session.userName||session.email||'Admin User';
+    return {name,employeeId:saved.employeeId||session.employeeId||session.empId||session.credential||'NX-ADMIN',role:saved.designation||session.designation||session.role||'Admin',email:saved.officialEmail||session.officialEmail||session.email||'',about:saved.about||'',dp:saved.dp||session.photoURL||session.photo||''};
+  }
+  function initials(name){return String(name||'AD').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'AD';}
+  function avatar(box,img,text,dp,ini){if(text)text.textContent=ini;if(img)img.src=dp||'';if(box)box.classList.toggle('has-image',!!dp);}
+  function setVal(id,v){const el=$(id);if(el)el.value=v||'';} function setTxt(id,v){const el=$(id);if(el)el.textContent=v||'';}
+  function applyProfile(){
+    const p=getProfile(), ini=initials(p.name);
+    setTxt('loggedUserName',p.name); setTxt('loggedUser',p.name); setTxt('profilePreviewName',p.name);
+    avatar($('sidebarProfileDp'),$('sidebarDpImg'),$('sidebarDpInitials'),p.dp,ini);
+    avatar($('topProfileDp'),$('topDpImg'),$('userInitials'),p.dp,ini);
+    avatar($('profileButtonDp'),$('profileBtnDpImg'),null,p.dp,ini);
+    avatar($('modalProfileDp'),$('modalDpImg'),$('modalDpInitials'),p.dp,ini);
+    avatar($('profilePreviewDp'),$('profilePreviewImg'),$('profilePreviewInitials'),p.dp,ini);
+    avatar($('heroCardDp'),$('heroCardDpImg'),$('heroCardDpInitials'),p.dp,ini);
+    setVal('profileName',p.name);setVal('profileEmployeeId',p.employeeId);setVal('profileEmail',p.email);setVal('profileRole',p.role);setVal('profileAbout',p.about);
+  }
+  const modal=$('profileModal');
+  function openProfile(){applyProfile();if(modal){modal.classList.add('show');modal.setAttribute('aria-hidden','false');}}
+  function closeProfile(){if(modal){modal.classList.remove('show');modal.setAttribute('aria-hidden','true');}}
+  document.querySelectorAll('.profile-open-trigger').forEach(el=>el.addEventListener('click',openProfile));
+  ['profileClose','profileCancel'].forEach(id=>{const el=$(id);if(el)el.addEventListener('click',closeProfile);});
+  if(modal)modal.addEventListener('click',e=>{if(e.target===modal)closeProfile();});
+  const save=$('profileSave'); if(save)save.addEventListener('click',()=>{const existing=readJSON(PROFILE_KEY,localStorage)||{};const next=Object.assign({},existing,{name:$('profileName')?.value||'',employeeId:$('profileEmployeeId')?.value||'',officialEmail:$('profileEmail')?.value||'',designation:$('profileRole')?.value||'',about:$('profileAbout')?.value||''});try{localStorage.setItem(PROFILE_KEY,JSON.stringify(next));}catch(e){}applyProfile();closeProfile();});
+  applyProfile();
+
+  const themeBtn=$('themeBtn'); if(themeBtn){themeBtn.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();body.classList.toggle('dark');const t=body.classList.contains('dark')?'dark':'light';['nexcrmTheme','nexcrm_theme','nexcrm-detailsheet-theme'].forEach(k=>localStorage.setItem(k,t));},true);}
+  if(['dark'].includes(localStorage.getItem('nexcrmTheme')||localStorage.getItem('nexcrm_theme')||localStorage.getItem('nexcrm-detailsheet-theme')))body.classList.add('dark');
+  const logout=$('logoutBtn'); if(logout)logout.addEventListener('click',function(){try{localStorage.removeItem('nexcrm_session');localStorage.removeItem('nexcrm_logged_in');sessionStorage.removeItem('nexcrm_session');sessionStorage.removeItem('nexcrm_logged_in');}catch(e){} location.href='../index.html';});
+
+  window.syncDetailHeroStats=function(){
+    const c=$('detailCount')?.textContent||'0'; const r=$('latestRef')?.textContent||'-';
+    setTxt('heroDetailCount',c); setTxt('heroLatestRef',r==='-'?'Auto':r);
+  };
+  const oldRender=window.renderMiniStats;
+  if(typeof oldRender==='function') window.renderMiniStats=function(){const res=oldRender.apply(this,arguments);setTimeout(window.syncDetailHeroStats,0);return res;};
+  window.addEventListener('load',()=>setTimeout(window.syncDetailHeroStats,120));
+  setTimeout(window.syncDetailHeroStats,500);
+})();
+</script>
+
+<script src="../nexcrm-form-autosave.js"></script>
+</body>
+</html>

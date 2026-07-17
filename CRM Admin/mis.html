@@ -645,7 +645,10 @@ function pickEmployeeField(row,keys){for(const key of keys){const value=row&&row
 function normalizeMisEmployee(row){return {
   code:pickEmployeeField(row,['Employee ID','employee_id','Employee Code','Emp Code','code','empCode','empId','id','employeeId']),
   name:pickEmployeeField(row,['Employee Name','Name','employee_name','name','empName','employeeName']),
-  manager:pickEmployeeField(row,['Reporting Manager','Manager','reporting_manager','reportingManager','manager','tlName','teamLeader','Team Leader','TL Name','Senior Manager'])
+  manager:pickEmployeeField(row,['Reporting Manager','Manager','reporting_manager','reportingManager','manager','tlName','teamLeader','Team Leader','TL Name','Senior Manager']),
+  designation:pickEmployeeField(row,['Designation','designation','Role','role']),
+  status:pickEmployeeField(row,['Status','status','employeeStatus'])||'Active',
+  active:row&&row.active!==false&&!['inactive','leave the job','terminated','deleted'].includes(String(row.status||'').trim().toLowerCase())
 }}
 function loadEmployeeMaster(){
   try{
@@ -662,7 +665,7 @@ function loadEmployeeMaster(){
     return Array.from(map.values());
   }catch(err){return []}
 }
-const employees=loadEmployeeMaster()
+let employees=loadEmployeeMaster()
 function employeeByCode(code){return employees.find(x=>String(x.code||'').trim()===String(code||'').trim())}
 function fillEmployeeMappingForCase(item){const emp=employeeByCode(item.empCode||item['Employee Code']||item.employeeCode);if(emp){if(!item.empName)item.empName=emp.name;if(!item.reportingManager)item.reportingManager=emp.manager}return item}
 const CASE_KEY='nexcrm_mis_cases';
@@ -677,7 +680,12 @@ let activeMonthFilter='';
 const nf=new Intl.NumberFormat('en-IN');
 function money(v){return '₹'+nf.format(Number(v||0))}
 function today(){const d=new Date();document.getElementById('loginDate').value=d.toISOString().slice(0,10)}
-function loadEmpCodes(){const s=document.getElementById('empCode');employees.forEach(e=>{const o=document.createElement('option');o.value=e.code;o.textContent=e.code+' - '+e.name;s.appendChild(o)})}
+function loadEmpCodes(){const s=document.getElementById('empCode');if(!s)return;const current=s.value;s.innerHTML='<option value="">Select Employee</option>';employees.filter(e=>e.active!==false).forEach(e=>{const o=document.createElement('option');o.value=e.code;o.textContent=e.code+' - '+e.name+(e.designation?' | '+e.designation:'');s.appendChild(o)});if(current&&employees.some(e=>e.code===current&&e.active!==false))s.value=current}
+function applyEmployeeMasterFromLocal(){employees=loadEmployeeMaster();loadEmpCodes();const selected=document.getElementById('empCode');if(selected&&selected.value)selectEmployee();return employees}
+async function refreshEmployeeMasterFromFirebase(){try{if(window.NexCRMFirebase&&window.NexCRMFirebase.readEmployeeMaster)await window.NexCRMFirebase.readEmployeeMaster();applyEmployeeMasterFromLocal()}catch(error){console.warn('MIS employee master live refresh failed',error)}}
+window.addEventListener('nexcrm:data-updated',event=>{if(event.detail&&['nexcrm_employee_master_final_custom','nexcrm_employee_master_v1'].includes(event.detail.key))applyEmployeeMasterFromLocal()});
+window.addEventListener('nexcrm:auth-ready',refreshEmployeeMasterFromFirebase);
+document.addEventListener('DOMContentLoaded',()=>setTimeout(refreshEmployeeMasterFromFirebase,500));
 function hydrateMisDropdowns(){MIS_STATUS_OPTIONS=dropdownValues('status',MIS_STATUS_OPTIONS);fillSelectOptions('product','Select Product',dropdownValues('product',['Term Loan','Balance Transfer Top-Up','Overdraft Limit Fresh','Overdraft Top-Up','Business Term Loan','BL Overdraft Limit']));fillSelectOptions('loginBank','Select Bank',dropdownValues('loginBank',['BAJAJ','TATA','Poonawalla','Piramal','ABFL','Axis Finance','Kotak Bank','HDFC Bank','ICICI Bank','Axis Bank','Bandhan Bank','IDFC','Utkarsh (USFB)','IndusInd Bank','Muthoot','L&T Finance','Chola Mandalam','SMFG','Increed Finance','Finnable','Fibe']));fillSelectOptions('status','Select Status',MIS_STATUS_OPTIONS);fillSelectOptions('statusFilter','All Statuses',MIS_STATUS_OPTIONS)}function selectEmployee(){const e=employeeByCode(document.getElementById('empCode').value);document.getElementById('empName').value=e?e.name:'';document.getElementById('reportingManager').value=e?e.manager:''}
 function val(id){return document.getElementById(id).value.trim()}
 function setVal(id,v){document.getElementById(id).value=v||''}

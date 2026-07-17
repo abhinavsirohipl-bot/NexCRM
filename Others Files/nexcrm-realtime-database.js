@@ -101,6 +101,7 @@
     'hrms/employees/localStorage':'nexcrm_employee_master_final_custom',
     'hrms/attendance/localStorage':'nexcrm_attendance_premium_previous_theme_v2'
   };
+  const EMPLOYEE_MASTER_KEYS=new Set(Object.keys(KEY_PATHS).filter(key=>KEY_PATHS[key]==='hrms/employees'));
   const state={ready:false,hydrating:false,db:null,auth:null,user:null,role:'',access:null,listeners:[],writeTimer:null,queue:new Map()};
   const native={setItem:localStorage.setItem.bind(localStorage),removeItem:localStorage.removeItem.bind(localStorage),clear:localStorage.clear.bind(localStorage)};
   const safe=s=>String(s||'').trim();
@@ -170,7 +171,7 @@
       password:safe(source.password||source.initialPassword||defaultPassword(Object.assign({},source,{employeeId,username}))),
       name:safe(source.name||source.employeeName||source.employee_name||source.displayName||username),
       email:safe(source.email||source.officialMail||source.officialEmail),mobile:safe(source.mobile||source.phone||source.contact),dob:safe(source.dob||source.dateOfBirth||source.date_of_birth),
-      accessLevel,permissions:permissionsFor(accessLevel,source.permissions),active:source.active!==false,uid:safe(source.uid),updatedAt:safe(source.updatedAt)
+      accessLevel,permissions:permissionsFor(accessLevel,source.permissions),active:source.active!==false&&!['inactive','leave the job','terminated','deleted'].includes(lower(source.status)),uid:safe(source.uid),updatedAt:safe(source.updatedAt)
     };
     normalized.role=accessLevel==='employee'?'Employee':'Admin';
     normalized.admin=accessLevel!=='employee';
@@ -186,6 +187,34 @@
     return [...map.values()];
   }
   function normalizeEmployees(rows){return mergeEmployeeList(rows);}
+  function mergeMasterRecord(current,incoming){
+    if(!current)return incoming;if(!incoming)return current;
+    const incomingIsNewer=rowTime(incoming)>=rowTime(current),preferred=incomingIsNewer?incoming:current,fallback=incomingIsNewer?current:incoming;
+    const result=Object.assign({},fallback);
+    Object.entries(preferred).forEach(([key,value])=>{if(value!==undefined&&value!==null&&(value!==''||!(key in result)))result[key]=value;});
+    return result;
+  }
+  function normalizeEmployeeMaster(row,index){
+    if(!plainObject(row))return null;
+    const source=clone(row),id=safe(source.id||source.employeeId||source.employee_id||source.code||source.empCode||source.username);
+    if(!id)return null;
+    const status=safe(source.status||source.employeeStatus||'Active')||'Active';
+    return Object.assign({},source,{
+      id,employeeId:id,
+      name:safe(source.name||source.employeeName||source.employee_name||source.fullName||id),
+      department:safe(source.department||source.Department),designation:safe(source.designation||source.Designation),
+      manager:safe(source.manager||source.reportingManager||source.reporting_manager||source['Reporting Manager']),
+      officialMail:safe(source.officialMail||source.officialEmail||source.official_email||source.workEmail),
+      email:safe(source.email||source.personalEmail),mobile:safe(source.mobile||source.phone||source.contact),
+      dob:safe(source.dob||source.dateOfBirth||source.date_of_birth),status,
+      active:source.active!==false&&!['inactive','leave the job','terminated','deleted'].includes(lower(status))
+    });
+  }
+  function normalizeEmployeeMasterList(rows){
+    const map=new Map(),order=[];
+    (Array.isArray(rows)?rows:[]).forEach((row,index)=>{const normalized=normalizeEmployeeMaster(row,index);if(!normalized)return;const key=lower(cleanEmployeeId(normalized.id)||normalized.id);if(!map.has(key))order.push(key);map.set(key,mergeMasterRecord(map.get(key),normalized));});
+    return order.map(key=>map.get(key));
+  }
   function normalizeLoginConfig(raw){
     const cfg=plainObject(raw)?clone(raw):{};
     const rows=Array.isArray(cfg.employees)?cfg.employees.slice():[];
@@ -208,7 +237,7 @@
   function normalizeValue(key,value){
     try{
       if(key==='nexcrm_login_config_v1')return JSON.stringify(normalizeLoginConfig(JSON.parse(value||'{}')));
-      if(['nexcrm_admin_employees_v1','nexcrm_employee_master_final_custom','nexcrm_employee_master_v1'].includes(key))return JSON.stringify(normalizeEmployees(JSON.parse(value||'[]')));
+      if(EMPLOYEE_MASTER_KEYS.has(key))return JSON.stringify(normalizeEmployeeMasterList(JSON.parse(value||'[]')));
     }catch(e){}
     return value;
   }
@@ -256,6 +285,7 @@
       const localTime=Date.parse(localCfg.updatedAt||0)||0,remoteTime=Date.parse(remoteCfg.updatedAt||0)||0;
       return JSON.stringify(localTime>remoteTime?localCfg:remoteCfg);
     }
+    if(EMPLOYEE_MASTER_KEYS.has(key)&&Array.isArray(localParsed)&&Array.isArray(remoteParsed))return JSON.stringify(normalizeEmployeeMasterList([...remoteParsed,...localParsed]));
     if(Array.isArray(localParsed)&&Array.isArray(remoteParsed))return JSON.stringify(mergeRows(remoteParsed,localParsed));
     if(plainObject(localParsed)&&plainObject(remoteParsed))return JSON.stringify(Object.assign({},localParsed,remoteParsed));
     return storageString(remoteValue);
@@ -303,19 +333,21 @@
   function applyLocal(key,value,source){const old=localStorage.getItem(key);state.hydrating=true;try{value==null?native.removeItem(key):native.setItem(key,String(normalizeValue(key,value)));}finally{state.hydrating=false;}const now=localStorage.getItem(key);if(old!==now)dispatch(key,old,now,source||'rtdb');}
   function queueWrite(key,value,removed){
     if(state.hydrating||!isSyncKey(key))return;
+    if(!state.auth||!state.auth.currentUser||!state.user||!state.access)return;
     const path=pathForKey(key);const existing=state.queue.get(path);let nextValue=normalizeValue(key,String(value??''));
     if(existing&&!existing.removed&&!removed&&existing.sourceKey!==key)nextValue=mergeStorageValues(key,nextValue,existing.value);
     state.queue.set(path,{path,key:CANONICAL_KEYS[path]||key,sourceKey:key,value:nextValue,removed:!!removed});
     if(state.db){clearTimeout(state.writeTimer);state.writeTimer=setTimeout(()=>flushWrites().catch(e=>console.warn('NexCRM Realtime DB write failed',e)),250);}
   }
   async function flushWrites(){
-    if(!state.db||!state.queue.size)return 0;
+    if(!state.db||!state.auth||!state.auth.currentUser||!state.user||!state.access||!state.queue.size)return 0;
     const batch=[...state.queue.entries()];const updates={};const now=new Date().toISOString();state.queue.clear();
     batch.forEach(([path,item])=>{updates[path]=item.removed?{key:item.key,deleted:true,updatedAt:now,updatedBy:state.user&&state.user.uid||'',updatedByEmail:state.user&&state.user.email||''}:{key:item.key,value:item.value,deleted:false,updatedAt:now,updatedBy:state.user&&state.user.uid||'',updatedByEmail:state.user&&state.user.email||''};});
     try{await state.db.ref().update(updates);return batch.length;}catch(e){batch.forEach(([path,item])=>{if(!state.queue.has(path))state.queue.set(path,item)});throw e;}
   }
   async function loadKey(key){
     await init();const ref=refForKey(key);if(!ref)return false;
+    if(!state.auth||!state.auth.currentUser||!state.user||!state.access)return false;
     try{
       const snap=await ref.once('value');const val=snap.val();
       if(val&&val.deleted===true){applyLocal(key,null,'rtdb-delete');return true;}
@@ -411,6 +443,50 @@
     normalized.employees.filter(row=>row.uid).forEach(row=>{updates['roles/'+row.uid]={employeeId:accessKeyFor(row),email:lower(row.authEmail),accessLevel:row.accessLevel,admin:isAdminAccess(row),updatedAt:normalized.updatedAt}});
     await state.db.ref().update(updates);applyLocal('nexcrm_login_config_v1',JSON.stringify(normalized),'access-save');return normalized;
   }
+  function applyEmployeeMasterLocal(rows,source){
+    const normalized=normalizeEmployeeMasterList(rows),value=JSON.stringify(normalized);
+    EMPLOYEE_MASTER_KEYS.forEach(key=>applyLocal(key,value,source||'employee-master'));
+    window.dispatchEvent(new CustomEvent('nexcrm:employees-updated',{detail:{employees:clone(normalized),source:source||'employee-master'}}));
+    return normalized;
+  }
+  async function readEmployeeMaster(){
+    await init();await loadKey('nexcrm_employee_master_final_custom');
+    let rows=[];try{rows=JSON.parse(localStorage.getItem('nexcrm_employee_master_final_custom')||'[]')}catch(e){}
+    return applyEmployeeMasterLocal(rows,'employee-master-read');
+  }
+  async function saveEmployeeMaster(rows){
+    await init();if(!state.db||!state.auth||!state.auth.currentUser)throw new Error('Admin Firebase login is required before employee details can be saved live.');
+    const normalized=normalizeEmployeeMasterList(rows),value=JSON.stringify(normalized),now=new Date().toISOString();
+    const wrapper={key:'nexcrm_employee_master_final_custom',value,deleted:false,updatedAt:now,updatedBy:state.auth.currentUser.uid,updatedByEmail:state.auth.currentUser.email||''};
+    await state.db.ref('hrms/employees/localStorage').set(wrapper);applyEmployeeMasterLocal(normalized,'employee-master-save');return normalized;
+  }
+  async function syncEmployeeAccessFromMaster(input,options){
+    const opts=Object.assign({provision:false},plainObject(options)?options:{}),masters=normalizeEmployeeMasterList(Array.isArray(input)?input:[input]);
+    if(!masters.length)return {config:await loadAccessConfig(),employees:[],provisioned:[]};
+    let config=await loadAccessConfig();const provisionQueue=[];
+    masters.forEach((master,index)=>{
+      const id=cleanEmployeeId(master.id||master.employeeId),username=userIdFor(Object.assign({},master,{employeeId:id}),index);
+      const existingIndex=config.employees.findIndex(row=>cleanEmployeeId(row.employeeId)===id||cleanEmployeeId(row.username)===cleanEmployeeId(username));
+      const existing=existingIndex>=0?config.employees[existingIndex]:null,owner=existing&&existing.accessLevel==='super_admin';
+      const next=normalizeEmployee(Object.assign({},master,existing||{}, {
+        employeeId:id,username:existing&&existing.username||username,authEmail:existing&&existing.authEmail||authEmailFor(Object.assign({},master,{employeeId:id,username}),index),
+        password:existing&&existing.password||defaultPassword(Object.assign({},master,{employeeId:id,username})),
+        name:master.name||existing&&existing.name||username,email:master.officialMail||master.email||existing&&existing.email||'',mobile:master.mobile||existing&&existing.mobile||'',dob:master.dob||existing&&existing.dob||'',
+        accessLevel:owner?'super_admin':existing&&existing.accessLevel||'employee',permissions:existing&&existing.permissions,
+        active:owner?true:master.active!==false,uid:existing&&existing.uid||'',updatedAt:new Date().toISOString()
+      }),index);
+      if(existingIndex>=0)config.employees[existingIndex]=next;else config.employees.push(next);
+      if(opts.provision&&next.active!==false)provisionQueue.push(next);
+    });
+    config=await saveAccessConfig(config);const provisioned=[];
+    for(const employee of provisionQueue){
+      const result=await provisionEmployeeAccount(employee);provisioned.push(result);
+      if(result&&result.uid){const match=config.employees.find(row=>cleanEmployeeId(row.employeeId)===cleanEmployeeId(employee.employeeId));if(match)match.uid=result.uid;}
+    }
+    if(provisioned.some(result=>result&&result.uid))config=await saveAccessConfig(config);
+    return {config,employees:masters,provisioned};
+  }
+  async function deactivateEmployeeAccess(input){return syncEmployeeAccessFromMaster(Object.assign({},input,{status:'Inactive',active:false}),{provision:false});}
   async function provisionEmployeeAccount(input){
     await init();if(!state.auth||!state.db||!state.auth.currentUser)throw new Error('Admin Firebase login is required.');
     const row=normalizeEmployee(input,0),name='nexcrm-provisioning';let app=firebase.apps.find(item=>item.name===name);
@@ -435,7 +511,8 @@
   async function init(){if(state.ready)return state;state.ready=true;if(!window.firebase||!firebase.initializeApp){state.ready=false;throw new Error('Firebase SDK must load before NexCRM data adapter.');}try{if(!firebase.apps.length)firebase.initializeApp(cfg());state.auth=firebase.auth?firebase.auth():null;state.db=firebase.database?firebase.database():null;if(!state.db)throw new Error('Firebase Realtime Database SDK is not available.');if(state.auth){state.auth.onAuthStateChanged(async user=>{state.user=user||null;state.access=user?await getUserAccess(user):null;state.role=state.access?lower(sessionRole(state.access)):'';state.listeners.forEach(fn=>{try{fn()}catch(e){}});state.listeners=[];if(user&&state.db){state.queue.clear();await pullRealtimeToLocal();startListeners();}window.dispatchEvent(new CustomEvent('nexcrm:auth-ready',{detail:{user:state.user,role:state.role,access:state.access,database:'realtime'}}));});}}catch(e){state.ready=false;console.error('NexCRM Firebase RTDB init failed',e);throw e;}return state;}
   localStorage.setItem=function(key,value){native.setItem(key,value);queueWrite(String(key),value,false);};
   localStorage.removeItem=function(key){native.removeItem(key);queueWrite(String(key),'',true);};
-  window.NexCRMAccess={permissionKeys:PERMISSION_KEYS,rolePermissions:ROLE_PERMISSIONS,normalizeAccessLevel,normalizeEmployee,normalizeConfig:normalizeLoginConfig,permissionsFor,isAdminAccess,hasPermission,defaultPassword,authEmailFor};
-  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,hasPermission,loadAccessConfig,saveAccessConfig,provisionEmployeeAccount,sendEmployeePasswordReset,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,migrateSnapshotToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,getAccess:()=>state.access,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
+  window.NexCRMAccess={permissionKeys:PERMISSION_KEYS,rolePermissions:ROLE_PERMISSIONS,normalizeAccessLevel,normalizeEmployee,normalizeEmployeeMaster,normalizeEmployeeMasterList,normalizeConfig:normalizeLoginConfig,permissionsFor,isAdminAccess,hasPermission,defaultPassword,authEmailFor};
+  window.NexCRMEmployees={keys:[...EMPLOYEE_MASTER_KEYS],all:()=>{try{return normalizeEmployeeMasterList(JSON.parse(localStorage.getItem('nexcrm_employee_master_final_custom')||'[]'))}catch(e){return []}},load:readEmployeeMaster,save:saveEmployeeMaster,syncAccess:syncEmployeeAccessFromMaster,deactivate:deactivateEmployeeAccess};
+  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,hasPermission,loadAccessConfig,saveAccessConfig,readEmployeeMaster,saveEmployeeMaster,syncEmployeeAccessFromMaster,deactivateEmployeeAccess,provisionEmployeeAccount,sendEmployeePasswordReset,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,migrateSnapshotToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,getAccess:()=>state.access,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
   init();
 })();

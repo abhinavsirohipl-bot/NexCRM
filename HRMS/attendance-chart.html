@@ -394,6 +394,10 @@ function logoutUser(){['nexcrm_session','nexcrm_logged_in','nexcrm_user','nexcrm
 async function init(){
   $('monthInput').value = $('monthInput').value || currentMonth(); setupAdmin(); loadEmployeesFromLocal(); loadAttendance(); await syncEmployeesFromRemote(); renderTable(); $('heroDataMode').textContent = (window.firebase && window.firebase.apps && firebase.apps.length) ? 'Firebase Ready' : 'Local Ready';
 }
+window.addEventListener('nexcrm:employees-updated',()=>{
+  loadEmployeesFromLocal();
+  renderTable();
+});
 setupTheme(); bind(); init();
 </script>
 <script type="module" src="../assets/js/nexcrm-shell.js"></script>

@@ -1851,9 +1851,9 @@ function goDashboard(){location.href=isAdminSession()?"Admin-Portal-Launch.html"
 function readEmployeeMaster(){
   try{
     const rows=JSON.parse(localStorage.getItem("nexcrm_employee_master_final_custom")||localStorage.getItem("nexcrm_employee_master_v1")||"[]");
-    if(Array.isArray(rows)&&rows.length)return rows.map((e,i)=>({id:String(e.id||e.employeeId||e.employee_id||e.empCode||e.code||("EMP"+String(i+1).padStart(3,"0"))).trim(),name:String(e.name||e.employeeName||e.employee_name||e.fullName||"").trim(),email:String(e.email||e.officialMail||e.mail||"").trim()})).filter(e=>e.id);
+    if(Array.isArray(rows)&&rows.length)return rows.map((e,i)=>({id:String(e.id||e.employeeId||e.employee_id||e.empCode||e.code||("EMP"+String(i+1).padStart(3,"0"))).trim(),name:String(e.name||e.employeeName||e.employee_name||e.fullName||"").trim(),email:String(e.email||e.officialMail||e.mail||"").trim(),status:String(e.status||'Active'),active:e.active!==false&&String(e.status||'Active').toLowerCase()!=='inactive'})).filter(e=>e.id&&e.active!==false);
   }catch(e){}
-  return [{id:"E-TL001",name:"Abhinav Sirohi",email:""},{id:"E-TC001",name:"Naina Jha",email:""}];
+  return [];
 }
 function mergeLeadLists(...lists){
   const seen=new Set();
@@ -1937,6 +1937,7 @@ function loadEmployees(){
   const scope=document.getElementById("leadScopeLabel");
   if(scope)scope.textContent=isAdminSession()?"All Employee Leads":"My Leads";
 }
+window.addEventListener('nexcrm:employees-updated',()=>loadEmployees());
 
 function setNewLeadId(){
   const leadId = generateLeadId();
@@ -2300,7 +2301,6 @@ window.addEventListener("load", function(){
 <script type="module" src="../assets/js/nexcrm-shell.js"></script>
 </body>
 </html>
-
 
 
 

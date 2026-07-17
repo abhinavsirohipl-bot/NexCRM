@@ -2,36 +2,71 @@
   "rules": {
     ".read": false,
     ".write": false,
+    "access": {
+      "employees": {
+        "$employeeId": {
+          ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || data.child('authEmail').val() === auth.token.email || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true)",
+          ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true)"
+        }
+      }
+    },
     "roles": {
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'abhinav.sirohi@nexfund.in')",
-        ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || (auth.uid === $uid && newData.child('role').val() === 'employee' && newData.child('admin').val() === false))"
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true)",
+        ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true || (auth.uid === $uid && newData.child('email').val() === auth.token.email && newData.child('employeeId').val() != null && newData.child('accessLevel').val() === root.child('access').child('employees').child(newData.child('employeeId').val()).child('accessLevel').val() && auth.token.email === root.child('access').child('employees').child(newData.child('employeeId').val()).child('authEmail').val()))"
       }
     },
     "portal": {
       "settings": {
         "loginConfig": {
-          ".read": true,
-          ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+          ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true)",
+          ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageAccess').val() === true)"
         },
         "$other": {
           ".read": "auth != null",
-          ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+          ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageSettings').val() === true)"
         }
       }
     },
-    "leads": { ".read": "auth != null", ".write": "auth != null" },
-    "mis": { ".read": "auth != null", ".write": "auth != null" },
-    "detailsheets": { ".read": "auth != null", ".write": "auth != null" },
-    "obligations": { ".read": "auth != null", ".write": "auth != null" },
-    "dashboardStats": { ".read": "auth != null", ".write": "auth != null" },
-    "activityLogs": { ".read": "auth != null", ".write": "auth != null" },
-    "hrms": {
-      ".read": "auth != null",
-      ".write": "auth != null && auth.token.email === 'abhinav.sirohi@nexfund.in'"
+    "leads": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)"
     },
-    "profiles": { ".read": "auth != null", ".write": "auth != null" },
-    "shared": { ".read": "auth != null", ".write": "auth != null" },
-    "personal": { ".read": "auth != null", ".write": "auth != null" }
+    "mis": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)"
+    },
+    "detailsheets": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)"
+    },
+    "obligations": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)"
+    },
+    "dashboardStats": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageReports').val() === true)"
+    },
+    "activityLogs": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('active').val() === true)"
+    },
+    "hrms": {
+      ".read": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageHRMS').val() === true || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageEmployees').val() === true)",
+      ".write": "auth != null && (auth.token.email === 'abhinav.sirohi@nexfund.in' || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageHRMS').val() === true || root.child('access').child('employees').child(root.child('roles').child(auth.uid).child('employeeId').val()).child('permissions').child('manageEmployees').val() === true)"
+    },
+    "profiles": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "shared": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "personal": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
   }
 }

@@ -148,30 +148,10 @@ function masterEmployeeCredentials(){
 }
 function normalizeConfig(raw){
   const cfg=raw&&typeof raw==='object'?raw:{};
-  const legacyAdmin={...DEFAULT_LOGIN_CONFIG.admin,...(cfg.admin||{})};
-  const admins=Array.isArray(cfg.admins)&&cfg.admins.length?cfg.admins:[{username:legacyAdmin.credential||'Admin',password:legacyAdmin.password||'Abhi1997',active:true}];
-  const employees=Array.isArray(cfg.employees)&&cfg.employees.length?cfg.employees:[];
-  const normalizedEmployees=employees.map((emp,i)=>{
-    const employeeId=String(emp.employeeId||emp.id||emp.employee_id||emp.username||emp.credential||('E-'+String(i+1).padStart(3,'0'))).trim();
-    return {employeeId,username:String(emp.username||cleanLoginId(employeeId)||employeeId).trim(),password:String(emp.password||passwordFromEmployee(emp)),name:String(emp.name||emp.employee_name||emp.username||employeeId).trim(),email:String(emp.email||emp.officialMail||'').trim(),mobile:String(emp.mobile||emp.phone||'').trim(),dob:String(emp.dob||emp.date_of_birth||emp.dateOfBirth||'').trim(),active:emp.active!==false};
-  }).filter(emp=>emp.username||emp.employeeId);
-  masterEmployeeCredentials().forEach(master=>{
-    const exists=normalizedEmployees.find(emp=>cleanLoginId(emp.employeeId||emp.username)===cleanLoginId(master.employeeId)||cleanLoginId(emp.username)===cleanLoginId(master.username));
-    if(exists){
-      exists.employeeId=exists.employeeId||master.employeeId;
-      exists.username=cleanLoginId(exists.username||master.username)||master.username;
-      exists.password=exists.password||master.password;
-      if(master.name)exists.name=master.name;
-      if(master.email)exists.email=master.email;
-      if(master.mobile)exists.mobile=master.mobile;
-    }else normalizedEmployees.push(master);
-  });
-  return {
-    employee:{...DEFAULT_LOGIN_CONFIG.employee,...(cfg.employee||{}),redirect:'employee-dashboard.html'},
-    admin:{...legacyAdmin,redirect:'admin-dashboard.html'},
-    admins:admins.map((adm,i)=>({username:String(adm.username||adm.credential||('Admin'+(i+1))).trim(),password:String(adm.password||'Abhi1997'),displayName:String(adm.displayName||adm.name||adm.username||'').trim(),employeeId:String(adm.employeeId||adm.id||'').trim(),email:String(adm.email||'').trim(),active:adm.active!==false})).filter(adm=>adm.username),
-    employees:normalizedEmployees
-  };
+  const normalized=window.NexCRMAccess?window.NexCRMAccess.normalizeConfig(cfg):cfg;
+  const employees=Array.isArray(normalized.employees)?normalized.employees:[];
+  masterEmployeeCredentials().forEach(master=>{const id=cleanLoginId(master.employeeId||master.username),exists=employees.find(emp=>cleanLoginId(emp.employeeId||emp.username)===id);if(exists){exists.name=master.name||exists.name;exists.email=master.email||exists.email;exists.mobile=master.mobile||exists.mobile}else if(window.NexCRMAccess)employees.push(window.NexCRMAccess.normalizeEmployee(master,employees.length))});
+  return {...normalized,employee:{...DEFAULT_LOGIN_CONFIG.employee,...(normalized.employee||{}),redirect:'employee-dashboard.html'},admin:{...DEFAULT_LOGIN_CONFIG.admin,...(normalized.admin||{}),redirect:'admin-dashboard.html'},employees};
 }
 function getLoginConfig(){
   try{
@@ -205,7 +185,7 @@ function findEmployeeCredential(username,password){
   const user=raw.toLowerCase();
   const clean=cleanLoginId(raw);
   return getLoginConfig().employees.find(emp=>{
-    if(emp.active===false||String(emp.password||'')!==String(password||''))return false;
+    if(emp.active===false)return false;
     const ids=[emp.username,emp.employeeId,emp.id,emp.credential].map(v=>String(v||'').trim()).filter(Boolean);
     return ids.some(id=>id.toLowerCase()===user||cleanLoginId(id)===clean)||String(emp.email||'').trim().toLowerCase()===user||String(emp.mobile||'').trim()===raw;
   });
@@ -214,9 +194,9 @@ function findAdminCredential(username,password){
   const raw=String(username||'').trim();
   const user=raw.toLowerCase();
   const clean=cleanLoginId(raw);
-  return getLoginConfig().admins.find(adm=>{
-    if(adm.active===false||String(adm.password||'')!==String(password||''))return false;
-    const ids=[adm.username,adm.credential,adm.employeeId,adm.email].map(v=>String(v||'').trim()).filter(Boolean);
+  return getLoginConfig().employees.find(adm=>{
+    if(adm.active===false||!['limited_admin','admin','super_admin'].includes(String(adm.accessLevel||'').toLowerCase()))return false;
+    const ids=[adm.username,adm.credential,adm.employeeId,adm.email,adm.authEmail].map(v=>String(v||'').trim()).filter(Boolean);
     return ids.some(id=>id.toLowerCase()===user||cleanLoginId(id)===clean);
   });
 }function isAdminCredential(username,password){return !!findAdminCredential(username,password)}
@@ -240,32 +220,26 @@ async function loginUser(e){
   const remember=document.getElementById('rememberMe').checked;
   if(!u||!p){showMsg('error','Enter credential and password.');return}
   clearMsg();
-  showMsg('success','Checking latest Portal Settings...');
-  await prefetchRemoteLoginConfig();
-  clearMsg();
-  const employeeMatch=findEmployeeCredential(u,p);
-  const adminMatch=findAdminCredential(u,p);
-  let loginMode=currentMode;
-  if(currentMode==='employee'&&adminMatch) loginMode='admin';
-  if(currentMode==='admin'&&employeeMatch&&!adminMatch){showMsg('error','Employee credential Admin Login me allowed nahi hai. Employee tab use kare.');return shakeLogin()}
-  const localMatch=loginMode==='admin'?adminMatch:employeeMatch;
-  if(!localMatch){showMsg('error','Invalid credential or password. Please check Portal Settings.');return shakeLogin()}
-  const meta=roleMeta(loginMode);
+  showMsg('success','Checking Firebase Authentication and live access...');
+  const localMatch=findEmployeeCredential(u)||findAdminCredential(u)||{username:cleanLoginId(u)||u,employeeId:cleanLoginId(u)||u,name:u,email:String(u).includes('@')?u:''};
   let firebaseResult=null;
   try{
     if(!window.NexCRMFirebase||!window.NexCRMFirebase.activateConfiguredCredential)throw new Error('Firebase Authentication is not ready.');
-    firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,loginMode,remember);
+    firebaseResult=await window.NexCRMFirebase.activateConfiguredCredential(u,p,currentMode,remember);
   }catch(err){showMsg('error',(err&&err.message)||'Firebase login failed.');return shakeLogin()}
-  const session={user:(firebaseResult&&firebaseResult.email)||localMatch.email||localMatch.username,uid:(firebaseResult&&firebaseResult.user&&firebaseResult.user.uid)||'',email:(firebaseResult&&firebaseResult.email)||localMatch.email||'',displayName:localMatch.displayName||localMatch.name||localMatch.username,employeeId:localMatch.employeeId||localMatch.username,credential:localMatch.username,role:loginMode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:!!firebaseResult};
+  const access=firebaseResult.access||localMatch,baseSession=firebaseResult.session||{};
+  const session={...baseSession,user:firebaseResult.email||baseSession.user||access.authEmail||localMatch.email||localMatch.username,uid:firebaseResult.user&&firebaseResult.user.uid||baseSession.uid||'',email:firebaseResult.email||baseSession.email||access.authEmail||localMatch.email||'',displayName:access.name||baseSession.displayName||localMatch.name||localMatch.username,employeeId:access.employeeId||baseSession.employeeId||localMatch.employeeId||localMatch.username,credential:access.username||baseSession.credential||localMatch.username,role:baseSession.role||(access.accessLevel&&access.accessLevel!=='employee'?'Admin':'Employee'),accessLevel:access.accessLevel||baseSession.accessLevel||'employee',permissions:access.permissions||baseSession.permissions||{},loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:remember,firebase:true};
   clearSession();
   (remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));
   localStorage.setItem('nexcrm_logged_in','true');
-  showMsg('success',(loginMode==='admin'?'Admin':'Employee')+' login successful. Opening portal...');
+  const actualMode=String(session.role).toLowerCase()==='admin'?'admin':'employee',meta=roleMeta(actualMode);
+  showMsg('success',(actualMode==='admin'?roleLabelForLogin(session.accessLevel):'Employee')+' login successful. Opening portal...');
   setTimeout(()=>{window.location.href=meta.redirect},220);
 }
+function roleLabelForLogin(level){return String(level||'admin').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
 function masterEmployees(){try{return JSON.parse(localStorage.getItem('nexcrm_employee_master_final_custom')||localStorage.getItem('nexcrm_employee_master_v1')||'[]')||[]}catch(e){return []}}
 function findGoogleUser(email,mode){const mail=String(email||'').trim().toLowerCase();const cfg=getLoginConfig();if(mode==='admin'){return cfg.admins.find(a=>a.active!==false&&(String(a.email||'').toLowerCase()===mail||String(a.username||'').toLowerCase()===mail))||null}const byCred=cfg.employees.find(emp=>emp.active!==false&&String(emp.email||'').toLowerCase()===mail);if(byCred)return byCred;const emp=masterEmployees().find(e=>String(e.email||e.officialMail||'').trim().toLowerCase()===mail);return emp?{username:emp.id||emp.employee_id||mail,employeeId:emp.id||emp.employee_id||'',name:emp.name||emp.employee_name||'',email:mail,active:true}:null}
-async function googleUiNotice(){try{showMsg('success','Opening Google Sign In...');if(!window.NexCRMFirebase||!window.NexCRMFirebase.signInWithGoogle)throw new Error('Firebase Google provider not ready');const result=await window.NexCRMFirebase.signInWithGoogle(currentMode,document.getElementById('rememberMe').checked);const match=findGoogleUser(result.email,currentMode);if(!match){showMsg('error','This Google email is not saved in Employee Add / Portal Settings.');return shakeLogin()}const mode=currentMode;const session={user:result.email,email:result.email,displayName:match.displayName||match.name||result.user.displayName||result.email,employeeId:match.employeeId||match.id||match.username||result.email,credential:match.username||match.employeeId||result.email,role:mode==='admin'?'Admin':'Employee',loginAt:new Date().toISOString(),lastActivity:new Date().toISOString(),persistent:document.getElementById('rememberMe').checked,firebase:true};clearSession();(session.persistent?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));localStorage.setItem('nexcrm_logged_in','true');showMsg('success','Google login successful. Opening portal...');setTimeout(()=>{window.location.href=roleMeta(mode).redirect},250)}catch(e){showMsg('error',(e&&e.message)||'Google Sign In failed.');shakeLogin()}}
+async function googleUiNotice(){try{showMsg('success','Opening Google Sign In...');if(!window.NexCRMFirebase||!window.NexCRMFirebase.signInWithGoogle)throw new Error('Firebase Google provider not ready');const remember=document.getElementById('rememberMe').checked,result=await window.NexCRMFirebase.signInWithGoogle(currentMode,remember),session=result.session;if(!session)throw new Error('Employee access record was not found.');clearSession();(remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(session));localStorage.setItem('nexcrm_logged_in','true');const mode=String(session.role).toLowerCase()==='admin'?'admin':'employee';showMsg('success','Google login successful. Opening portal...');setTimeout(()=>{window.location.href=roleMeta(mode).redirect},250)}catch(e){showMsg('error',(e&&e.message)||'Google Sign In failed.');shakeLogin()}}
 function phoneUiNotice(){showMsg('error','Phone Sign In UI ready hai. Authentication logic original file jaisa hi unchanged rakha gaya hai.');shakeLogin()}
 function shakeLogin(){const card=document.getElementById('loginCard');card.classList.remove('shake');void card.offsetWidth;card.classList.add('shake')}
 function resetLocalLoginIfRequested(){
@@ -277,7 +251,7 @@ function resetLocalLoginIfRequested(){
   if(history.replaceState)history.replaceState(null,'',location.pathname);
   return true;
 }
-restoreTheme();setMode('admin');prefetchRemoteLoginConfig();resetLocalLoginIfRequested();
+restoreTheme();setMode('admin');resetLocalLoginIfRequested();
 
 </script>
 <script src="nexcrm-form-autosave.js"></script>

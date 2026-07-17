@@ -14,6 +14,14 @@ const readJSON = (key, fallback, store = localStorage) => {
 };
 const getSession = () => readJSON("nexcrm_session", null, localStorage) || readJSON("nexcrm_session", null, sessionStorage);
 const isAdminSession = value => lower((value || getSession())?.role).includes("admin");
+const accessLevelOf = value => lower((value || getSession())?.accessLevel || (isAdminSession(value) ? "admin" : "employee"));
+const hasPermission = (permission, value = getSession()) => {
+  const level = accessLevelOf(value);
+  if (["admin", "super_admin"].includes(level)) return true;
+  if (level === "employee") return ["viewDashboard", "manageLeads", "manageMIS", "manageCustomers", "editOwnProfile"].includes(permission);
+  return !!value?.permissions?.[permission];
+};
+const canViewAllData = value => ["admin", "super_admin"].includes(accessLevelOf(value)) || !!(value || getSession())?.permissions?.viewAllData;
 const employeeIdOf = value => safe(value?.employeeId || value?.empId || value?.employeeCode || value?.id || value?.credential || value?.username);
 const employeeNameOf = value => safe(value?.name || value?.employeeName || value?.empName || value?.fullName || value?.displayName || value?.userName);
 const emailOf = value => safe(value?.officialEmail || value?.officialMail || value?.email || value?.companyEmail || value?.mailId);
@@ -127,7 +135,7 @@ const OWNER_NAME_FIELDS = ["employeeName", "empName", "owner", "createdBy", "ass
 const OWNER_EMAIL_FIELDS = ["employeeEmail", "officialEmail", "officialMail", "createdByEmail", "assignedToEmail", "email"];
 
 function belongsToEmployee(row, reference = getProfile()) {
-  if (isAdminSession()) return true;
+  if (canViewAllData()) return true;
   if (!row || typeof row !== "object") return false;
   const refIds = [reference.employeeId, getSession()?.credential].map(compact).filter(Boolean);
   const rowIds = OWNER_ID_FIELDS.map(field => compact(row[field])).filter(Boolean);
@@ -142,7 +150,7 @@ function belongsToEmployee(row, reference = getProfile()) {
 
 function filterRows(rows, reference = getProfile()) {
   const list = Array.isArray(rows) ? rows : [];
-  return isAdminSession() ? list : list.filter(row => belongsToEmployee(row, reference));
+  return canViewAllData() ? list : list.filter(row => belongsToEmployee(row, reference));
 }
 
 function normalizedStatus(row) {
@@ -155,8 +163,11 @@ function isPerformanceCase(row) {
 function performanceRows(rows) { return (Array.isArray(rows) ? rows : []).filter(isPerformanceCase); }
 
 window.NexCRMAccess = {
+  ...(window.NexCRMAccess || {}),
   getSession,
   isAdmin: isAdminSession,
+  hasPermission,
+  canViewAllData,
   getProfile,
   saveProfile,
   belongs: belongsToEmployee,
@@ -230,6 +241,23 @@ window.NexCRMBackup = { create: createCompleteBackup, download: downloadComplete
 const currentSession = getSession();
 const isAdmin = isAdminSession(currentSession);
 const dashboardPath = isAdmin ? "admin-dashboard.html" : "employee-dashboard.html";
+const permissionForPath = path => {
+  const value = normPath(path);
+  if (/portal-settings\.html$/.test(value)) return "manageAccess";
+  if (/employee-add\.html$/.test(value)) return "manageEmployees";
+  if (/\/hrms\//.test(value) || /employee-costing-chart\.html$|vault\.html$/.test(value)) return "manageHRMS";
+  if (/\/leads\.html$|lead-view\.html$/.test(value)) return "manageLeads";
+  if (/\/mis\.html$/.test(value)) return "manageMIS";
+  if (/detailsheet\.html$|obligation\.html$|\/dashboard\.html$/.test(value)) return "manageCustomers";
+  if (/report\.html$|ddr-mdr\.html$/.test(value)) return "manageReports";
+  if (/nexcrm-local-backup\.html$/.test(value)) return "exportData";
+  return "";
+};
+const currentPermission = permissionForPath(location.pathname);
+if (currentSession && currentPermission && !hasPermission(currentPermission, currentSession)) {
+  document.documentElement.style.visibility = "hidden";
+  location.replace(`${url(dashboardPath)}?denied=${encodeURIComponent(currentPermission)}`);
+}
 const pageTitle = document.title.replace(/\s*[|–—-]\s*NexCRM.*$/i, "") || "NexCRM Module";
 
 const groups = [
@@ -278,7 +306,8 @@ function navMarkup() {
   return groups.map(([title, items]) => `<section class="nx-nav-group"><div class="nx-group-title">${title}</div>${items.map(([label, path, iconName, adminOnly]) => {
     const href = url(path);
     const active = current === normPath(new URL(href).pathname);
-    const locked = adminOnly && !isAdmin;
+    const requiredPermission = permissionForPath(path);
+    const locked = (adminOnly && !isAdmin) || (requiredPermission && !hasPermission(requiredPermission, currentSession));
     return `<a class="nx-nav-link${active ? " active" : ""}${locked ? " locked" : ""}" href="${href}" ${locked ? 'data-admin-only="1" aria-disabled="true"' : ""}><span class="nx-nav-icon">${icon(iconName)}</span><span>${escapeHtml(label)}</span>${locked ? '<i class="fa-solid fa-lock nx-lock"></i>' : ""}</a>`;
   }).join("")}</section>`).join("");
 }
@@ -468,7 +497,7 @@ function mount() {
 }
 
 function mountNativeBackup() {
-  if (!isAdminSession() || document.querySelector(".nx-native-backup")) return;
+  if (!isAdminSession() || !hasPermission("exportData") || document.querySelector(".nx-native-backup")) return;
   const button = document.createElement("button");
   button.type = "button";
   button.className = "nx-native-backup";

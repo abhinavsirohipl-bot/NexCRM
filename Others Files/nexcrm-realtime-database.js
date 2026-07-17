@@ -1,8 +1,14 @@
 (function(){
   'use strict';
   const ADMIN_EMAIL='abhinav.sirohi@nexfund.in';
-  const ALLOWED_EMPLOYEE_IDS=new Set(['E-TL001','E-SM001','E-TC001']);
-  const ALLOWED_NAMES=new Set(['Abhinav Sirohi','Niraj Kumar Jha','Naina']);
+  const ACCESS_LEVELS=new Set(['employee','limited_admin','admin','super_admin']);
+  const PERMISSION_KEYS=['viewDashboard','viewAllData','manageLeads','manageMIS','manageCustomers','manageHRMS','manageReports','manageEmployees','manageSettings','manageAccess','exportData','editOwnProfile'];
+  const ROLE_PERMISSIONS={
+    employee:{viewDashboard:true,editOwnProfile:true},
+    limited_admin:{viewDashboard:true,manageLeads:true,manageMIS:true,manageCustomers:true,manageReports:true,editOwnProfile:true},
+    admin:Object.fromEntries(PERMISSION_KEYS.map(key=>[key,true])),
+    super_admin:Object.fromEntries(PERMISSION_KEYS.map(key=>[key,true]))
+  };
   const LOCAL_ONLY_KEYS=new Set([
     'nexcrm_session','nexcrm_logged_in','nexcrm_admin_session','nexcrm_last_requested_portal',
     'nexcrmTheme','nexcrm_theme','nexcrm-theme','nexcrm-finance-theme','nexcrm_finance_theme',
@@ -95,10 +101,11 @@
     'hrms/employees/localStorage':'nexcrm_employee_master_final_custom',
     'hrms/attendance/localStorage':'nexcrm_attendance_premium_previous_theme_v2'
   };
-  const state={ready:false,hydrating:false,db:null,auth:null,user:null,role:'',listeners:[],writeTimer:null,queue:new Map()};
+  const state={ready:false,hydrating:false,db:null,auth:null,user:null,role:'',access:null,listeners:[],writeTimer:null,queue:new Map()};
   const native={setItem:localStorage.setItem.bind(localStorage),removeItem:localStorage.removeItem.bind(localStorage),clear:localStorage.clear.bind(localStorage)};
   const safe=s=>String(s||'').trim();
   const lower=s=>safe(s).toLowerCase();
+  const clone=value=>JSON.parse(JSON.stringify(value));
   const keyId=key=>encodeURIComponent(String(key)).replace(/\./g,'%2E');
   const fromKeyId=id=>decodeURIComponent(String(id));
   function cfg(){return window.NEXCRM_FIREBASE_CONFIG||{};}
@@ -110,8 +117,94 @@
   }
   function isSyncKey(key){return !!key && !LOCAL_ONLY_KEYS.has(key) && !!pathForKey(key);}
   function cleanEmployeeId(id){return safe(id).replace(/[^a-z0-9._-]/gi,'').toUpperCase();}
-  function normalizeEmployees(rows){return rows;}
-  function normalizeLoginConfig(cfg){return cfg&&typeof cfg==='object'?JSON.parse(JSON.stringify(cfg)):cfg;}
+  function normalizeAccessLevel(value,row){
+    const raw=lower(value||row&&row.accessLevel||row&&row.role).replace(/[\s-]+/g,'_');
+    if(raw==='superadmin')return 'super_admin';
+    if(raw==='limitedadmin')return 'limited_admin';
+    if(ACCESS_LEVELS.has(raw))return raw;
+    return row&&(row.admin===true||lower(row.role)==='admin')?'admin':'employee';
+  }
+  function defaultPassword(row){
+    const name=safe(row&&[row.name,row.employeeName,row.employee_name,row.displayName].find(Boolean));
+    const first=(name.split(/\s+/)[0]||'User').replace(/[^a-z]/gi,'').slice(0,4)||'User';
+    const word=first.charAt(0).toUpperCase()+first.slice(1).toLowerCase();
+    const rawDob=safe(row&&[row.dob,row.dateOfBirth,row.date_of_birth,row.birthDate].find(Boolean));
+    const id=safe(row&&[row.employeeId,row.employee_id,row.id,row.username,row.credential].find(Boolean));
+    const year=(rawDob.match(/(19|20)\d{2}/)||id.match(/(19|20)\d{2}/)||[''])[0];
+    const fallback=(id.match(/(\d+)$/)||['','001'])[1];
+    return '@'+word+(year||fallback);
+  }
+  function userIdFor(row,index){
+    const raw=safe(row&&[row.username,row.employeeId,row.employee_id,row.id,row.credential,row.code].find(Boolean)||('E-'+String((index||0)+1).padStart(3,'0')));
+    return cleanEmployeeId(raw)||raw.toUpperCase();
+  }
+  function accessKeyFor(row){
+    const raw=plainObject(row)?safe(row.username||row.employeeId||row.id):safe(row);
+    return raw.replace(/[^a-z0-9]/gi,'').toUpperCase();
+  }
+  function authEmailFor(row,index){
+    const explicit=lower(row&&[row.authEmail,row.firebaseEmail].find(Boolean));
+    if(explicit.includes('@'))return explicit;
+    const email=lower(row&&[row.email,row.officialMail,row.officialEmail].find(Boolean));
+    if(email.endsWith('@nexfund.in'))return email;
+    const username=userIdFor(row,index);
+    if(lower(username)==='admin')return ADMIN_EMAIL;
+    return lower(username)+'@nexfund.in';
+  }
+  function permissionsFor(level,custom){
+    const normalized=normalizeAccessLevel(level);
+    const base=Object.assign({},ROLE_PERMISSIONS[normalized]||ROLE_PERMISSIONS.employee);
+    if(normalized==='limited_admin'&&plainObject(custom))PERMISSION_KEYS.forEach(key=>{if(typeof custom[key]==='boolean')base[key]=custom[key]});
+    if(normalized==='employee')base.editOwnProfile=true;
+    return Object.fromEntries(PERMISSION_KEYS.map(key=>[key,base[key]===true]));
+  }
+  function normalizeEmployee(row,index){
+    const source=plainObject(row)?row:{};
+    const username=userIdFor(source,index);
+    const employeeId=safe(source.employeeId||source.employee_id||source.id||source.code||username);
+    const authEmail=authEmailFor(Object.assign({},source,{username}),index);
+    let accessLevel=normalizeAccessLevel(source.accessLevel||source.role,source);
+    if(lower(authEmail)===lower(ADMIN_EMAIL)||lower(username)==='admin')accessLevel='super_admin';
+    const normalized={
+      employeeId,username,authEmail,
+      password:safe(source.password||source.initialPassword||defaultPassword(Object.assign({},source,{employeeId,username}))),
+      name:safe(source.name||source.employeeName||source.employee_name||source.displayName||username),
+      email:safe(source.email||source.officialMail||source.officialEmail),mobile:safe(source.mobile||source.phone||source.contact),dob:safe(source.dob||source.dateOfBirth||source.date_of_birth),
+      accessLevel,permissions:permissionsFor(accessLevel,source.permissions),active:source.active!==false,uid:safe(source.uid),updatedAt:safe(source.updatedAt)
+    };
+    normalized.role=accessLevel==='employee'?'Employee':'Admin';
+    normalized.admin=accessLevel!=='employee';
+    return normalized;
+  }
+  function mergeEmployeeList(rows){
+    const map=new Map();
+    (Array.isArray(rows)?rows:[]).forEach((row,index)=>{
+      const normalized=normalizeEmployee(row,index);const key=lower(normalized.employeeId||normalized.username||normalized.authEmail);
+      const current=map.get(key);
+      map.set(key,current?normalizeEmployee(Object.assign({},current,normalized,{permissions:Object.assign({},current.permissions,normalized.permissions)}),index):normalized);
+    });
+    return [...map.values()];
+  }
+  function normalizeEmployees(rows){return mergeEmployeeList(rows);}
+  function normalizeLoginConfig(raw){
+    const cfg=plainObject(raw)?clone(raw):{};
+    const rows=Array.isArray(cfg.employees)?cfg.employees.slice():[];
+    const legacyAdmins=Array.isArray(cfg.admins)?cfg.admins.slice():[];
+    if(plainObject(cfg.admin)&&(cfg.admin.credential||cfg.admin.username))legacyAdmins.push(cfg.admin);
+    legacyAdmins.forEach((admin,index)=>rows.push(Object.assign({},admin,{employeeId:admin.employeeId||admin.id||admin.username||admin.credential||('ADMIN'+(index+1)),username:admin.username||admin.credential,accessLevel:'admin',admin:true})));
+    let employees=mergeEmployeeList(rows);
+    const ownerIndex=employees.findIndex(row=>lower(row.authEmail)===lower(ADMIN_EMAIL)||lower(row.username)==='admin'||row.accessLevel==='super_admin'||accessKeyFor(row)==='ETL001');
+    const owner=normalizeEmployee({employeeId:'E-TL001',username:'Admin',authEmail:ADMIN_EMAIL,email:ADMIN_EMAIL,password:'Abhi1997',name:'Abhinav Sirohi',accessLevel:'super_admin',active:true},0);
+    if(ownerIndex<0)employees.unshift(owner);else employees[ownerIndex]=normalizeEmployee(Object.assign({},employees[ownerIndex],{accessLevel:'super_admin',active:true}),ownerIndex);
+    const adminRows=employees.filter(row=>row.accessLevel!=='employee').map(row=>({employeeId:row.employeeId,username:row.username,password:row.password,displayName:row.name,email:row.email||row.authEmail,authEmail:row.authEmail,active:row.active,accessLevel:row.accessLevel,permissions:row.permissions,uid:row.uid}));
+    const primary=adminRows[0]||owner;
+    return {
+      version:2,updatedAt:safe(cfg.updatedAt),
+      employee:Object.assign({role:'Employee',redirect:'employee-dashboard.html'},plainObject(cfg.employee)?cfg.employee:{}),
+      admin:Object.assign({role:'Admin',redirect:'admin-dashboard.html'},plainObject(cfg.admin)?cfg.admin:{},{credential:primary.username,password:primary.password}),
+      employees,admins:adminRows
+    };
+  }
   function normalizeValue(key,value){
     try{
       if(key==='nexcrm_login_config_v1')return JSON.stringify(normalizeLoginConfig(JSON.parse(value||'{}')));
@@ -158,6 +251,11 @@
     if(localValue==null||localValue==='')return storageString(remoteValue);
     if(remoteValue==null||remoteValue==='')return storageString(localValue);
     const localParsed=parseStored(localValue);const remoteParsed=parseStored(remoteValue);
+    if(key==='nexcrm_login_config_v1'&&plainObject(localParsed)&&plainObject(remoteParsed)){
+      const localCfg=normalizeLoginConfig(localParsed),remoteCfg=normalizeLoginConfig(remoteParsed);
+      const localTime=Date.parse(localCfg.updatedAt||0)||0,remoteTime=Date.parse(remoteCfg.updatedAt||0)||0;
+      return JSON.stringify(localTime>remoteTime?localCfg:remoteCfg);
+    }
     if(Array.isArray(localParsed)&&Array.isArray(remoteParsed))return JSON.stringify(mergeRows(remoteParsed,localParsed));
     if(plainObject(localParsed)&&plainObject(remoteParsed))return JSON.stringify(Object.assign({},localParsed,remoteParsed));
     return storageString(remoteValue);
@@ -181,15 +279,25 @@
     grouped.forEach((item,path)=>{updates[path]={key:item.key,value:normalizeValue(item.key,item.value),deleted:false,updatedAt:now,updatedBy:user&&user.uid||'',updatedByEmail:user&&user.email||''};});
     return updates;
   }
-  function getLoginConfig(){try{return JSON.parse(localStorage.getItem('nexcrm_login_config_v1')||'{}')}catch(e){return {}}}
-  function configuredAdmins(){const c=getLoginConfig();const admins=Array.isArray(c.admins)?c.admins:[];const legacy=c.admin||{};return [...admins,{username:legacy.credential||legacy.username||'Admin',email:ADMIN_EMAIL}];}
-  function configuredEmployees(){const c=getLoginConfig();return Array.isArray(c.employees)?c.employees:[];}
-  function isAdminCredential(v){const raw=lower(v);if(raw===lower(ADMIN_EMAIL)||raw==='admin')return true;return configuredAdmins().some(a=>[a.username,a.credential,a.email,a.employeeId].some(x=>lower(x)===raw));}
-  function isEmployeeCredential(v){const raw=lower(v);return configuredEmployees().some(e=>[e.username,e.employeeId,e.id,e.email,e.mobile].some(x=>lower(x)===raw));}
-  function credentialToEmail(credential,mode){const raw=safe(credential);if(raw.includes('@'))return raw.toLowerCase();if(mode==='admin'&&lower(raw)==='admin')return ADMIN_EMAIL;return lower(raw)+'@nexfund.in';}
-  function localSession(role,user,remember){const now=new Date().toISOString();return {user:user.email||user.uid||user.credential||'',uid:user.uid||'',email:user.email||'',displayName:user.displayName||user.name||user.email||user.credential||'',employeeId:user.employeeId||user.credential||'',credential:user.credential||'',role:role==='admin'?'Admin':'Employee',loginAt:now,lastActivity:now,persistent:!!remember,firebase:!!user.uid};}
+  function getLoginConfig(){try{return normalizeLoginConfig(JSON.parse(localStorage.getItem('nexcrm_login_config_v1')||'{}'))}catch(e){return normalizeLoginConfig({})}}
+  function configuredEmployees(){return getLoginConfig().employees||[];}
+  function findConfiguredEmployee(value){
+    const raw=lower(value),clean=lower(cleanEmployeeId(value));
+    if(!raw)return null;
+    return configuredEmployees().find(row=>[row.username,row.employeeId,row.email,row.authEmail,row.mobile].some(item=>lower(item)===raw||lower(cleanEmployeeId(item))===clean))||null;
+  }
+  function configuredAdmins(){return configuredEmployees().filter(row=>row.accessLevel!=='employee');}
+  function isAdminCredential(v){const row=findConfiguredEmployee(v);return !!row&&row.accessLevel!=='employee';}
+  function isEmployeeCredential(v){return !!findConfiguredEmployee(v);}
+  function credentialToEmail(credential){const raw=safe(credential);if(raw.includes('@'))return raw.toLowerCase();const row=findConfiguredEmployee(raw);if(row&&row.authEmail)return lower(row.authEmail);if(lower(raw)==='admin')return ADMIN_EMAIL;return lower(cleanEmployeeId(raw)||raw)+'@nexfund.in';}
+  function isAdminAccess(access){return !!access&&['limited_admin','admin','super_admin'].includes(normalizeAccessLevel(access.accessLevel,access));}
+  function sessionRole(access){return isAdminAccess(access)?'Admin':'Employee';}
+  function localSession(access,user,remember,credential){
+    const now=new Date().toISOString(),row=normalizeEmployee(access||{employeeId:credential,username:credential,email:user&&user.email},0);
+    return {user:user&&user.email||user&&user.uid||row.authEmail||row.username,uid:user&&user.uid||row.uid||'',email:user&&user.email||row.authEmail||row.email||'',displayName:row.name||user&&user.displayName||row.username,employeeId:row.employeeId,credential:row.username||safe(credential),role:sessionRole(row),accessLevel:row.accessLevel,permissions:row.permissions,loginAt:now,lastActivity:now,persistent:!!remember,firebase:!!(user&&user.uid)};
+  }
   function clearLocalSession(){native.removeItem('nexcrm_session');native.removeItem('nexcrm_logged_in');sessionStorage.removeItem('nexcrm_session');sessionStorage.removeItem('nexcrm_logged_in');}
-  function setLocalSession(role,user,remember){clearLocalSession();const s=localSession(role,user,remember);(remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(s));localStorage.setItem('nexcrm_logged_in','true');return s;}
+  function setLocalSession(access,user,remember,credential){clearLocalSession();const s=localSession(access,user,remember,credential);(remember?localStorage:sessionStorage).setItem('nexcrm_session',JSON.stringify(s));localStorage.setItem('nexcrm_logged_in','true');return s;}
   function refForKey(key){const p=pathForKey(key);return p&&state.db?state.db.ref(p):null;}
   function dispatch(key,oldValue,newValue,source){try{window.dispatchEvent(new StorageEvent('storage',{key,oldValue,newValue,storageArea:localStorage,url:location.href}))}catch(e){}window.dispatchEvent(new CustomEvent('nexcrm:data-updated',{detail:{key,oldValue,newValue,source}}));}
   function applyLocal(key,value,source){const old=localStorage.getItem(key);state.hydrating=true;try{value==null?native.removeItem(key):native.setItem(key,String(normalizeValue(key,value)));}finally{state.hydrating=false;}const now=localStorage.getItem(key);if(old!==now)dispatch(key,old,now,source||'rtdb');}
@@ -237,18 +345,97 @@
     return count;
   }
   async function readArray(key){await loadKey(key);try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
-  async function getRole(user,credential){if(!user&&!credential)return '';if(isAdminCredential(credential)||isAdminCredential(user&&user.email))return 'admin';if(isEmployeeCredential(credential)||isEmployeeCredential(user&&user.email))return 'employee';return (user&&lower(user.email)===lower(ADMIN_EMAIL))?'admin':'employee';}
-  async function signInWithRole(credential,password,mode,remember){await init();if(!state.auth)throw new Error('Firebase Auth is not available.');const requested=mode==='admin'?'admin':'employee';const email=credentialToEmail(credential,requested);await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);const result=await state.auth.signInWithEmailAndPassword(email,password);const actual=await getRole(result.user,credential);if(requested==='admin'&&actual!=='admin'){await state.auth.signOut();clearLocalSession();throw new Error('Access denied: this credential is not allowed for Admin Portal.');}if(requested==='employee'&&actual==='admin'){await state.auth.signOut();clearLocalSession();throw new Error('Access denied: admin credential cannot open Employee Portal.');}state.user=result.user;state.role=actual;setLocalSession(actual,result.user,remember);await pullRealtimeToLocal();return {user:result.user,role:actual,email:result.user.email||email};}
-  async function activateConfiguredCredential(credential,password,mode,remember){await init();if(!state.auth)throw new Error('Firebase Auth is not available.');const email=credentialToEmail(credential,mode);try{return await signInWithRole(credential,password,mode,remember);}catch(err){if(!(err&&err.code==='auth/user-not-found'))throw err;}await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);const result=await state.auth.createUserWithEmailAndPassword(email,password);try{await result.user.updateProfile({displayName:safe(credential)})}catch(e){}state.user=result.user;state.role=mode==='admin'?'admin':'employee';setLocalSession(state.role,result.user,remember);try{await state.db.ref('roles/'+result.user.uid).set({role:state.role,admin:state.role==='admin',credential:safe(credential),email,updatedAt:new Date().toISOString()});}catch(e){console.warn('NexCRM role profile write deferred',e);}await pullRealtimeToLocal();return {user:result.user,role:state.role,email,created:true};}
-  async function signInWithGoogle(mode,remember){await init();if(!state.auth)throw new Error('Firebase Auth is not available.');const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);const result=await state.auth.signInWithPopup(provider);state.user=result.user;state.role=mode==='admin'?'admin':'employee';await pullRealtimeToLocal();return {user:result.user,role:state.role,email:result.user.email||''};}
+  async function roleRecord(user){
+    if(!state.db||!user||!user.uid)return null;
+    try{const snap=await state.db.ref('roles/'+user.uid).once('value');return snap.val()||null}catch(e){return null}
+  }
+  async function accessRecordByEmployeeId(employeeId){
+    const id=accessKeyFor(employeeId);if(!state.db||!id)return null;
+    try{const snap=await state.db.ref('access/employees/'+id).once('value');const value=snap.val();return value?normalizeEmployee(value,0):null}catch(e){return null}
+  }
+  async function getUserAccess(user,credential){
+    if(user&&lower(user.email)===lower(ADMIN_EMAIL))return normalizeEmployee({employeeId:'E-TL001',username:'Admin',authEmail:ADMIN_EMAIL,email:ADMIN_EMAIL,name:user.displayName||'Abhinav Sirohi',accessLevel:'super_admin',active:true,uid:user.uid},0);
+    const role=await roleRecord(user);
+    if(role&&role.employeeId){const byRole=await accessRecordByEmployeeId(role.employeeId);if(byRole)return Object.assign(byRole,{uid:user&&user.uid||byRole.uid});}
+    const configured=findConfiguredEmployee(credential)||findConfiguredEmployee(user&&user.email);
+    const id=accessKeyFor(configured||credential);
+    const remote=await accessRecordByEmployeeId(id);
+    if(remote&&user&&lower(remote.authEmail)!==lower(user.email))return null;
+    const access=remote||configured;
+    return access?normalizeEmployee(Object.assign({},access,{uid:user&&user.uid||access.uid}),0):null;
+  }
+  async function bootstrapRole(user,access){
+    if(!state.db||!user||!access)return;
+    const row=normalizeEmployee(access,0);
+    const payload={employeeId:accessKeyFor(row),email:lower(user.email||row.authEmail),accessLevel:row.accessLevel,admin:isAdminAccess(row),updatedAt:new Date().toISOString()};
+    try{await state.db.ref('roles/'+user.uid).set(payload)}catch(e){console.warn('NexCRM role bootstrap deferred',e)}
+  }
+  async function getRole(user,credential){const access=await getUserAccess(user,credential);return access?lower(sessionRole(access)):'';}
+  async function signInWithRole(credential,password,mode,remember){
+    await init();if(!state.auth)throw new Error('Firebase Auth is not available.');
+    const requested=mode==='admin'?'admin':'employee',email=credentialToEmail(credential);
+    await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);
+    const result=await state.auth.signInWithEmailAndPassword(email,password);
+    const access=await getUserAccess(result.user,credential);
+    if(!access||access.active===false){await state.auth.signOut();clearLocalSession();throw new Error('This employee login is inactive or is not available in All Employees & Access Control.');}
+    if(requested==='admin'&&!isAdminAccess(access)){await state.auth.signOut();clearLocalSession();throw new Error('Admin access is not allowed for this employee. Ask an Admin to change the employee access level.');}
+    state.user=result.user;state.access=access;state.role=lower(sessionRole(access));
+    await bootstrapRole(result.user,access);
+    const session=setLocalSession(access,result.user,remember,credential);
+    await pullRealtimeToLocal();
+    return {user:result.user,role:state.role,email:result.user.email||email,access,session};
+  }
+  async function activateConfiguredCredential(credential,password,mode,remember){return signInWithRole(credential,password,mode,remember);}
+  async function signInWithGoogle(mode,remember){
+    await init();if(!state.auth)throw new Error('Firebase Auth is not available.');
+    const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
+    await state.auth.setPersistence(remember?firebase.auth.Auth.Persistence.LOCAL:firebase.auth.Auth.Persistence.SESSION);
+    const result=await state.auth.signInWithPopup(provider);const access=await getUserAccess(result.user,result.user.email);
+    if(!access||access.active===false||(mode==='admin'&&!isAdminAccess(access))){await state.auth.signOut();clearLocalSession();throw new Error('This Google account does not have the selected NexCRM portal access.');}
+    state.user=result.user;state.access=access;state.role=lower(sessionRole(access));await bootstrapRole(result.user,access);
+    const session=setLocalSession(access,result.user,remember,result.user.email);await pullRealtimeToLocal();
+    return {user:result.user,role:state.role,email:result.user.email||'',access,session};
+  }
+  function accessRecord(row){
+    const normalized=normalizeEmployee(row,0);
+    return {employeeId:normalized.employeeId,username:normalized.username,accessKey:accessKeyFor(normalized),authEmail:lower(normalized.authEmail),name:normalized.name,email:normalized.email,mobile:normalized.mobile,dob:normalized.dob,accessLevel:normalized.accessLevel,permissions:normalized.permissions,active:normalized.active,uid:normalized.uid,updatedAt:normalized.updatedAt||new Date().toISOString()};
+  }
+  async function loadAccessConfig(){await init();await loadKey('nexcrm_login_config_v1');const normalized=getLoginConfig();applyLocal('nexcrm_login_config_v1',JSON.stringify(normalized),'access-load');return normalized;}
+  async function saveAccessConfig(input){
+    await init();if(!state.db||!state.auth||!state.auth.currentUser)throw new Error('Admin Firebase login is required before access changes can be saved.');
+    const normalized=normalizeLoginConfig(input);normalized.updatedAt=new Date().toISOString();
+    normalized.employees=normalized.employees.map(row=>normalizeEmployee(Object.assign({},row,{updatedAt:normalized.updatedAt}),0));
+    const records={};normalized.employees.forEach(row=>{records[accessKeyFor(row)]=accessRecord(row)});
+    const wrapper={key:'nexcrm_login_config_v1',value:JSON.stringify(normalized),deleted:false,updatedAt:normalized.updatedAt,updatedBy:state.auth.currentUser.uid,updatedByEmail:state.auth.currentUser.email||''};
+    const updates={'portal/settings/loginConfig/localStorage':wrapper,'access/employees':records};
+    normalized.employees.filter(row=>row.uid).forEach(row=>{updates['roles/'+row.uid]={employeeId:accessKeyFor(row),email:lower(row.authEmail),accessLevel:row.accessLevel,admin:isAdminAccess(row),updatedAt:normalized.updatedAt}});
+    await state.db.ref().update(updates);applyLocal('nexcrm_login_config_v1',JSON.stringify(normalized),'access-save');return normalized;
+  }
+  async function provisionEmployeeAccount(input){
+    await init();if(!state.auth||!state.db||!state.auth.currentUser)throw new Error('Admin Firebase login is required.');
+    const row=normalizeEmployee(input,0),name='nexcrm-provisioning';let app=firebase.apps.find(item=>item.name===name);
+    if(!app)app=firebase.initializeApp(cfg(),name);
+    const auth=app.auth();let result;
+    try{
+      result=await auth.createUserWithEmailAndPassword(row.authEmail,row.password);
+      try{await result.user.updateProfile({displayName:row.name})}catch(e){}
+      row.uid=result.user.uid;row.updatedAt=new Date().toISOString();
+      await state.db.ref().update({['access/employees/'+accessKeyFor(row)]:accessRecord(row),['roles/'+row.uid]:{employeeId:accessKeyFor(row),email:lower(row.authEmail),accessLevel:row.accessLevel,admin:isAdminAccess(row),updatedAt:row.updatedAt}});
+      await auth.signOut();return {created:true,exists:false,uid:row.uid,email:row.authEmail,access:row};
+    }catch(e){try{await auth.signOut()}catch(ignore){}if(e&&e.code==='auth/email-already-in-use')return {created:false,exists:true,email:row.authEmail,access:row};throw e;}
+  }
+  async function sendEmployeePasswordReset(input){await init();const row=normalizeEmployee(input,0);if(!state.auth)throw new Error('Firebase Auth is not available.');await state.auth.sendPasswordResetEmail(row.authEmail);return row.authEmail;}
   async function signOutAndRedirect(){try{await init();if(state.auth)await state.auth.signOut();}catch(e){}clearLocalSession();location.href=rootIndexPath();}
   function rootIndexPath(){return location.pathname.includes('/Admin%20Portal%20CRM%20NexFund/')||location.pathname.includes('/Admin Portal CRM NexFund/')||location.pathname.includes('/Bank%20Company%20Check%20Tool')||location.pathname.includes('/Pincode%20Tool')||location.pathname.includes('/FRP%20List')||location.pathname.includes('/Policy/')?'../index.html':'index.html';}
-  function protect(role){const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null');if(!s||lower(s.role)!==lower(role)){clearLocalSession();location.href=rootIndexPath();return false;}return true;}
-  function protectAny(){const s=JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null');if(!s){location.href=rootIndexPath();return false;}return true;}
+  function currentSession(){try{return JSON.parse(localStorage.getItem('nexcrm_session')||sessionStorage.getItem('nexcrm_session')||'null')}catch(e){return null}}
+  function hasPermission(permission,session){const s=session||currentSession();if(!s)return false;if(lower(s.accessLevel)==='super_admin'||lower(s.accessLevel)==='admin')return true;return !!(s.permissions&&s.permissions[permission]===true);}
+  function protect(role){const s=currentSession(),wanted=lower(role);const allowed=s&&(wanted==='admin'?isAdminAccess(s):lower(s.role)===wanted);if(!allowed){clearLocalSession();location.href=rootIndexPath();return false;}return true;}
+  function protectAny(){const s=currentSession();if(!s){location.href=rootIndexPath();return false;}return true;}
   function startListeners(){Object.keys(KEY_PATHS).forEach(key=>{const ref=refForKey(key);if(!ref)return;const cb=snap=>{const val=snap.val();if(val&&val.deleted===true)applyLocal(key,null,'rtdb-delete');else if(val&&Object.prototype.hasOwnProperty.call(val,'value'))applyLocal(key,mergeStorageValues(key,localStorage.getItem(key),val.value),'rtdb-snapshot');};ref.on('value',cb);state.listeners.push(()=>ref.off('value',cb));});}
-  async function init(){if(state.ready)return state;state.ready=true;if(!window.firebase||!firebase.initializeApp){state.ready=false;throw new Error('Firebase SDK must load before NexCRM data adapter.');}try{if(!firebase.apps.length)firebase.initializeApp(cfg());state.auth=firebase.auth?firebase.auth():null;state.db=firebase.database?firebase.database():null;if(!state.db)throw new Error('Firebase Realtime Database SDK is not available.');if(state.auth){state.auth.onAuthStateChanged(async user=>{state.user=user||null;state.role=user?await getRole(user):'';state.listeners.forEach(fn=>{try{fn()}catch(e){}});state.listeners=[];if(user&&state.db){state.queue.clear();await pullRealtimeToLocal();startListeners();}window.dispatchEvent(new CustomEvent('nexcrm:auth-ready',{detail:{user:state.user,role:state.role,database:'realtime'}}));});}}catch(e){state.ready=false;console.error('NexCRM Firebase RTDB init failed',e);throw e;}return state;}
+  async function init(){if(state.ready)return state;state.ready=true;if(!window.firebase||!firebase.initializeApp){state.ready=false;throw new Error('Firebase SDK must load before NexCRM data adapter.');}try{if(!firebase.apps.length)firebase.initializeApp(cfg());state.auth=firebase.auth?firebase.auth():null;state.db=firebase.database?firebase.database():null;if(!state.db)throw new Error('Firebase Realtime Database SDK is not available.');if(state.auth){state.auth.onAuthStateChanged(async user=>{state.user=user||null;state.access=user?await getUserAccess(user):null;state.role=state.access?lower(sessionRole(state.access)):'';state.listeners.forEach(fn=>{try{fn()}catch(e){}});state.listeners=[];if(user&&state.db){state.queue.clear();await pullRealtimeToLocal();startListeners();}window.dispatchEvent(new CustomEvent('nexcrm:auth-ready',{detail:{user:state.user,role:state.role,access:state.access,database:'realtime'}}));});}}catch(e){state.ready=false;console.error('NexCRM Firebase RTDB init failed',e);throw e;}return state;}
   localStorage.setItem=function(key,value){native.setItem(key,value);queueWrite(String(key),value,false);};
   localStorage.removeItem=function(key){native.removeItem(key);queueWrite(String(key),'',true);};
-  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,migrateSnapshotToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
+  window.NexCRMAccess={permissionKeys:PERMISSION_KEYS,rolePermissions:ROLE_PERMISSIONS,normalizeAccessLevel,normalizeEmployee,normalizeConfig:normalizeLoginConfig,permissionsFor,isAdminAccess,hasPermission,defaultPassword,authEmailFor};
+  window.NexCRMFirebase={init,signInWithRole,activateConfiguredCredential,signInWithGoogle,signOut:signOutAndRedirect,protect,protectAny,hasPermission,loadAccessConfig,saveAccessConfig,provisionEmployeeAccount,sendEmployeePasswordReset,migrateLocalStorageToFirestore,pullFirestoreToLocal,migrateLocalStorageToRealtime,migrateSnapshotToRealtime,pullRealtimeToLocal,loadKey,readArray,getRole:()=>state.role,getAccess:()=>state.access,adminEmail:ADMIN_EMAIL,isSyncKey,setLocalSession};
   init();
 })();
